@@ -1,10 +1,8 @@
 function diagnostic = solvesdp(varargin)
 %SOLVESDP Obsolete command, please use OPTIMIZE
 
-persistent CACHED_SOLVERS
-persistent allsolvers
-persistent EXISTTIME
-persistent NCHECKS
+% The solver scan cache lives on the session object (S.solverCache) instead
+% of persistent variables.
 
 yalmiptime = clock; % Let us see how much time we spend
 
@@ -52,7 +50,14 @@ else
     if isa(F,'lmi')
         F = flatten(F);
     end
-    
+
+    % Discover the session owning the problem data (stateless refactor: no
+    % global registry, the session travels with the symbolic objects)
+    S = [];
+    if ~isempty(F)
+        S = session(F);
+    end
+
     if isa(F,'sdpvar')
         % We do allow sloppy coding of logic constraints, i.e writing a
         % constraints as [a|b true(a)]
@@ -62,7 +67,7 @@ else
                 Fnew = nan;
                 break
             end
-            operator = yalmip('extstruct',getvariables(F(i)));
+            operator = S.extstruct(getvariables(F(i)));
             if isempty(operator)
                 Fnew = nan;
                 break
@@ -113,7 +118,11 @@ if nargin>=2
     end
 else
     logdetStruct = [];
-    h = [];   
+    h = [];
+end
+
+if isempty(S) && ~isempty(h) && isa(h,'sdpvar')
+    S = session(h);
 end
 
 if ~isempty(F)
@@ -144,6 +153,15 @@ options.solver = lower(options.solver);
 if ~isfield(options,'forceglobal')
     % User has loaded something old
     options.forceglobal = 0;
+end
+
+% Discover the session owning the problem data (stateless refactor: no
+% global registry, the session travels with the symbolic objects)
+S = [];
+if ~isempty(F)
+    S = session(F);
+elseif ~isempty(h) && isa(h,'sdpvar')
+    S = session(h);
 end
 
 % If user has logdet term, but no preference on solver, we try to hook up
@@ -214,35 +232,45 @@ end
 % *************************************************************************
 %% LOOK FOR AVAILABLE SOLVERS
 % Finding solvers can be very slow on some systems. To alleviate this
-% problem, YALMIP can cache the list of available solvers.
+% problem, YALMIP can cache the list of available solvers. The cache is
+% carried on the session object.
 % *************************************************************************
-if (options.cachesolvers==0) | isempty(CACHED_SOLVERS)
-    getsolvertime = clock;
+if isempty(S)
+    % No session (no symbolic data at all): scan without caching
     solvers = getavailablesolvers(0,options);
-    getsolvertime = etime(clock,getsolvertime);
-    % CODE TO INFORM USERS ABOUT SLOW NETWORKS!
-    if isempty(EXISTTIME)
-        EXISTTIME = getsolvertime;
-        NCHECKS = 1;
-    else
-        EXISTTIME = [EXISTTIME getsolvertime];
-        NCHECKS = NCHECKS + 1;
-    end
-    if (options.cachesolvers==0)
-        if ((NCHECKS >= 3 & (sum(EXISTTIME)/NCHECKS > 1)) | EXISTTIME(end)>2)
-            if warningon
-                info = 'Warning: YALMIP has detected that your drive or network is unusually slow.\nThis causes a severe delay in OPTIMIZE when I try to find available solvers.\nTo avoid this, use the options CACHESOLVERS in SDPSETTINGS.\nSee the FAQ for more information.\n';
-                fprintf(info);
+    allsolvers = definesolvers;
+else
+    cache = S.solverCache;
+    if (options.cachesolvers==0) | isempty(cache.CACHED_SOLVERS)
+        getsolvertime = clock;
+        solvers = getavailablesolvers(0,options);
+        getsolvertime = etime(clock,getsolvertime);
+        % CODE TO INFORM USERS ABOUT SLOW NETWORKS!
+        if isempty(cache.EXISTTIME)
+            cache.EXISTTIME = getsolvertime;
+            cache.NCHECKS = 1;
+        else
+            cache.EXISTTIME = [cache.EXISTTIME getsolvertime];
+            cache.NCHECKS = cache.NCHECKS + 1;
+        end
+        if (options.cachesolvers==0)
+            if ((cache.NCHECKS >= 3 & (sum(cache.EXISTTIME)/cache.NCHECKS > 1)) | cache.EXISTTIME(end)>2)
+                if warningon
+                    info = 'Warning: YALMIP has detected that your drive or network is unusually slow.\nThis causes a severe delay in OPTIMIZE when I try to find available solvers.\nTo avoid this, use the options CACHESOLVERS in SDPSETTINGS.\nSee the FAQ for more information.\n';
+                    fprintf(info);
+                end
             end
         end
+        if length(cache.EXISTTIME) > 5
+            cache.EXISTTIME = cache.EXISTTIME(end-4:end);
+            cache.NCHECKS = 5;
+        end
+        cache.CACHED_SOLVERS = solvers;
+        S.solverCache = cache;
+    else
+        solvers = cache.CACHED_SOLVERS;
     end
-    if length(EXISTTIME) > 5
-        EXISTTIME = EXISTTIME(end-4:end);
-        NCHECKS = 5;
-    end
-    CACHED_SOLVERS = solvers;
-else
-    solvers = CACHED_SOLVERS;
+    allsolvers = definesolvers;
 end
 
 %here we are not actually selecting a solver, just checking whether it supports complex numbers
@@ -298,7 +326,7 @@ end
 % ******************************************
 % COMPILE IN GENERALIZED YALMIP FORMAT
 % ******************************************
-[interfacedata,recoverdata,solver,diagnostic,F,Fremoved,ForiginalQuadratics] = compileinterfacedata(F,[],logdetStruct,h,options,0,solving_parametric,solvers);
+[interfacedata,recoverdata,solver,diagnostic,F,Fremoved,ForiginalQuadratics] = compileinterfacedata(F,[],logdetStruct,h,options,0,solving_parametric,solvers,S);
 
 % ******************************************
 % FAILURE?
@@ -466,7 +494,7 @@ output.Primal = recoverdata.x_equ+recoverdata.H*output.Primal;
 % ********************************
 % OUTPUT
 % ********************************
-diagnostic.yalmipversion = yalmip('ver');
+diagnostic.yalmipversion = yalmipversion();
 diagnostic.matlabversion = version;
 diagnostic.yalmiptime = etime(clock,yalmiptime)-output.solvertime;
 diagnostic.solvertime = output.solvertime;
@@ -517,16 +545,19 @@ if ~isempty(output.Primal)
         for j = 1:size(output.Primal,2)
             temp = solution_internal;
             temp.optvar = temp.optvar(:,j);
-            yalmip('setsolution',temp,j);
+            S.setsolution(temp,j);
         end
     else
-        yalmip('setsolution',solution_internal);
+        S.setsolution(solution_internal);
     end
 end
+% Attach the evaluation payload so value(x,sol) / dual(F,sol) work without
+% any global "last solution" state
+diagnostic.eval = S.evalSnapshot();
 if interfacedata.options.saveduals & solver.dual 
     if isempty(interfacedata.Fremoved) | (nnz(interfacedata.Q)>0)
         try
-            setduals(F,output.Dual,interfacedata.K);
+            setduals(F,output.Dual,interfacedata.K,S);
         catch
         end
     else
@@ -539,7 +570,7 @@ if interfacedata.options.saveduals & solver.dual
             x = output.Dual;
             b_equ = b-A*x;
             newdual =  H\b_equ;
-            setduals(interfacedata.Fremoved + F,[newdual;output.Dual],interfacedata.oldK);
+            setduals(interfacedata.Fremoved + F,[newdual;output.Dual],interfacedata.oldK,S);
         catch
              % this is a new feature...
             disp('Dual recovery failed. Please report this issue.');
@@ -562,7 +593,7 @@ if any(strfind(solver.tag,'GUROBI'))
                 Ktemp.l = Ktemp.l + length(ForiginalQuadratics);
                 tempdual = output.Dual;
                 tempdual = [tempdual(1:K.f + K.l);-output.qcDual;tempdual(1+K.f+K.l:end)];
-                setduals(Ftemp,tempdual,Ktemp);
+                setduals(Ftemp,tempdual,Ktemp,S);
 %                setduals(ForiginalQuadratics,-output.qcDual,Ktemp);
             end
         end

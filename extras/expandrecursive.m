@@ -1,4 +1,4 @@
-function [F_expand,failure,cause,state] = expandrecursive(variable,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,goal_vexity,allExtStruct,w,state)
+function [F_expand,failure,cause,state] = expandrecursive(variable,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,goal_vexity,allExtStruct,w,state,S)
 
 % Some crazy stuff to help out when hand;ling nonocnvex and other
 % non-standard problems. The expansion state (formerly global variables) is
@@ -16,7 +16,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity,state)
     ext_index = find(getvariables(variable) == extendedvariables);
 
     % [F_graph,properties,arguments,fcn] = model(variable,method,options,extstruct);
-    [properties,F_graph,arguments,fcn] = model(variable,method,options,allExtStruct(ext_index),w);
+    [properties,F_graph,arguments,fcn] = model(variable,method,options,allExtStruct(ext_index),w,S);
 
     % If properties has length longer than one, it means that several
     % definitions have been returned. We should now compare the bounds
@@ -150,7 +150,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity,state)
     if isa(arguments,'sdpvar')
         argvars = getvariables(arguments);
         if max(argvars)>length(variabletype)
-            variabletype = yalmip('variabletype');
+            variabletype = S.getVariabletype();
         end
         do_not_check_nonlinearity = ~any(variabletype(argvars));
         if do_not_check_nonlinearity
@@ -220,14 +220,14 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity,state)
                     go_concave = (go_concave1 | go_concave2 | go_concave3 | go_concave4) & ~strcmpi(method,'integer');
                         
                     if go_convex
-                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state,S);
                     elseif go_concave
-                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state,S);
                     elseif isequal(properties.monotonicity,'exact')
-                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],goal_vexity,allExtStruct,w,state);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],goal_vexity,allExtStruct,w,state,S);
                     else
                         if options.allownonconvex%milp
-                            [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'none',allExtStruct,w,state);
+                            [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'none',allExtStruct,w,state,S);
                         else
                             failure = 1;
                             cause = ['Monotonicity required at ' where ' at level ' num2str(level)];

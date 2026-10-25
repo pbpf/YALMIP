@@ -1,49 +1,50 @@
-function [sys,values] = value(X,allextended,allevaluators,allStruct,mt,variabletype,solution,values)
-%VALUE Returns current numerical value of an SDPVAR object
+function [sys,values] = value(X,varargin)
+%VALUE Returns the numerical value of an SDPVAR object given a solution
 %
-% After solving an optimization problem, we can extract the current
-% solution by applying VALUE on a variable of interest
+%   v = VALUE(x, sol)     with sol = optimize(F,obj)
 %
-% xvalue = value(x) 
+%   The stateless refactoring removed the global "last solution": the
+%   solution struct returned by OPTIMIZE carries the evaluation payload
+%   and is passed explicitly.
 %
-% If you have solved a multiple problems simultaneously by using a
-% non-scalar objective function, you can select the solution by using a
-% second argument
-%
-% xvalue = value(x,i)
+%   See also OPTIMIZE, DUAL, ASSIGN
 
-% Normal users might use the second arguement in order to select solution
-if nargin == 2 
-    if numel(allextended)==1
-        try
-            selectsolution(allextended);
-            sys = value(X);
-            selectsolution(1);
-            return
-        catch            
-            error(['Solution ' num2str(allextended) ' not available']);
-        end
-    else
-            error(['Solution number should be a positive scalar']);
-    end
-end
-
-% Definition of nonlinear variables
 if nargin == 1
-    [mt,variabletype] = yalmip('monomtable');
-    solution = yalmip('getsolution');
+    error('YALMIP:sessionRequired',['Since the stateless refactoring, pass the solution: v = value(x, sol), where sol = optimize(F,obj).'])
 end
+
+if nargin == 2
+    sol = varargin{1};
+    if ~(isstruct(sol) && (isfield(sol,'eval') || isfield(sol,'variables')))
+        error('YALMIP:sessionRequired','The second argument to VALUE must be the solution struct returned by OPTIMIZE (it carries the .eval payload).')
+    end
+    if isfield(sol,'eval')
+        e = sol.eval;
+        solution = struct('variables',e.variables,'optvar',e.optvar,'values',e.values);
+    else
+        % Bare internal solution payload (used for recursive evaluation)
+        solution = struct('variables',sol.variables,'optvar',sol.optvar,'values',sol.values);
+    end
+    S = X.sess;
+    if isempty(S)
+        error('YALMIP:sessionRequired','The symbolic object has no session.');
+    end
+    [mt,variabletype] = S.getMonomtable();
+    allextended   = S.getExtvariables();
+    allStruct = S.extstruct();
+    [sys,values] = valueCore(X,allextended,[],allStruct,mt,variabletype,solution,[]);
+    return
+end
+
+% Internal recursive call (former 8-argument convention)
+[sys,values] = valueCore(X,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7});
+
+
+function [sys,values] = valueCore(X,allextended,allevaluators,allStruct,mt,variabletype,solution,values)
 
 lmi_variables = X.lmi_variables;
 
 nonlinears = lmi_variables(find(variabletype(lmi_variables)));
-
-if nargin == 1
-    % Definition of nonlinear variables
-    allextended   = yalmip('extvariables');
-    allevaluators = [];
-    allStruct = yalmip('extstruct');
-end
 
 if isempty(nonlinears) && isempty(allextended)
     
@@ -53,14 +54,8 @@ if isempty(nonlinears) && isempty(allextended)
 
     % speed up code for simple linear case
     values = solution.values;
-    if isempty(solution.values)
-        values = sparse(solution.variables,ones(length(solution.variables),1),solution.optvar,size(mt,1),1);        
-        yalmip('setvalues',values);
-    else
-        if any(isnan(solution.values(lmi_variables(:))))
-            values = sparse(solution.variables,ones(length(solution.variables),1),solution.optvar,size(mt,1),1);
-            yalmip('setvalues',values);
-        end
+    if isempty(values) || any(isnan(values(lmi_variables(:))))
+        values = sparse(solution.variables,ones(length(solution.variables),1),solution.optvar,size(mt,1),1);
     end
 
     sys = X.basis*[1;values(lmi_variables(:))];
@@ -74,8 +69,8 @@ if isempty(nonlinears) && isempty(allextended)
     end
 end
 
-if nargin == 1
-    % All double values
+if isempty(values)
+    % All double values (first entry)
     if isempty(solution.optvar)
         values=nan(size(mt,1),1);
     else
@@ -83,13 +78,13 @@ if nargin == 1
     end
     values(solution.variables) = solution.optvar;
     clear_these = allextended;
-    if yalmip('containsSemivar') && ~isempty(allStruct)
+    if ~isempty(allStruct) && any(strcmp({allStruct.fcn},'semivar'))
       tmp = strcmp({allStruct.fcn},'semivar');
       for i = find(tmp)
          clear_these = setdiff(clear_these,allextended(i));
       end
     end
-    values(clear_these) = nan;    
+    values(clear_these) = nan;
 end
 
 % Evaluate the extended operators
@@ -103,9 +98,9 @@ if ~isempty(allextended)
 
                 for k = 1:length(extstruct.arg)
                     if isa(extstruct.arg{k},'sdpvar')
-                        [extstruct.arg{k},values] = value(extstruct.arg{k},allextended,allevaluators,allStruct,mt,variabletype,solution,values);                        
+                        [extstruct.arg{k},values] = valueCore(extstruct.arg{k},allextended,allevaluators,allStruct,mt,variabletype,solution,values);                        
                     elseif  isa(extstruct.arg{k},'constraint')
-                        extstruct.arg{k} = value(extstruct.arg{k});
+                        extstruct.arg{k} = value(extstruct.arg{k},solution);
                     end
                 end
 
@@ -114,10 +109,10 @@ if ~isempty(allextended)
                     case 'milpsubsref'
                         for idx = 1:length(extstruct.arg{2}.subs)
                             if isa(extstruct.arg{2}.subs{idx},'sdpvar')
-                                extstruct.arg{2}.subs{idx} = value(extstruct.arg{2}.subs{idx});
+                                extstruct.arg{2}.subs{idx} = valueCore(extstruct.arg{2}.subs{idx},allextended,allevaluators,allStruct,mt,variabletype,solution,values);
                             end
                         end
-                        extstruct.arg{1} = value(extstruct.arg{1});
+                        extstruct.arg{1} = valueCore(extstruct.arg{1},allextended,allevaluators,allStruct,mt,variabletype,solution,values);
                         val = extstruct.arg{1}(extstruct.arg{2}.subs{:});
                         
                     case 'sort'
@@ -216,7 +211,7 @@ end
 if ~isempty(nonlinears)
     mt_t = mt'; %Working columnwise is faster
     use_these = find(ismember(lmi_variables,nonlinears));
-    all_extended_variables  = yalmip('extvariables');
+    all_extended_variables  = allextended;
     if ~isempty(allStruct)
         allStruct_computes = [allStruct.computes];
     else
@@ -235,7 +230,7 @@ if ~isempty(nonlinears)
                     extstruct = allStruct(allStruct_computes == extvar);
                     for k = 1:length(extstruct.arg)
                         if isa(extstruct.arg{k},'sdpvar')
-                            extstruct.arg{k} = value(extstruct.arg{k});
+                            extstruct.arg{k} = valueCore(extstruct.arg{k},allextended,allevaluators,allStruct,mt,variabletype,solution,values);
                         end
                     end
                     

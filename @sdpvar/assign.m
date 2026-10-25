@@ -1,8 +1,12 @@
-function assign(X,value,ls)
+function sol = assign(X,value,sol,ls)
 %Obsolete, see WARMSTART
 
-if nargin<3
+if nargin<4
     ls = 0;
+end
+if nargin<3 || ~(isstruct(sol) && isfield(sol,'eval'))
+    error('YALMIP:sessionRequired',['Since the stateless refactoring, pass the solution and capture the result: ', ...
+        'sol = assign(x, x0, sol) with sol = optimize(F,obj).'])
 end
 
 if ~isa(X,'sdpvar')
@@ -58,11 +62,11 @@ if ~ls
     end
 end
 
-sol = yalmip('getsolution');
-keep_these = find(~ismember(sol.variables,x_lmi_variables));
-sol.optvar = [sol.optvar(keep_these);feas_var(:)];
-sol.variables = [sol.variables(keep_these);x_lmi_variables(:)];
-yalmip('setallsolution',sol);
+e = sol.eval;
+keep_these = find(~ismember(e.variables,x_lmi_variables));
+e.optvar = [e.optvar(keep_these);feas_var(:)];
+e.variables = [e.variables(keep_these);x_lmi_variables(:)];
+sol.eval = e;
 
 
 

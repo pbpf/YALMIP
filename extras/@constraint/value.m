@@ -1,7 +1,11 @@
-function x = value(x);
-%VALUE (Overloaded)
+function x = value(x, solution)
+%VALUE (Overloaded) Evaluate a constraint object given a solution payload
 
-x = value(x.Evaluated{1});
+if nargin < 2
+    error('YALMIP:sessionRequired',['Since the stateless refactoring, pass the solution: value(F, sol), where sol = optimize(F,obj).'])
+end
+
+x = value(x.Evaluated{1}, solution);
 
 if isessentiallysymmetric(x)
     x = min(eig(x)) >= 0;

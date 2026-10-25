@@ -1,9 +1,4 @@
-function [interfacedata,recoverdata,solver,diagnostic,F,Fremoved,ForiginalQuadratics] = compileinterfacedata(F,aux_obsolete,logdetStruct,h,options,findallsolvers,parametric,solvers_from_solvesdp)
-
-persistent CACHED_SOLVERS
-persistent allsolvers
-persistent EXISTTIME
-persistent NCHECKS
+function [interfacedata,recoverdata,solver,diagnostic,F,Fremoved,ForiginalQuadratics] = compileinterfacedata(F,aux_obsolete,logdetStruct,h,options,findallsolvers,parametric,solvers_from_solvesdp,S)
 
 %% Initilize default empty outputs
 diagnostic = [];
@@ -20,6 +15,12 @@ end
 
 if nargin < 8
 	solvers_from_solvesdp = [];
+end
+if nargin < 9
+    S = [];
+end
+if isempty(S)
+    S = session(F);
 end
 
 % *************************************************************************
@@ -102,10 +103,10 @@ if options.expand
         else
             variables = h1v;
         end
-        extendedvariables = yalmip('extvariables');
+        extendedvariables = S.getExtvariables();
         index_in_extended = find(ismembcYALMIP(variables,extendedvariables));
         if ~isempty(index_in_extended)
-            extstruct = yalmip('extstruct',variables(index_in_extended));
+            extstruct = S.extstruct(variables(index_in_extended));
             if ~isa(extstruct,'cell')
                 extstruct = {extstruct};
             end
@@ -124,7 +125,7 @@ if options.expand
         end
     catch
     end
-    [F,failure,cause,expansionstate] = expandmodel(F,h,options);
+    [F,failure,cause,expansionstate] = expandmodel(F,h,options,[],S);
     operators = expansionstate.ALREADY_MODELLED;
     % Models temporarily added for analysis phase. Can be deleted now
     try
@@ -158,7 +159,7 @@ if options.expand
         used = [depends(h) depends(F)];
         usedevalvariables = intersect(used,evalVariables);
         evaluation_based = ~isempty(usedevalvariables);
-        exponential_cone = isempty(setdiff(usedevalvariables,yalmip('expvariables')));
+        exponential_cone = isempty(setdiff(usedevalvariables,S.expvariables()));
     end
 else
     evalVariables = [];
@@ -171,33 +172,35 @@ end
 % Finding solvers can be very slow on some systems. To alleviate this
 % problem, YALMIP can cache the list of available solvers.
 % *************************************************************************
-if ((options.cachesolvers==0) | isempty(CACHED_SOLVERS)) & isempty(solvers_from_solvesdp)
+solvercache = S.solverCache;
+if ((options.cachesolvers==0) | isempty(solvercache.CACHED_SOLVERS)) & isempty(solvers_from_solvesdp)
     getsolvertime = clock;
     [solvers,kept,allsolvers] = getavailablesolvers(findallsolvers,options);
     getsolvertime = etime(clock,getsolvertime);
     % CODE TO INFORM USERS ABOUT SLOW NETWORKS!
-    if isempty(EXISTTIME)
-        EXISTTIME = getsolvertime;
-        NCHECKS = 1;
+    if isempty(solvercache.EXISTTIME)
+        solvercache.EXISTTIME = getsolvertime;
+        solvercache.NCHECKS = 1;
     else
-        EXISTTIME = [EXISTTIME getsolvertime];
-        NCHECKS = NCHECKS + 1;
+        solvercache.EXISTTIME = [solvercache.EXISTTIME getsolvertime];
+        solvercache.NCHECKS = solvercache.NCHECKS + 1;
     end
     if (options.cachesolvers==0)
-        if ((NCHECKS >= 3 & (sum(EXISTTIME)/NCHECKS > 1)) | EXISTTIME(end)>2)
+        if ((solvercache.NCHECKS >= 3 & (sum(solvercache.EXISTTIME)/solvercache.NCHECKS > 1)) | solvercache.EXISTTIME(end)>2)
             if warningon
                 info = 'Warning: YALMIP has detected that your drive or network is unusually slow.\nThis causes a severe delay in OPTIMIZE when I try to find available solvers.\nTo avoid this, use the options CACHESOLVERS in SDPSETTINGS.\nSee the FAQ for more information.\n';
                 fprintf(info);
             end
         end
     end
-    if length(EXISTTIME) > 5
-        EXISTTIME = EXISTTIME(end-4:end);
-        NCHECKS = 5;
+    if length(solvercache.EXISTTIME) > 5
+        solvercache.EXISTTIME = solvercache.EXISTTIME(end-4:end);
+        solvercache.NCHECKS = 5;
     end
-    CACHED_SOLVERS = solvers;
+    solvercache.CACHED_SOLVERS = solvers;
+    S.solverCache = solvercache;
 elseif isempty(solvers_from_solvesdp)
-    solvers = CACHED_SOLVERS;
+    solvers = solvercache.CACHED_SOLVERS;
 else
 	solvers = solvers_from_solvesdp;
 	allsolvers = definesolvers;
@@ -228,7 +231,7 @@ end
 % nonlinear expressions, or if we have specified a nonlinear solver.
 % Why do we convert them already here? Don't remember, should be cleaned up
 % *************************************************************************
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 F_vars = getvariables(F);
 do_not_convert = any(variabletype(F_vars)==4);
 % Handle case where optimizer adds a '+'
@@ -810,7 +813,7 @@ if ~isempty(K.sos)
 end
 % The problem is that linear terms might be missing in problems with only
 % nonlinear expressions
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 if (options.relax==1)|(options.relax==3)
     monomtable = [];
     nonlinearvariables = [];
@@ -831,7 +834,7 @@ used_variables = uniquestripped([used_variables(:);missinglinear(:)]);
 % NOTE : This is experimental code
 % FIX  : Clean up...
 % *************************************************************************
-[evalMap,evalVariables,used_variables,nonlinearvariables,linearvariables] = detectHiddenNonlinear(used_variables,options,nonlinearvariables,linearvariables,evalVariables);
+[evalMap,evalVariables,used_variables,nonlinearvariables,linearvariables] = detectHiddenNonlinear(used_variables,options,nonlinearvariables,linearvariables,evalVariables,S);
 
 % Attach information on the evaluation based variables that was generated
 % when the model was expanded
@@ -862,7 +865,7 @@ end
 % *************************************************************************
 %% REMOVE UNNECESSARY VARIABLES FROM PROBLEM
 % *************************************************************************
-if length(used_variables)<yalmip('nvars')
+if length(used_variables)<S.nvars()
     c = c(used_variables);
     if 0
         % very slow in some extreme cases
@@ -922,8 +925,8 @@ else
     old_binary_variables  = find(ismember(used_variables,old_binary_variables));
 end
 parametric_variables  = find(ismember(used_variables,parametric_variables));
-extended_variables =  find(ismember(used_variables,yalmip('extvariables')));
-aux_variables =  find(ismember(used_variables,yalmip('auxvariables')));
+extended_variables =  find(ismember(used_variables,S.getExtvariables()));
+aux_variables =  find(ismember(used_variables,S.getAuxvariables()));
 if ~isempty(K.sos)
     for i = 1:length(K.sos.type)
         K.sos.variables{i} =  find(ismember(used_variables,K.sos.variables{i}));
@@ -988,7 +991,7 @@ if (K.f>0)
             solution.optvar = x_equ;
             % And we are done! Save the result
             % Note, no dual is saved
-            yalmip('setSolution',solution);
+            S.setsolution(solution);
             p = check(F);
             if any(p<1e-5)
                 diagnostic.info = yalmiperror(1,'YALMIP');
@@ -1056,7 +1059,7 @@ end
 
 % Monomial table for nonlinear variables
 % FIX : Why here!!! mt handled above also
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = S.getMonomtable();
 if size(mt,1)>size(mt,2)
     mt(size(mt,1),size(mt,1)) = 0;
 end
@@ -1069,7 +1072,7 @@ if (options.relax == 1)|(options.relax==3)
 end
 
 % FIX : Make sure these things work...
-lub = yalmip('getbounds',used_variables);
+lub = S.getbounds(used_variables);
 lb = lub(:,1)-inf;
 ub = lub(:,2)+inf;
 lb(old_binary_variables) = max(lb(old_binary_variables),0);
@@ -1195,6 +1198,9 @@ recoverdata.H = H;
 recoverdata.x_equ = x_equ;
 recoverdata.used_variables = used_variables;
 
+% Stamp the owning session so solver wrappers and modules can recover it
+interfacedata.sess = S;
+
 %%
 function yesno = warningon
 
@@ -1206,7 +1212,7 @@ else
 end
 
 %%
-function [evalMap,evalVariables,used_variables,nonlinearvariables,linearvariables] = detectHiddenNonlinear(used_variables,options,nonlinearvariables,linearvariables,eIN)
+function [evalMap,evalVariables,used_variables,nonlinearvariables,linearvariables] = detectHiddenNonlinear(used_variables,options,nonlinearvariables,linearvariables,eIN,S)
 
 %evalVariables = yalmip('evalVariables');
 evalVariables = eIN;
@@ -1218,7 +1224,7 @@ if ~isempty(evalVariables)
      %   evalVariables = yalmip('evalVariables');
      evalVariables = eIN;
         usedEvalVariables = find(ismember(used_variables,evalVariables));
-        evalMap =  yalmip('extstruct',used_variables(usedEvalVariables));
+        evalMap =  S.extstruct(used_variables(usedEvalVariables));
         if ~isa(evalMap,'cell')
             evalMap = {evalMap};
         end
@@ -1254,7 +1260,7 @@ if ~isempty(evalVariables)
 
         % The problem is that linear terms might be missing in problems with only
         % nonlinear expressions
-        [monomtable,variabletype] = yalmip('monomtable');
+        [monomtable,variabletype] = S.getMonomtable();
         if (options.relax==1)|(options.relax==3)
             monomtable = [];
             nonlinearvariables = [];
@@ -1270,7 +1276,7 @@ if ~isempty(evalVariables)
 
 
         usedEvalVariables = find(ismember(used_variables,evalVariables));
-        evalMap =  yalmip('extstruct',used_variables(usedEvalVariables));
+        evalMap =  S.extstruct(used_variables(usedEvalVariables));
         if ~isa(evalMap,'cell')
             evalMap = {evalMap};
         end

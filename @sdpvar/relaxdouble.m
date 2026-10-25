@@ -1,7 +1,10 @@
-function sys=relaxdouble(X)
+function sys=relaxdouble(X, solution)
 %RELAXDOUBLE Return numerial value treating nonlinear variables as independent
 
-solution = yalmip('getsolution');
+if nargin < 2
+    error('YALMIP:sessionRequired','Since the stateless refactoring, pass the solution: RELAXDOUBLE(x, sol), where sol = optimize(F,obj).')
+end
+
 lmi_variables = X.lmi_variables;
 opt_variables = solution.variables;
 

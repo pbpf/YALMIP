@@ -1,4 +1,4 @@
-function [F,failure,cause,state] = expandmodel(F,h,options,w,state)
+function [F,failure,cause,state] = expandmodel(F,h,options,w,state,S)
 
 % FIX : Current code experimental, complex, conservative, has issues with
 % nonlinearities and is slow...
@@ -19,13 +19,23 @@ end
 if isempty(state)
     state = defaultexpansionstate();
 end
+if nargin < 6
+    S = [];
+end
+if isempty(S)
+    if isa(F,'lmi') || isa(F,'constraint')
+        S = session(F);
+    elseif ~isempty(h)
+        S = session(h);
+    end
+end
 
 % All extended variables in the problem. It is expensive to extract this
 % one so we will keep it and pass it along in the recursion
-extendedvariables = yalmip('extvariables');
+extendedvariables = S.getExtvariables();
 
-integers = yalmip('intvariables');
-binaries = yalmip('binvariables');
+integers = S.getIntvariables();
+binaries = S.getBinvariables();
 if ~isempty(F)
     declareI = find(is(F,'integer'));
     declareB = find(is(F,'binary'));
@@ -36,11 +46,11 @@ if ~isempty(F)
         binaries = [binaries depends(F(declareB))];
     end
 end
-yalmip('settempintvariables',integers);
-yalmip('settempbinvariables',binaries);
+S.settempintvariables(integers);
+S.settempbinvariables(binaries);
 
 % We keep track of all auxilliary variables introduced by YALMIP
-nInitial = yalmip('nvars');
+nInitial = S.nvars();
 
 boundsAlreadySet = 0;
 % Meta constraints are expanded first (iff, implies, alldifferent etc)
@@ -171,7 +181,7 @@ if ~isfield(options,'expandbilinear')
 end
 
 % Monomial information. Expensive to retrieve, so we pass this along
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 
 % Is this trivially a GP, or meant to be at least?
 if strcmpi(options.solver,'gpposy') | strcmpi(options.solver,'fmincon-geometric') | strcmpi(options.solver,'mosek-geometric')
@@ -215,7 +225,7 @@ if state.DUDE_ITS_A_GP == 1
 end
 
 % Test for very common special case with only norm expression
-ExtendedMap = yalmip('extendedmap');
+ExtendedMap = S.getExtendedmap();
 fail = 0;
 if  0%length(ExtendedMap) > 0 &&  all(strcmp('norm',{ExtendedMap.fcn}))
     for i = 1:length(ExtendedMap)
@@ -242,16 +252,16 @@ end
 % OK, looks good. Apply recursive expansion on the objective
 % *************************************************************************
 index_in_extended = find(ismembcYALMIP(variables,extendedvariables));
-allExtStructs = yalmip('extstruct');
+allExtStructs = S.extstruct();
 if ~isempty(index_in_extended)
-    [F_expand,failure,cause,state] = expand(index_in_extended,variables,h,F_expand,extendedvariables,monomtable,variabletype,'objective',0,options,method,[],allExtStructs,w,state);
+    [F_expand,failure,cause,state] = expand(index_in_extended,variables,h,F_expand,extendedvariables,monomtable,variabletype,'objective',0,options,method,[],allExtStructs,w,state,S);
 end
 
 % *************************************************************************
 % Continue with constraints
 % *************************************************************************
 constraint = 1;
-all_extstruct = yalmip('extstruct');
+all_extstruct = S.extstruct();
 while constraint <=length(F) & ~failure
 
     if ~already_expanded(constraint)
@@ -272,13 +282,13 @@ while constraint <=length(F) & ~failure
         if ~isempty(index_in_extended)
             if is(Fconstraint,'equality')
                 if options.allowmilp | options.allownonconvex
-                    [F_expand,failure,cause,state] = expand(index_in_extended,variables,-sdpvar(Fconstraint),F_expand,extendedvariables,monomtable,variabletype,['constraint #' num2str(constraint)],0,options,'exact',[],allExtStructs,w,state);
+                    [F_expand,failure,cause,state] = expand(index_in_extended,variables,-sdpvar(Fconstraint),F_expand,extendedvariables,monomtable,variabletype,['constraint #' num2str(constraint)],0,options,'exact',[],allExtStructs,w,state,S);
                 else
                     failure = 1;
                     cause = ['integer model required for equality in constraint #' num2str(constraint)];
                 end
             else
-                [F_expand,failure,cause,state] = expand(index_in_extended,variables,-sdpvar(Fconstraint),F_expand,extendedvariables,monomtable,variabletype,['constraint #' num2str(constraint)],0,options,method,[],allExtStructs,w,state);
+                [F_expand,failure,cause,state] = expand(index_in_extended,variables,-sdpvar(Fconstraint),F_expand,extendedvariables,monomtable,variabletype,['constraint #' num2str(constraint)],0,options,method,[],allExtStructs,w,state,S);
             end
         end
     end
@@ -310,11 +320,11 @@ if ~isempty(state.MARKER_VARIABLES)
     end
 end
 
-nNow = yalmip('nvars');
+nNow = S.nvars();
 if nNow > nInitial
     % YALMIP has introduced auxilliary variables
     % We mark these as auxilliary
-    yalmip('addauxvariables',nInitial+1:nNow);
+    S.addauxvariables(nInitial+1:nNow);
 end
 
 
@@ -366,7 +376,7 @@ state = struct('LUbounds',[],'ALREADY_MODELLED',{{}},'ALREADY_MODELLED_INDEX',[]
     'REMOVE_THESE_IN_THE_END',[],'MARKER_VARIABLES',[],'OPERATOR_IN_POLYNOM',[], ...
     'DUDE_ITS_A_GP',0,'CONSTRAINTCUTSTATE',0);
 
-function [F_expand,failure,cause,state] = expand(index_in_extended,variables,expression,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,allExtStruct,w,state)
+function [F_expand,failure,cause,state] = expand(index_in_extended,variables,expression,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,allExtStruct,w,state,S)
 
 % *************************************************************************
 % Go through all parts of expression to check for convexity/concavity
@@ -398,16 +408,16 @@ try
         basis = expression_basis(:,1 + location(j));
         if all(basis == 0) % The nonlinear term is inside a monomial
             if options.allownonconvex
-                [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'exact',allExtStruct,w,state);
+                [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'exact',allExtStruct,w,state,S);
             else
                 failure = 1;
                 cause = 'Possible nonconvexity due to operator in monomial';
             end
             %[F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'exact',allExtStruct,w,state);
         elseif all(basis >= 0)
-            [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state);
+            [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state,S);
         else
-            [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state);
+            [F_expand,failure,cause,state] = expandrecursive(zi,F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state,S);
         end
         j=j+1;
     end
@@ -416,9 +426,9 @@ catch
         i = index_in_extended(j);
         basis = getbasematrix(expression,variables(i));
         if all(basis >= 0)
-            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state);
+            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state,S);
         else
-            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state);
+            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state,S);
         end
         j=j+1;
     end

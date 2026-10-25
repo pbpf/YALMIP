@@ -1,4 +1,4 @@
-function setduals(F,D_struc,K)
+function setduals(F,D_struc,K,S)
 
 D_struc = full(D_struc);
 if ~isempty(D_struc)
@@ -60,7 +60,7 @@ if ~isempty(D_struc)
     end
     
     if ~isempty(lmi_index)
-        yalmip('setdual',lmi_index,duals);
+        S.setdual(lmi_index,duals);
     end
     
 end
