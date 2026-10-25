@@ -69,7 +69,7 @@ switch class(varargin{1})
                         d=2*m-n;
                     end
 
-                    D = tril(sdpvarCore(S,n,n));
+                    D = tril(S.sdpvar(n,n));
                     delta = diag(D);
                     F = ([X D;D' diag(delta)] >= 0);
                     p = 2^ceil(log2(n));
@@ -99,7 +99,7 @@ switch class(varargin{1})
                         d=2*m-n;
                     end
 
-                    D = tril(sdpvarCore(S,n,n));
+                    D = tril(S.sdpvar(n,n));
                     delta = diag(D);
                     F = ([X D;D' diag(delta)] >= 0);
                     p = 2^ceil(log2(n));

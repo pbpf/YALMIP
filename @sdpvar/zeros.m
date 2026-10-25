@@ -17,7 +17,7 @@ if nargin < 4 || ~isequal(varargin{nargin-1},'like') || ~isa(varargin{end},'sdpv
 end
 S = varargin{end}.sess;
 Z = zeros(varargin{1:nargin-2});
-sys = struct(sdpvarCore(S,1));
+sys = struct(S.sdpvar(1));
 sys.dim = size(Z);
 sys.lmi_variables = [];
 sys.basis = Z(:);

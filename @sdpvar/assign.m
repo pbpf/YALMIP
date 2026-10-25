@@ -5,8 +5,9 @@ if nargin<4
     ls = 0;
 end
 if nargin<3 || ~(isstruct(sol) && isfield(sol,'eval'))
-    error('YALMIP:sessionRequired',['Since the stateless refactoring, pass the solution and capture the result: ', ...
-        'sol = assign(x, x0, sol) with sol = optimize(F,obj).'])
+    % Bootstrap from an empty solution payload (formerly the global
+    % "empty solution" the old assign wrote into)
+    sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
 end
 
 if ~isa(X,'sdpvar')
@@ -42,8 +43,8 @@ if ~isa(X,'sdpvar')
 end
 
 if is(X,'complex')
-    assign(real(X),real(value));
-    assign(imag(X),imag(value));
+    sol = assign(real(X),real(value),sol,ls);
+    sol = assign(imag(X),imag(value),sol,ls);
     return
 end
 

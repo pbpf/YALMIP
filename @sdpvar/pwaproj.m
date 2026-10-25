@@ -36,7 +36,7 @@ if ~isempty(Complicating)
         extstruct = S.extstruct(hvars(Complicating(i)));
         [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i))));
         RequiresEpi(i) = 1;
-        z = sdpvarCore(S,size(arguments{i},1),size(arguments{i},2));
+        z = S.sdpvar(size(arguments{i},1),size(arguments{i},2));
         allz = [allz;z];
         allargs = [allargs;arguments{i}];
         extstruct.arg{1} = z;
@@ -48,7 +48,7 @@ if ~isempty(Complicating)
         totalobjective=coefficients(Complicating(i))*t+totalobjective;
     end
 end
-t = sdpvarCore(S,'t',1,1);
+t = S.sdpvar('t',1,1);
 
 totalF = [totalF, totalobjective < t];
 P = projection([totalF,t<1234],[allz;t]);

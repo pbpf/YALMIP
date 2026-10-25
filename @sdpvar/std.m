@@ -24,7 +24,7 @@ switch class(varargin{1})
             case 'exact'
                 t = varargin{2};
                 X = varargin{3};
-                e = sdpvarCore(X.sess,length(X),1);
+                e = X.sess.sdpvar(length(X),1);
                 F = [e'*e == t^2, e == X, t>=0];
                 varargout{1} = F;
                 varargout{2} = struct('convexity','convex','definiteness','positive','model','exact');

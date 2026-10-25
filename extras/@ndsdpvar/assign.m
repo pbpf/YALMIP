@@ -1,4 +1,6 @@
-function assign(x,y)
-% assign (overloaded)
+function X = assign(X, value, sol)
+%ASSIGN (overloaded) assign numeric values to an n-D SDPVAR
 
-assign(sdpvar(x),y(:));
+s = sdpvar(X);
+s = assign(s, value, sol);
+X = ndsdpvar(s);

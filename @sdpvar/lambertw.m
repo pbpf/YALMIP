@@ -13,7 +13,7 @@ switch class(varargin{1})
                 t = varargin{2};
                 x = varargin{3};
                 S = x.sess;
-                z = sdpvarCore(S,'z',1,1);
+                z = S.sdpvar('z',1,1);
                 F = [expcone([z;t;x]), cone([2*t;1-z],1+z)];                
                 operator = CreateBasicOperator('concave','increasing','positive','graph'); 
                 operator.domain = [0 inf];

@@ -17,8 +17,7 @@ if nargin<4
     ls = 0;
 end
 if nargin<3 || ~(isstruct(sol) && isfield(sol,'eval'))
-    error('YALMIP:sessionRequired',['Since the stateless refactoring, pass the solution and capture the result: ', ...
-        'sol = warmstart(x, x0, sol) with sol = optimize(F,obj).'])
+    sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
 end
 
 if ~isa(X,'sdpvar')

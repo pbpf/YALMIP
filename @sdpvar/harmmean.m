@@ -38,7 +38,7 @@ switch class(varargin{1})
 
             n = length(X);
             S = X.sess;
-            z = sdpvarCore(S,n,1);
+            z = S.sdpvar(n,1);
             
             F = [X >= 0, sum(z) <= n*t];
             F = [F, cone([(X+z)';(X-z)';2*repmat(t,1,n)])];

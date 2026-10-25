@@ -1,0 +1,2 @@
+STAGE_RESULT stage3b core passed=27 failed=1 incomplete=14
+STAGE_TOTAL stage3b passed=27 failed=1 incomplete=14

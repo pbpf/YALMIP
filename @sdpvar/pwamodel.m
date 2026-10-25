@@ -1,6 +1,6 @@
 function [p,A,b] = pwamodel(f,x)
 
-t = sdpvarCore(x.sess,1,1);
+t = x.sess.sdpvar(1,1);
 F = ([f <= t]);
 [A,b] = pwamodel(F,[x;t]);
 B = A(:,end);

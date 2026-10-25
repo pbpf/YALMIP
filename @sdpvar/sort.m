@@ -69,7 +69,7 @@ switch class(varargin{1})
         end
 
         data.D = binvarCore(S,length(x),length(x),'full');
-        data.V = sdpvarCore(S,length(x),length(x),'full');
+        data.V = S.sdpvar(length(x),length(x),'full');
         y = [];
 
         for i = 1:length(x)

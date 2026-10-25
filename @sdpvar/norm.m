@@ -85,9 +85,9 @@ switch class(varargin{1})
                 switch p
                     case 1
                         if issymmetric(X)
-                            Z = sdpvarCore(S,size(X,1),size(X,2));
+                            Z = S.sdpvar(size(X,1),size(X,2));
                         else
-                            Z = sdpvarCore(S,size(X,1),size(X,2),'full');
+                            Z = S.sdpvar(size(X,1),size(X,2),'full');
                         end
                         if min(size(X))>1
                             if isreal(X)
@@ -133,7 +133,7 @@ switch class(varargin{1})
                         end
                     case {inf,'inf'}
                         if min(size(X))>1
-                            Z = sdpvarCore(S,size(X,1),size(X,2),'full');
+                            Z = S.sdpvar(size(X,1),size(X,2),'full');
                             if isreal(X)
                                 F = (-Z <= X <= Z);
                             else
@@ -167,13 +167,13 @@ switch class(varargin{1})
                         X.dim(2)=1;
                         F = (cone(X,t));
                     case 'nuclear'
-                        U = sdpvarCore(S,X.dim(2));
-                        V = sdpvarCore(S,X.dim(1));
+                        U = S.sdpvar(X.dim(2));
+                        V = S.sdpvar(X.dim(1));
                         F = [trace(U)+trace(V) <= 2*t, [U X';X V]>=0];
                     case 'tv'                        
                         Dx = [diff(X,1,1);zeros(1,X.dim(2))];
                         Dy = [diff(X,1,2) zeros(X.dim(1),1)];
-                        T = sdpvarCore(S,X.dim(1),X.dim(2),'full');
+                        T = S.sdpvar(X.dim(1),X.dim(2),'full');
                         F = cone([reshape(T,1,[]);reshape(Dx,1,[]);reshape(Dy,1,[])]);
                         F = [F, sum(sum(T)) <= t];
                     otherwise
@@ -195,7 +195,7 @@ switch class(varargin{1})
                 else
                     if p==1
                         X     = reshape(X,length(X),1);
-                        absX  = sdpvarCore(S,length(X),1);
+                        absX  = S.sdpvar(length(X),1);
                         d     = binvarCore(S,length(X),1);
                         [M,m] = derivebounds(X);
                         

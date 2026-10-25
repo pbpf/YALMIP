@@ -29,7 +29,7 @@ function [p,Bi,Ci,Pn,Pfinal] = PWA(h,Xdomain)
 % plotting of convex PWA functions
 
 S = h.sess;
-t = sdpvarCore(S,1,1);
+t = S.sdpvar(1,1);
 [F,failure,cause] = expandmodel(lmi(h<=t),[],sdpsettings('allowmilp',0));
 if failure
     error(['Could not expand model (' cause ')']);

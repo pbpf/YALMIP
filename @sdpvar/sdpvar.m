@@ -88,7 +88,7 @@ end
 nargs = numel(varargin);
 if nargs > 2
     if isa(varargin{3},'double') && ~isempty(varargin{3})
-        sys = ndsdpvarCore(S, varargin{:});
+        sys = ndsdpvar(varargin{:}, 'session', {S});
         return
     end
 end
