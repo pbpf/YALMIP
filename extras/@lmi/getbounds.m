@@ -1,6 +1,8 @@
-function LU = getbounds(F,avoidequalitybounds,LU)
+function LU = getbounds(F,avoidequalitybounds,LU,S)
 
-S = sessOf(F);
+if nargin < 4 || isempty(S)
+    S = sessOf(F);
+end
 K.f = 0;
 K.l = 0;
 L = [];

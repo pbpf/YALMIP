@@ -20,7 +20,10 @@ if nargin < 9
     S = [];
 end
 if isempty(S)
-    S = session(F);
+    S = sessOf(F);
+    if isempty(S) && ~isempty(h)
+        S = sessOf(h);
+    end
 end
 
 % *************************************************************************

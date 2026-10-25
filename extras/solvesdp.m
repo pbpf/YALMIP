@@ -159,8 +159,9 @@ end
 % global registry, the session travels with the symbolic objects)
 S = [];
 if ~isempty(F)
-    S = session(F);
-elseif ~isempty(h) && isa(h,'sdpvar')
+    S = sessOf(F);
+end
+if isempty(S) && ~isempty(h) && isa(h,'sdpvar')
     S = session(h);
 end
 

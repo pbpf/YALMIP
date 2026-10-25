@@ -18,7 +18,13 @@ F = flatten(F);
 used = recursivedepends(F.clauses);
 
 % Now, determine the involved linear variables
-[mt,variabletype] = sessOf(F).getMonomtable();
+S = sessOf(F);
+if isempty(S) && isempty(used)
+    % Empty constraint set carries no dependencies
+    LinearVariables = [];
+    return
+end
+[mt,variabletype] = S.getMonomtable();
 if any(variabletype)%1%~isempty(nlv) & any(ismembc(used,nlv(1,:)))
     LinearVariables = find(any(mt(used,:),1));    
     LinearVariables = LinearVariables(:)';

@@ -6,9 +6,9 @@ S.setbounds(1:nv,L,U);
 % This is a hack to avoid bound propagation when this function is
 % called from optimizer.m
 if isfield(options,'avoidequalitybounds')
-    LU = getbounds(lmi(F),0);
+    LU = getbounds(lmi(F),0,[],S);
 else
-    LU = getbounds(lmi(F),[],[L U]);
+    LU = getbounds(lmi(F),[],[L U],S);
 end
 % In models with nonconvex terms including x, but where bounds only are
 % set on abs(x), we have to use the bound on abs(x) to improve the

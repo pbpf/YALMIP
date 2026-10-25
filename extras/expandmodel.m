@@ -24,7 +24,10 @@ if nargin < 6
 end
 if isempty(S)
     if isa(F,'lmi') || isa(F,'constraint')
-        S = session(F);
+        S = sessOf(F);
+        if isempty(S) && ~isempty(h)
+            S = sessOf(h);
+        end
     elseif ~isempty(h)
         S = session(h);
     end
