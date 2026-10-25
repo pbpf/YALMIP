@@ -1,4 +1,10 @@
 function varargout = vectorizedlogic(fun,varargin);
+% Session is recovered from the sdpvar arguments (stateless refactor).
+S = sdpvarargumentsession(varargin{:});
+if isempty(S)
+    error('YALMIP:sessionRequired','No session found on the arguments. Create variables via S = yalmip.Session().')
+end
+
 if nargin-1 == 1
     if length(varargin{1})==1
        % What should be returned on operator(scalar)?
@@ -36,12 +42,12 @@ else
             for i = 1:nargin-1
                 temp{i} = varargin{i}(j);
             end
-            result = [result; yalmip('define',func2str(fun),temp{:})];
+            result = [result; S.define('define',func2str(fun),temp{:})];
         end
         % Devectorize to original shape
         varargout{1} = reshape(result,dim);
     else
         % Scalar operator(x,y,z,...)
-        varargout{1} = yalmip('define',func2str(fun),varargin{:});
+        varargout{1} = S.define('define',func2str(fun),varargin{:});
     end
 end

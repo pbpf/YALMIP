@@ -1,7 +1,14 @@
 function y = InstantiateElementWise(funName,varargin);
+% InstantiateElementWise is called from session-aware @sdpvar methods. The
+% session is recovered from the sdpvar arguments via the public session()
+% accessor (no global registry).
 
 if length(varargin{1}) == 1
-    y = yalmip('define',funName,varargin{:});
+    S = sdpvarargumentsession(varargin{:});
+if isempty(S)
+    error('YALMIP:sessionRequired','No session found on the arguments. Create variables via S = yalmip.Session().')
+end
+y = S.define('define',funName,varargin{:});
 else
     y = [];
     args = varargin{1};
@@ -22,7 +29,7 @@ else
     args = args(iS);
     for i = 1:length(args)
         varargin{1} = args(i);
-        y = [y;yalmip('define',funName,varargin{:})];
+        y = [y;S.define('define',funName,varargin{:})];
     end
     y = sparse([iD;iS],ones(length(iD)+length(iS),1),[yDoubles;y],prod(dims),1);
     y = reshape(y,dims);

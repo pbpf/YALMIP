@@ -427,6 +427,12 @@ classdef Session < handle
     end
 
     %% ALIASGROUP define|definemulti
+    function varargout = define(obj, varargin)
+    %DEFINE Define an extended operator variable (command string first:
+    % 'define' or 'definemulti', mirroring the former dispatcher payload)
+    varargout = obj.defineImpl(varargin{:});
+    end
+
     function varargout = defineImpl(obj, varargin)
     if strcmpi(varargin{1},'define')
         multioutput = 0;
