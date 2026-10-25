@@ -97,7 +97,7 @@ w = w(find(d));
 wvariables =  wvariables(find(d));
 
 % Degrees w.r.t the uncertain variables
-monomtable = yalmip('monomtable');
+monomtable = session(F).getMonomtable();
 d = max(sum(monomtable(allvariables,wvariables),2));
 n = size(F,1);
 
@@ -108,7 +108,7 @@ v = v(1:(size(v,1)/size(v,2)),1);
 for i = 2:length(v)
     vvariables(i,1) = getvariables(v(i));  
 end
-monomtable = yalmip('monomtable');
+monomtable = session(F).getMonomtable();
 wmonoms = [zeros(1,length(w));monomtable(vvariables(2:end),wvariables)];
 
 % Find the linear certain term in the matrix

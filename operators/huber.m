@@ -1,4 +1,5 @@
 function varargout = huber(varargin)
+S = sdpvarargumentsession(varargin{:});
 % HUBER  Returns the Hüber function (convex operator)
 %
 % p = HUBER(x,M)
@@ -56,7 +57,7 @@ switch class(varargin{1})
         for i = 1:size(X,2)
             varargin{1} = X(:,i);
             varargin{2} = M(:,i);
-            y = [y yalmip('define',mfilename,varargin{:})];
+            y = [y S.define('define',mfilename,varargin{:})];
         end
         varargout{1} = y;
 
