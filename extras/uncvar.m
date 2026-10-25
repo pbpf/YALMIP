@@ -1,33 +1,11 @@
 function sys = uncvar(varargin)
-%UNCVAR Create symbolic uncertain variable 
-%   
-%   UNCVAR works exactly as SDPVAR, [FIX...]
+%UNCVAR Create symbolic uncertain variable (session-based)
 %
-%   See also SDPVAR
+%   Since the stateless refactoring, variables are created through a
+%   session object:
+%       S = yalmip.Session();
+%       w = S.uncvar(2,2);
+%
+%   See also yalmip.Session, SDPVAR
 
-all_variable_names = 1;
-i = 1;
-while all_variable_names & i<=nargin
-    all_variable_names = all_variable_names & isvarname(varargin{i});
-    i = i + 1;
-end
-if all_variable_names
-    for k = 1:nargin
-        varname = varargin{k};
-        assignin('caller',varname,binvar(1,1));
-    end
-else
-    switch nargin
-        case 1
-            sys = sdpvar(varargin{1});
-        case 2
-            sys = sdpvar(varargin{1},varargin{2});
-        case 3
-            sys = sdpvar(varargin{1},varargin{2},varargin{3});
-        case 4
-            sys = sdpvar(varargin{1},varargin{2},varargin{3},varargin{4});
-        otherwise
-            error('Wrong number of input arguments. See help-text for sdpvar')
-    end
-    yalmip('setuncvariables',[yalmip('uncvariables') getvariables(sys)]);
-end
+error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); w = S.uncvar(2,2).')

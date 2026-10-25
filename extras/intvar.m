@@ -1,30 +1,11 @@
 function sys = intvar(varargin)
-%INTVAR Create symbolic integer variable 
-%   
-%   INTVAR works exactly as SDPVAR, with the only difference that
-%   the elements in the variable automatically will be constrained 
-%   to be integer when an optimization problem is solved.
+%INTVAR Create symbolic integer variable (session-based)
 %
-%   See also SDPVAR, BINVAR, INTEGER, BINARY
+%   Since the stateless refactoring, variables are created through a
+%   session object:
+%       S = yalmip.Session();
+%       u = S.intvar(2,3);
+%
+%   See also yalmip.Session, SDPVAR, BINVAR
 
-all_variable_names = 1;
-i = 1;
-while all_variable_names & i<=nargin
-    all_variable_names = all_variable_names & isvarname(varargin{i});
-    i = i + 1;
-end
-if all_variable_names
-    for k = 1:nargin
-        varname = varargin{k};
-        assignin('caller',varname,intvar(1,1));
-    end
-else
-    sys = sdpvar(varargin{:}); 
-    if isa(sys,'cell')
-        for i = 1:length(sys)
-            yalmip('setintvariables',[yalmip('intvariables') getvariables(sys{i})]);
-        end
-    else
-        yalmip('setintvariables',[yalmip('intvariables') getvariables(sys)]);
-    end
-end
+error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); u = S.intvar(2,3).')
