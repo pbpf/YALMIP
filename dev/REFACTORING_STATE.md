@@ -220,3 +220,20 @@ Next attack list (highest value first):
 3. model:73 passthrough reveals per-operator causes one by one (geomean
    detset:68 composition, exp/interp1 'Dot indexing').
 4. misc 3/8: blackbox value single-arg; implies sdpsettings:341.
+
+## HANDOFF 4 — core 38/42, operators 46/53, misc 6/8 (all zero hard-fails)
+
+Remaining (11 errors total):
+- operators: interp1_internal (S=sessOf(x) empty at :56 — verify x carries
+  sess when model() dispatches), nchoosek (index not integer — arg
+  convention off-by-one after S strip), exp test3, blackbox test_base
+  (value single-arg in library), implies test12 (sdpsettings:341), test_operator_int
+  ('x' undefined — TEST bug: S = sdpvarargumentsession(p,x,vin) in
+  coefficients.m has no x in scope; check test call pattern).
+- core: HigherOrder (test bug — variable never defined), ndsdpvar test1
+  (norm on N-D — R2026b pagenorm, pre-existing), diff (pre-existing),
+  sdpvar_replace test1/2 (nonlinearreplace recover chain — same
+  session-threading pattern as batch 12).
+- misc: 2 left (unidentified — re-aggregate).
+Pattern proven: session threading via scoped S (NOT sdpsession — it
+returns empty in some graph contexts, root cause not fully diagnosed).
