@@ -1,8 +1,14 @@
-function [c,Q,f,onlyfeasible] = createobjective(h,G,options,quad_info)
+function [c,Q,f,onlyfeasible] = createobjective(h,G,options,quad_info,S)
 %CREATEOBJECTIVE Internal function to extract data related to objective function
 
 onlyfeasible = 0;
-nvars = session(h).nvars(); 
+if nargin < 5
+    S = sessOf(h);
+end
+if isempty(S)
+    error('YALMIP:sessionRequired','createobjective: no session available.')
+end
+nvars = S.nvars(); 
 if isempty(h)
     c=zeros(nvars,1);
     Q = spalloc(nvars,nvars,0);

@@ -753,13 +753,13 @@ try
     if strcmpi(solver.tag,'bmibnb') | strcmpi(solver.tag,'sparsepop') | strcmpi(solver.tag,'pennlp-standard') | geometric | evaluation_based ;
         tempoptions = options;
         tempoptions.relax = 1;
-        [c,Q,f]=createobjective(h,logdetStruct,tempoptions,quad_info);
+        [c,Q,f]=createobjective(h,logdetStruct,tempoptions,quad_info,S);
     else
         if isa(h,'double')
-            [c,Q,f]=createobjective([],logdetStruct,options,quad_info);
+            [c,Q,f]=createobjective([],logdetStruct,options,quad_info,S);
             f = h;
         else
-            [c,Q,f]=createobjective(h,logdetStruct,options,quad_info);
+            [c,Q,f]=createobjective(h,logdetStruct,options,quad_info,S);
         end
     end
     if isempty(f)
