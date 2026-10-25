@@ -2,8 +2,8 @@ function tests = test_mpt_oneshotmpqp
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-yalmip('clear')
 
 % Model data
 A = [2 -1;1 0];
@@ -15,9 +15,9 @@ nu = 1; % Number of inputs
 % Prediction horizon
 N = 5;
 % States x(k), ..., x(k+N)
-x = sdpvar(repmat(nx,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N),repmat(1,1,N));
 % Inputs u(k), ..., u(k+N) (last one not used) u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
 
 F = ([]);
 obj = 0;
@@ -35,13 +35,14 @@ for k = N-1:-1:1
 end
 
 [sol{k},diagnost{k},Uz{k},J{k},Optimizer{k}] = solvemp(F,obj,[],x{k},u{k});
-assign(x{k},[1;0.5])
+optsol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+optsol = assign(x{k},[1;0.5], optsol)
 
 testCase.assertTrue(diagnost{1}.problem == 0);
-testCase.assertTrue(abs(value(J{k})-3.82456140350877) <= 1e-5)
-testCase.assertTrue(abs(value(Optimizer{k})--0.99122807017544) <= 1e-5)
-assign(x{k},[0;1.7])
-testCase.assertTrue(abs(value(Optimizer{k})-1) <= 1e-5)
-testCase.assertTrue(abs(value(J{k})-6.19300000000000) <= 1e-5)
+testCase.assertTrue(abs(value(J{k}, optsol)-3.82456140350877) <= 1e-5)
+testCase.assertTrue(abs(value(Optimizer{k}, optsol)--0.99122807017544) <= 1e-5)
+optsol = assign(x{k},[0;1.7], optsol)
+testCase.assertTrue(abs(value(Optimizer{k}, optsol)-1) <= 1e-5)
+testCase.assertTrue(abs(value(J{k}, optsol)-6.19300000000000) <= 1e-5)
 
 

@@ -2,18 +2,18 @@ function tests = test_global_chance
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from chance.gms
 % Created 28-Jul-2007 17:29:58 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-objvar = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
+objvar = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
 
 % Define constraints 
 F = ([]);
@@ -30,4 +30,4 @@ F=[F,0<=x5];
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-29.8944) <= 1e-2) 
+testCase.assertTrue(abs(value(objvar, sol)-29.8944) <= 1e-2) 

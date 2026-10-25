@@ -1,5 +1,7 @@
 function [F,feasible] = filter_boxmodel(F_xw,lower,upper,x,w,allw)
 
+S = session(x);
+
 % Creates robustified version of the uncertain set of linear inequalities
 % s.t A(w)*x <= b(w) for all L <= w <= U
 
@@ -115,7 +117,7 @@ for i = 1:length(all_f)
     end
 end
 if ~isempty(collectA)
-    t = sdpvar(size(collectC,2),1);
+    t = S.sdpvar(size(collectC,2),1);
   %  F = F + (collectA*x + collectb+collectC*t >= 0);
   %  F = F + (-t <= collectE*x + collectd <= t);
     F = F + ([-collectA -collectC;collectE -speye(length(t));-collectE -speye(length(t))]*[x;t] + [-collectb;collectd;-collectd] <= 0);

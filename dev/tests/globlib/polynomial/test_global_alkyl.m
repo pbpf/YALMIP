@@ -2,27 +2,27 @@ function tests = test_global_alkyl
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from alkyl.gms
 % Created 17-Mar-2008 11:04:26 using YALMIP R20070810
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(6.3*x5*x8+0-5.04*x2-0.35*x3-x4-3.36*x6-(0));
@@ -54,4 +54,4 @@ F=[F,0.99<=x15<=1.0101];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--1.7650) <= 1e-2)
+testCase.assertTrue(abs(value(objective, sol)--1.7650) <= 1e-2)

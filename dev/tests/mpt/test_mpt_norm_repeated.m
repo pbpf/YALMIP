@@ -2,11 +2,11 @@ function tests = test_mpt_norm_repeated
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % As simple as it gets...
-yalmip('clear')
-sdpvar u0
-x0 = sdpvar(2,1);
+u0 = S.sdpvar(1,1);
+x0 = S.sdpvar(2,1);
 
 bounds(x0,-2,2);
 bounds(u0,-2,2);
@@ -22,14 +22,14 @@ obj = norm(x0,1);
 testCase.assertTrue(length(sol) == 4)
 testCase.assertTrue(dgn.problem == 0)
 
-assign(x0,[1;1])
-testCase.assertTrue(abs(value(JJ)-2) <= 1e-5)
+dgn = assign(x0,[1;1], dgn)
+testCase.assertTrue(abs(value(JJ, dgn)-2) <= 1e-5)
 
-yalmip('clear')
-sdpvar u0 u1
-x0 = sdpvar(2,1);
-x1 = sdpvar(2,1);
-x2 = sdpvar(2,1);
+u0 = S.sdpvar(1,1);
+u1 = S.sdpvar(1,1);
+x0 = S.sdpvar(2,1);
+x1 = S.sdpvar(2,1);
+x2 = S.sdpvar(2,1);
 bounds(x0,-2,2);
 bounds(x1,-2,2);
 bounds(x2,-2,2);
@@ -48,11 +48,11 @@ obj = norm(x0,1)+norm(x1,1);
 sol = solvemp(F, obj, [], x0)
 testCase.assertTrue(length(sol) == 6);
 
-yalmip('clear')
-sdpvar u0 u1
-x0 = sdpvar(2,1);
-x1 = sdpvar(2,1);
-x2 = sdpvar(2,1);
+u0 = S.sdpvar(1,1);
+u1 = S.sdpvar(1,1);
+x0 = S.sdpvar(2,1);
+x1 = S.sdpvar(2,1);
+x2 = S.sdpvar(2,1);
 bounds(x0,-2,2);
 bounds(x1,-2,2);
 bounds(x2,-2,2);

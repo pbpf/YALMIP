@@ -52,7 +52,7 @@
  "setNonHermitianNonCommuting": "setNonHermitianNonCommuting",
  "solver": "solver",
  "clear": "clear",
- "lmiid": "lmiid",
+ "lmiid": "nextConstraintId",
  "version": "version",
  "define": "define",
  "addextendedvariable": "addextendedvariable",
@@ -75,6 +75,6 @@
  "extendedmap": "getExtendedmap",
  "definemulti": "define",
  "ver": "version",
- "ConstraintID": "lmiid",
+ "ConstraintID": "nextConstraintId",
  "addEvalVariable": "addextendedvariable"
 }

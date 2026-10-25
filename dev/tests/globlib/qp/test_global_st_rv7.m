@@ -2,43 +2,43 @@ function tests = test_global_st_rv7
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_rv7.gms
 % Created 06-Aug-2007 09:16:48 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
-x21 = sdpvar(1);
-x22 = sdpvar(1);
-x23 = sdpvar(1);
-x24 = sdpvar(1);
-x25 = sdpvar(1);
-x26 = sdpvar(1);
-x27 = sdpvar(1);
-x28 = sdpvar(1);
-x29 = sdpvar(1);
-x30 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
+x21 = S.sdpvar(1);
+x22 = S.sdpvar(1);
+x23 = S.sdpvar(1);
+x24 = S.sdpvar(1);
+x25 = S.sdpvar(1);
+x26 = S.sdpvar(1);
+x27 = S.sdpvar(1);
+x28 = S.sdpvar(1);
+x29 = S.sdpvar(1);
+x30 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(-0.00165*sqr(x1)-0.1914*x1-0.0004*sqr(x2)-0.0384*x2-0.00285*sqr(x3)-0.3876*x3-0.00155*sqr(x4)-0.1116*x4-0.0038*sqr(x5)-0.4636*x5-0.0044*sqr(x6)-0.044*x6-0.0046*sqr(x7)-0.3588*x7-0.00085*sqr(x8)-0.0272*x8-0.00165*sqr(x9)-0.231*x9-0.0025*sqr(x10)-0.27*x10-0.00385*sqr(x11)-0.308*x11-0.00355*sqr(x12)-0.3692*x12-0.0015*sqr(x13)-0.288*x13-0.0037*sqr(x14)-0.407*x14-0.00125*sqr(x15)-0.1175*x15-0.00095*sqr(x16)-0.1045*x16-0.0048*sqr(x17)-0.1632*x17-0.0015*sqr(x18)-0.135*x18-0.0048*sqr(x19)-0.0864*x19-0.0007*sqr(x20)-0.1176*x20-0.0043*sqr(x21)-0.645*x21-0.0045*sqr(x22)-0.882*x22-0.00245*sqr(x23)-0.3283*x23-0.0004*sqr(x24)-0.0648*x24-0.0048*sqr(x25)-0.0864*x25-0.00485*sqr(x26)-0.4753*x26-0.00025*sqr(x27)-0.046*x27-0.00435*sqr(x28)-0.7917*x28-0.00365*sqr(x29)-0.7008*x29-0.0002*sqr(x30)-0.0384*x30)+0-0);
@@ -99,4 +99,4 @@ F=[F,0<=x30];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--138.1875) <= 1)
+testCase.assertTrue(abs(value(objective, sol)--138.1875) <= 1)

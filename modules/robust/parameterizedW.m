@@ -1,5 +1,6 @@
 function W = parameterizedW(G,H,x)
 
+S = session(H);
 ng = size(G,1);
 mg = size(H,2);
 
@@ -19,11 +20,11 @@ end
 SS = [blkdiag(S{1},S{2},S{3});S{2} S{1} 0*S{3};S{3} 0*S{2} S{1};0*S{1} S{3} S{2}];
 Snull = null(SS);
 Snull(abs(Snull)<1e-6) = 0;
-w = sdpvar(size(Snull,2),1);
+w = S.sdpvar(size(Snull,2),1);
 Sw = Snull*w;
 
 
-W = sdpvar(size(G,1),size(H,2));
+W = S.sdpvar(size(G,1),size(H,2));
 top = 1;
 for i = 1:n
     W = W + reshape(Sw(top:top+ng*mg-1),ng,mg)*x(i);

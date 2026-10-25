@@ -801,7 +801,7 @@ function plotP(p)
 
 b = p.F_struc(1+p.K.f:p.K.f+p.K.l,1);
 A = -p.F_struc(1+p.K.f:p.K.f+p.K.l,2:end);
-x = sdpvar(size(A,2),1);
+x = p.sess.sdpvar(size(A,2),1);
 plot([A*x <= b, p.lb <= x <= p.ub],x(1:2),'b',[],sdpsettings('plot.shade',.2));
 
 

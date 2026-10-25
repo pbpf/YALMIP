@@ -2,46 +2,46 @@ function tests = test_global_ramsey
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from ramsey.gms
 % Created 22-Aug-2007 09:42:37 using YALMIP R20070810
 
 % Setup a clean YALMIP environment
-yalmip('clear')
 
 % Define all variables
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
-x21 = sdpvar(1);
-x22 = sdpvar(1);
-x23 = sdpvar(1);
-x24 = sdpvar(1);
-x25 = sdpvar(1);
-x26 = sdpvar(1);
-x27 = sdpvar(1);
-x28 = sdpvar(1);
-x29 = sdpvar(1);
-x30 = sdpvar(1);
-x31 = sdpvar(1);
-x32 = sdpvar(1);
-x33 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
+x21 = S.sdpvar(1);
+x22 = S.sdpvar(1);
+x23 = S.sdpvar(1);
+x24 = S.sdpvar(1);
+x25 = S.sdpvar(1);
+x26 = S.sdpvar(1);
+x27 = S.sdpvar(1);
+x28 = S.sdpvar(1);
+x29 = S.sdpvar(1);
+x30 = S.sdpvar(1);
+x31 = S.sdpvar(1);
+x32 = S.sdpvar(1);
+x33 = S.sdpvar(1);
 
 % Define objective function
 objective = -(0.95*log(x12)+0.9025*log(x13)+0.857375*log(x14)+0.81450625*log(x15)+0.7737809375*log(x16)+0.735091890625*log(x17)+0.69833729609375*log(x18)+0.663420431289062*log(x19)+0.630249409724609*log(x20)+0.598736939238379*log(x21)+11.3760018455292*log(x22))-0-(0);
@@ -107,4 +107,4 @@ F=[F,0.05<=x33<=0.20228];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--2.487467848213407) <= 1e-2)
+testCase.assertTrue(abs(value(objective, sol)--2.487467848213407) <= 1e-2)

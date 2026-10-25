@@ -2,16 +2,18 @@ function tests = test_operator_optimizer6
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-X = sdpvar(2,3,'full','complex');
-Y = sdpvar(2,3,'full','complex');
+S = yalmip.Session();
+X = S.sdpvar(2,3,'full','complex');
+Y = S.sdpvar(2,3,'full','complex');
 P = optimizer([],sum(sum(abs(real(X)-real(Y)))) + sum(sum(abs(imag(X)-imag(Y)))),[],Y,X);
 U = reshape(1:6,2,3);
 Z = P{U};
 testCase.assertTrue(norm(U-Z)<= 1e-10);
 
 function test2(testCase)
-X = sdpvar(2,3,2,'full','complex');
-Y = sdpvar(2,3,'full','complex');
+S = yalmip.Session();
+X = S.sdpvar(2,3,2,'full','complex');
+Y = S.sdpvar(2,3,'full','complex');
 obj = sum(sum(abs(real(X(:,:,1))-real(Y)))) + sum(sum(abs(imag(X(:,:,1))-imag(Y))));
 obj = obj + sum(sum(abs(imag(X(:,:,2))-2*real(Y)))) + sum(sum(abs(real(X(:,:,2))-2*imag(Y))));
 P = optimizer([],obj,[],Y,X);
@@ -27,17 +29,19 @@ testCase.assertTrue(norm(2*real(U)-imag(Z(:,:,2))) <= 1e-5);
 testCase.assertTrue(norm(2*imag(U)-real(Z(:,:,2))) <= 1e-5);
 
 function test3(testCase)
-X = sdpvar(2,3,'full','complex');
-Y = sdpvar(2,3,'full');
+S = yalmip.Session();
+X = S.sdpvar(2,3,'full','complex');
+Y = S.sdpvar(2,3,'full');
 P = optimizer([],sum(sum(abs(real(X)-Y))) + 2*sum(sum(abs(imag(X)-Y))),[],X,Y);
 U = reshape(1:6,2,3) + sqrt(-1)*reshape(7:12,2,3);
 Z = P{U};
 testCase.assertTrue(norm(Z(:,:,1)-reshape(7:12,2,3))<1e-7);
 
 function test4(testCase)
-X1 = sdpvar(2,3,'full','complex');
-X2 = sdpvar(2,3,'full');
-Y = sdpvar(2,3,'full');
+S = yalmip.Session();
+X1 = S.sdpvar(2,3,'full','complex');
+X2 = S.sdpvar(2,3,'full');
+Y = S.sdpvar(2,3,'full');
 P = optimizer([],sum(sum(abs(real(X1)-Y)))+2*sum(sum(abs(imag(X1)-Y)))+sum(sum(X2-Y)),[],{X1,X2},Y);
 U1 = reshape(1:6,2,3) + sqrt(-1)*reshape(7:12,2,3);
 U2 = -reshape(1:6,2,3);

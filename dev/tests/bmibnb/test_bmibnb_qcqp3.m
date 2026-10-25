@@ -2,19 +2,20 @@ function tests = test_global_bmibnb_qcqp3
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x1 = sdpvar(1,1);
-x2 = sdpvar(1,1);
-x3 = sdpvar(1,1);
-x4 = sdpvar(1,1);
-x5 = sdpvar(1,1);
-x6 = sdpvar(1,1);
-x7 = sdpvar(1,1);
-x8 = sdpvar(1,1);
-x9 = sdpvar(1,1);
-x10 = sdpvar(1,1);
-x11 = sdpvar(1,1);
-t = sdpvar(1,1);
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
+x7 = S.sdpvar(1,1);
+x8 = S.sdpvar(1,1);
+x9 = S.sdpvar(1,1);
+x10 = S.sdpvar(1,1);
+x11 = S.sdpvar(1,1);
+t = S.sdpvar(1,1);
 x = [x1;x2;x3;x4;x5;x6;x7;x8;x9;x10;x11];
 
 % ...and 22 linear constraints
@@ -49,4 +50,4 @@ F = F + (e>=0);
 
 sol = optimize(F,obj,sdpsettings('solver','bmibnb','bmibnb.di',0))
 
-testCase.assertTrue(abs(value(obj)--36) <= 1e-6)
+testCase.assertTrue(abs(value(obj, sol)--36) <= 1e-6)

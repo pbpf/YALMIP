@@ -188,7 +188,9 @@ end
 
 function XbiggerY = relaxationLarger(X,Y,P1,P2)
 XbiggerY = 1;
-x = sdpvar(length(X.Ai{1}),1);
+% The comparison SDP is self-contained, so a fresh session owns its variable
+S = yalmip.Session();
+x = S.sdpvar(length(X.Ai{1}),1);
 for k = 1:length(X.Ai)
     Xq = [X.Ai{k}   0.5*X.Bi{k}' ;0.5*X.Bi{k} X.Ci{k}];
     p1 = [x;1]'*Xq*[x;1];
@@ -213,7 +215,8 @@ end
 
 function XbiggerY = quadraticLarger2(Q1,Q2,H,K)
 
-x = sdpvar(size(H,2),1);
+S = yalmip.Session();
+x = S.sdpvar(size(H,2),1);
 obj = [x;1]'*Q1*[x;1]-[x;1]'*Q2*[x;1];
 
 %sol = solvemoment((H*x <= K),obj,[],2);

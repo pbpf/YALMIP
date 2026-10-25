@@ -2,33 +2,33 @@ function tests = test_global_prolog
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from prolog.gms
 % Created 07-Jul-2019 11:28:30 using YALMIP R20190425
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
-x21 = sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
+x21 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(x5*x2+x6*x2+x7*x4+x8*x4)-0+3712*x9+5000*x10-(0);
@@ -81,4 +81,4 @@ F=[F,0<=x21];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem == 0)
-testCase.assertTrue(abs(value(objective)-0) <= 1e-2)
+testCase.assertTrue(abs(value(objective, sol)-0) <= 1e-2)

@@ -2,30 +2,30 @@ function tests = test_global_sambal
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from sambal.gms
 % Created 22-Aug-2007 09:42:02 using YALMIP R20070810
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(0.0666666666666667*sqr(15-x1)+0.333333333333333*sqr(3-x2)+0.00769230769230769*sqr(130-x3)+0.0125*sqr(80-x4)+0.0666666666666667*sqr(15-x7)+0.00769230769230769*sqr(130-x8)+0.05*sqr(20-x9)+0.04*sqr(25-x10)+0.025*sqr(40-x11)+0.0181818181818182*sqr(55-x12)+0.00454545454545455*sqr(220-x13)+0.00526315789473684*sqr(190-x16)+0.00952380952380952*sqr(105-x17))+0-(0));
@@ -46,4 +46,4 @@ F=[F,-x4-x9+x17==0];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb','quadprog.Algorithm','interior-point-convex'))
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)-3.968220361763031) <= 1e-2) 
+testCase.assertTrue(abs(value(objective, sol)-3.968220361763031) <= 1e-2) 

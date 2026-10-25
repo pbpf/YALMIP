@@ -81,17 +81,19 @@ if ~isempty(flat)
     
     % Refine solutions v-Rw = e(x)=0
     if options.moment.refine>0
-        xtemp = double(x);
-        e = monomials(1:size(R,1))-R*w;        
+        e = monomials(1:size(R,1))-R*w;
         dedx = jacobian(e,x);
+        xvars = getvariables(x);
         for j = 1:r
-            assign(x,x_extract{j});
+            xk = x_extract{j};
             for i = 1:options.moment.refine
-                assign(x,double(x)-double(dedx)\double(e));                
+                % Stateless evaluation: explicit solution payload for the
+                % current iterate (monomial values follow via monomtable)
+                payload = struct('eval',struct('variables',xvars,'optvar',xk(:),'values',[]));
+                xk = xk - double(value(dedx,payload))\double(value(e,payload));
             end
-            x_extract{j} = double(x);
+            x_extract{j} = xk;
         end
-        assign(x,xtemp);
     end
 
 else

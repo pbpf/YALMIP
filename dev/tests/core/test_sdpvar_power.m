@@ -2,10 +2,11 @@ function tests = test_sdpvar_power
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-x = sdpvar(1);
+S = yalmip.Session();
+x = S.sdpvar(1);
 y = ([1 1 1]*x).^(0:2);
 testCase.assertTrue(isequal(getbase(y), getbase([1 x x^2])))
-x = sdpvar(1);
+x = S.sdpvar(1);
 y = x.^(0:2);
 testCase.assertTrue(isequal(getbase(y), getbase([1 x x^2])))
 

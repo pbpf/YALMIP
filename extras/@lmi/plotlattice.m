@@ -69,11 +69,14 @@ for i = x
                 V = [V [i;j;k]];
             case 'inner'
                 if ThreeD
-                    assign(X,[i;j;k]);                    
+                    xval = [i;j;k];
                 else
-                    assign(X,[i;j]);                    
+                    xval = [i;j];
                 end
-                p = check(F);
+                % Stateless evaluation: build an explicit solution payload
+                % for the grid point instead of relying on assigned values
+                e = struct('variables',getvariables(X),'optvar',xval(:),'values',[]);
+                p = check(F,struct('eval',e));
                 if min(p) >= 0
                     if ThreeD
                         l = plot3(i,j,k,'or','MarkerSize',size,'MarkerFaceColor','yellow');

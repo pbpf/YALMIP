@@ -2,10 +2,11 @@ function tests = test_bnb_nlp
 tests = functiontests(localfunctions);
 
 function test_minlp(testCase)
+S = yalmip.Session();
 randn('seed',12345);
 rand('seed',12345);
 
-x = sdpvar(5,1);
+x = S.sdpvar(5,1);
 A = randn(15,5);
 b = rand(15,1)*10;
 

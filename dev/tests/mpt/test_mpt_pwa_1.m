@@ -2,6 +2,7 @@ function tests = test_mpt_pwa_1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Data
 A = [2 -1;1 0];nx = 2;
@@ -12,20 +13,20 @@ C = [0.5 0.5];
 N = 6;
 
 % States x(k), ..., x(k+N)
-x = sdpvar(repmat(nx,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N),repmat(1,1,N));
 
 % Inputs u(k), ..., u(k+N) (last one not used)
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
 
 % Binary for PWA selection
-d = binvar(2,1);
+d = S.binvar(2,1);
 
 % Value functions
 J = cell(1,N);
 
 % Initialize value function at stage N
 J{N} = 0;
-t = sdpvar(nx+nu,1);
+t = S.sdpvar(nx+nu,1);
 bounds(t,0,600);
 for k = N-1:-1:1
     

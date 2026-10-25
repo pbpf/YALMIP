@@ -2,63 +2,63 @@ function tests = test_global_st_rv9
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_rv9.gms
 % Created 06-Aug-2007 09:15:14 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
-x21 = sdpvar(1);
-x22 = sdpvar(1);
-x23 = sdpvar(1);
-x24 = sdpvar(1);
-x25 = sdpvar(1);
-x26 = sdpvar(1);
-x27 = sdpvar(1);
-x28 = sdpvar(1);
-x29 = sdpvar(1);
-x30 = sdpvar(1);
-x31 = sdpvar(1);
-x32 = sdpvar(1);
-x33 = sdpvar(1);
-x34 = sdpvar(1);
-x35 = sdpvar(1);
-x36 = sdpvar(1);
-x37 = sdpvar(1);
-x38 = sdpvar(1);
-x39 = sdpvar(1);
-x40 = sdpvar(1);
-x41 = sdpvar(1);
-x42 = sdpvar(1);
-x43 = sdpvar(1);
-x44 = sdpvar(1);
-x45 = sdpvar(1);
-x46 = sdpvar(1);
-x47 = sdpvar(1);
-x48 = sdpvar(1);
-x49 = sdpvar(1);
-x50 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
+x21 = S.sdpvar(1);
+x22 = S.sdpvar(1);
+x23 = S.sdpvar(1);
+x24 = S.sdpvar(1);
+x25 = S.sdpvar(1);
+x26 = S.sdpvar(1);
+x27 = S.sdpvar(1);
+x28 = S.sdpvar(1);
+x29 = S.sdpvar(1);
+x30 = S.sdpvar(1);
+x31 = S.sdpvar(1);
+x32 = S.sdpvar(1);
+x33 = S.sdpvar(1);
+x34 = S.sdpvar(1);
+x35 = S.sdpvar(1);
+x36 = S.sdpvar(1);
+x37 = S.sdpvar(1);
+x38 = S.sdpvar(1);
+x39 = S.sdpvar(1);
+x40 = S.sdpvar(1);
+x41 = S.sdpvar(1);
+x42 = S.sdpvar(1);
+x43 = S.sdpvar(1);
+x44 = S.sdpvar(1);
+x45 = S.sdpvar(1);
+x46 = S.sdpvar(1);
+x47 = S.sdpvar(1);
+x48 = S.sdpvar(1);
+x49 = S.sdpvar(1);
+x50 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(-0.00135*sqr(x1)-0.0027*x1-0.0008*sqr(x2)-0.0496*x2-0.00135*sqr(x3)-0.0081*x3-0.0007*sqr(x4)-0.0686*x4-0.0024*sqr(x5)-0.0912*x5-0.00445*sqr(x6)-0.6764*x6-0.00165*sqr(x7)-0.1914*x7-0.0004*sqr(x8)-0.0384*x8-0.00285*sqr(x9)-0.3876*x9-0.00155*sqr(x10)-0.1116*x10-0.0038*sqr(x11)-0.4636*x11-0.0044*sqr(x12)-0.044*x12-0.0046*sqr(x13)-0.3588*x13-0.00085*sqr(x14)-0.0272*x14-0.00165*sqr(x15)-0.231*x15-0.0025*sqr(x16)-0.27*x16-0.00385*sqr(x17)-0.308*x17-0.00355*sqr(x18)-0.3692*x18-0.0015*sqr(x19)-0.288*x19-0.0037*sqr(x20)-0.407*x20-0.00125*sqr(x21)-0.1175*x21-0.00095*sqr(x22)-0.1045*x22-0.0048*sqr(x23)-0.1632*x23-0.0015*sqr(x24)-0.135*x24-0.0048*sqr(x25)-0.0864*x25-0.0007*sqr(x26)-0.1176*x26-0.0043*sqr(x27)-0.645*x27-0.0045*sqr(x28)-0.882*x28-0.00245*sqr(x29)-0.3283*x29-0.0004*sqr(x30)-0.0648*x30-0.0048*sqr(x31)-0.0864*x31-0.00485*sqr(x32)-0.4753*x32-0.00025*sqr(x33)-0.046*x33-0.00435*sqr(x34)-0.7917*x34-0.00365*sqr(x35)-0.7008*x35-0.0002*sqr(x36)-0.0384*x36-0.00205*sqr(x37)-0.0164*x37-0.00165*sqr(x38)-0.0891*x38-0.00175*sqr(x39)-0.0945*x39-0.0048*sqr(x40)-0.7296*x40-0.00095*sqr(x41)-0.1045*x41-0.0048*sqr(x42)-0.1632*x42-0.0015*sqr(x43)-0.135*x43-0.0048*sqr(x44)-0.0864*x44-0.0007*sqr(x45)-0.1176*x45-0.0043*sqr(x46)-0.645*x46-0.0045*sqr(x47)-0.882*x47-0.00245*sqr(x48)-0.3283*x48-0.0004*sqr(x49)-0.0648*x49-0.0048*sqr(x50)-0.0864*x50));
@@ -139,4 +139,4 @@ F=[F,0<=x50];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--120.1531) <= 1)
+testCase.assertTrue(abs(value(objective, sol)--120.1531) <= 1)

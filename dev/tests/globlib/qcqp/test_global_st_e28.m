@@ -2,22 +2,22 @@ function tests = test_global_st_e28
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_e28.gms
 % Created 24-Jul-2007 14:13:39 using YALMIP R20070523
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(5.3578547*sqr(x7)+0.8356891*x5*x9+37.293239*x5)-5000*x4+0-(-40792.141));
@@ -41,4 +41,4 @@ F=[F,27<=x9<=45];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--3.0666e+004) <= 10)
+testCase.assertTrue(abs(value(objective, sol)--3.0666e+004) <= 10)

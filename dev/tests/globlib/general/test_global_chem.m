@@ -2,24 +2,24 @@ function tests = test_global_chem
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from chem.gms
 % Created 21-Aug-2007 17:09:27 using YALMIP R20070810
 % Setup a clean YALMIP environment
 
-yalmip('clear')
 
 % Define all variables
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
 
 % Define objective function
 objective = -(-(x1*(log(x1/x11)-6.05576803624071)+x2*(log(x2/x11)-17.1307680362407)+x3*(log(x3/x11)-34.0207680362407)+x4*(log(x4/x11)-5.88076803624071)+x5*(log(x5/x11)-24.6877680362407)+x6*(log(x6/x11)-14.9527680362407)+x7*(log(x7/x11)-24.0667680362407)+x8*(log(x8/x11)-10.6747680362407)+x9*(log(x9/x11)-26.6287680362407)+x10*(log(x10/x11)-22.1447680362407))+0-(0));
@@ -45,4 +45,4 @@ F=[F,0.01<=x11];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)- -4.771E+001) <=  10)
+testCase.assertTrue(abs(value(objective, sol)- -4.771E+001) <=  10)

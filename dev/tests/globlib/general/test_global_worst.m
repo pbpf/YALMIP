@@ -2,47 +2,47 @@ function tests = test_global_worst
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from worst.gms
 % Created 21-Aug-2007 18:27:04 using YALMIP R20070810
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
-x21 = sdpvar(1);
-x22 = sdpvar(1);
-x23 = sdpvar(1);
-x24 = sdpvar(1);
-x25 = sdpvar(1);
-x26 = sdpvar(1);
-x27 = sdpvar(1);
-x28 = sdpvar(1);
-x29 = sdpvar(1);
-x30 = sdpvar(1);
-x31 = sdpvar(1);
-x32 = sdpvar(1);
-x33 = sdpvar(1);
-x34 = sdpvar(1);
-x35 = sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
+x21 = S.sdpvar(1);
+x22 = S.sdpvar(1);
+x23 = S.sdpvar(1);
+x24 = S.sdpvar(1);
+x25 = S.sdpvar(1);
+x26 = S.sdpvar(1);
+x27 = S.sdpvar(1);
+x28 = S.sdpvar(1);
+x29 = S.sdpvar(1);
+x30 = S.sdpvar(1);
+x31 = S.sdpvar(1);
+x32 = S.sdpvar(1);
+x33 = S.sdpvar(1);
+x34 = S.sdpvar(1);
+x35 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(0-x18-x19-x20-x21-x22+30000*x23-25000*x24+30000*x25+50000*x26-25000*x27-5000*x28-15000*x29-50000*x30-(20682900));
@@ -101,4 +101,4 @@ F=[F,0.0368<=x35<=0.0768];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb','bmibnb.lpreduce',1));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)-2.0762609e+007) <= 1e3)
+testCase.assertTrue(abs(value(objective, sol)-2.0762609e+007) <= 1e3)

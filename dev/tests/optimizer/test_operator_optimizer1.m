@@ -2,12 +2,14 @@ function tests = test_operator_optimizer1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Tests a regression bug that made expandmodel flawed. Basically, when
 % optmizer generates the model, it constraints the parametric variables to
 % pi. However, these constraints can not be used to tighten the model since
 % they are completely artificial.
-yalmip('clear')
-sdpvar x u r
+x = S.sdpvar(1,1);
+u = S.sdpvar(1,1);
+r = S.sdpvar(1,1);
 constraints = [abs(x + u - r)>=0.01];
 constraints = [constraints, -5<= x <=5, -1 <= u <= 1];
 constraints = [constraints, -5<= r <=5];

@@ -17,9 +17,10 @@ function test_atanh(testCase)
 checkDerivative(testCase,@atanh,[-0.9 -0.5 0 0.5 0.9]);
 
 function checkDerivative(testCase,f,points)
-x = sdpvar(1);
+S = yalmip.Session();
+x = S.sdpvar(1);
 y = f(x);
-e = yalmip('extstruct',getvariables(y));
+e = S.extstruct(getvariables(y));
 [~,operator] = feval(e.fcn,'graph',e.var,e.arg{1:end-1});
 
 % Compare the registered callback with the numeric function, including

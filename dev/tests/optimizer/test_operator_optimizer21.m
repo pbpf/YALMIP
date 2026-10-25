@@ -2,11 +2,12 @@ function tests = test_operator_optimizer21
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x = sdpvar(2,1);
+x = S.sdpvar(2,1);
 Objective = -sum(x);
 Box = [0 <= x <= 5];
-v = sdpvar(3,1);
+v = S.sdpvar(3,1);
 ops = sdpsettings('solver','');
 Solver = optimizer(Box,-x(1)-x(2),ops,[],x);
 Cuts = optimizer(v(1:2)'*x <= v(3),[],ops,v,x);

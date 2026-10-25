@@ -1,5 +1,11 @@
 function [F,obj,BlockedQ,Primal_matrices,Free_variables] = create_kernelmodel(BlockedA,Blockedb,F_parametric,parobj,options,sparsityPattern);
 
+S = session(F_parametric);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
+
 % To get the primal kernel representation, we simply use
 % the built-in dualization module!
 % First, write the problem in primal kernel format
@@ -18,7 +24,7 @@ for i = 1:length(Blockedb)
 
     for j = 1:length(BlockedA{i})
         n = sqrt(size(BlockedA{i}{j},2));
-        BlockedQ{i}{j} = sdpvar(n*sizematrixSOS,n*sizematrixSOS);
+        BlockedQ{i}{j} = S.sdpvar(n*sizematrixSOS,n*sizematrixSOS);
         F = F + lmi(BlockedQ{i}{j});
         if sizematrixSOS>0
             % Matrix valued sum of sqaures

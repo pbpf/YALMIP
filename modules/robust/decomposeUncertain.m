@@ -626,9 +626,10 @@ end
 
 function [Fnew,xnew,info] = adjustable(F,w,newAuxVariables,uncertaintyGroups,ops,VariableType)
 
-L = sdpvar(length(recover(newAuxVariables)),length(w),'full');
+S = session(F);
+L = S.sdpvar(length(recover(newAuxVariables)),length(w),'full');
 L = L.*VariableType.Graph(VariableType.aux_with_w_dependence,VariableType.w_variables);
-y0 = sdpvar(length(recover(newAuxVariables)),1);
+y0 = S.sdpvar(length(recover(newAuxVariables)),1);
 Fnew = replace(F,recover(newAuxVariables),y0+L*w);
 xnew = recover([getvariables(y0) getvariables(L)]);
 info.nvars = length(getvariables(L));

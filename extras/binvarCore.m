@@ -7,7 +7,7 @@ function sys = binvarCore(S, varargin)
 %
 %   See also yalmip.Session, SDPVAR, INTVAR
 
-sys = sdpvarCore(S, varargin{:});
+sys = sdpvar(varargin{:}, 'session', {S});varargin{:});
 if isa(sys,'cell')
     for i = 1:length(sys)
         S.binVariables = [S.binVariables getvariables(sys{i})];

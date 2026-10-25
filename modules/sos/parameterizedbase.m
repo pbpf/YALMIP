@@ -55,5 +55,5 @@ else
             xx{i} = p_base(i);
         end
     end
-    p_base_parametric = stackcell(sdpvar(1,1),xx)';
+    p_base_parametric = stackcell(session(params).sdpvar(1,1),xx)';
 end

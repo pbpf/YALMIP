@@ -2,11 +2,12 @@ function tests = test_global_bmibnb_mpc1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Test bilinearization functionality 
 N = 2;
-x = sdpvar(2*ones(1,N),ones(1,N));
-u = sdpvar(  ones(1,N),ones(1,N));
+x = S.sdpvar(2*ones(1,N),ones(1,N));
+u = S.sdpvar(  ones(1,N),ones(1,N));
 
 F = (-5 <= [x{:}] <=5) + (-10 <= [u{:}] <= 10);
 obj = 0;
@@ -15,7 +16,7 @@ h = 0.05;
 
 A = [1 h;-h 1-2*0.3*h];
 B = [0;h];
-dd = binvar(2,N-1);
+dd = S.binvar(2,N-1);
 bounds([x{:}],-5,5);
 bounds([u{:}],-10,10);
 for i = 1:N-1
@@ -32,7 +33,7 @@ ops =sdpsettings('solver','bmibnb','bmibnb.lpreduce',0,'bmibnb.maxiter',10,'debu
           
 sol = optimize(F+(-10 <= x{1} <= 10) + (x{1} == xk(:,end)),obj,ops)
 testCase.assertTrue(sol.problem == 0)
-testCase.assertTrue(abs(value(obj)- 48.8272) <= 1e-3);
+testCase.assertTrue(abs(value(obj, sol)- 48.8272) <= 1e-3);
 
 P1 = optimizer(F+(-10 <= x{1} <= 10) ,obj,ops,x{1},u{1})
 testCase.assertTrue(abs(P1{xk}--0.3307) <= 1e-3)

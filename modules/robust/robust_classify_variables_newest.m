@@ -1,6 +1,10 @@
 function [VariableType,F_x,F_w,F_xw,h] = robust_classify_variables_newest(F,h,ops,w);
 
 S = session(F);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 Dependency = iterateDependance( S.getMonomtable() | S.getdependence() |  S.getdependenceUser());
 DependsOnw = find(any((Dependency(:,getvariables(w))),2));
 

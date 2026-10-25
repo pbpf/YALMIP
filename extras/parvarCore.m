@@ -1,23 +1,18 @@
 function sys = parvarCore(S, varargin)
-%PARVAR Create symbolic parametric variable 
-%   
-%   PAPRVAR works exactly as SDPVAR, with the only difference that
-%   the elements in the variable automatically will be defined
-%   as parametric variables (for a multi-parametric program)
+%PARVARCORE Create a symbolic parametric variable in session S
 %
-%   See also PARAMETRIC, INTVAR, BINVAR, SDPVAR, BINARY, INTEGER
+%   See also yalmip.Session, SDPVAR
 
-switch nargin
+switch numel(varargin)
     case 1
-        sys = sdpvarCore(S, varargin{1});
+        sys = sdpvar(varargin{1},'session',{S});
     case 2
-        sys = sdpvarCore(S, varargin{1},varargin{2});
+        sys = sdpvar(varargin{1},varargin{2},'session',{S});
     case 3
-        sys = sdpvarCore(S, varargin{1},varargin{2},varargin{3});
+        sys = sdpvar(varargin{1},varargin{2},varargin{3},'session',{S});
     case 4
-        sys = sdpvarCore(S, varargin{1},varargin{2},varargin{3},varargin{4});
+        sys = sdpvar(varargin{1},varargin{2},varargin{3},varargin{4},'session',{S});
     otherwise
         error('Wrong number of input arguments. See help-text for sdpvar')
 end
-
 S.parVariables = [S.parVariables getvariables(sys)];

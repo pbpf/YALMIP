@@ -47,7 +47,7 @@ switch class(varargin{1})
         varargout{3} = [x(:);q];
 
     case {'sdpvar','constraint'}
-        varargout{1} = varargin{1}.sess.define('or',varargin{:});
+        varargout{1} = varargin{1}.sess.define('define','or',varargin{:});
  
     otherwise
 end

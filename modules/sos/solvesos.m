@@ -2,6 +2,10 @@ function [sol,m,Q,residuals,everything] = solvesos(F,obj,options,params,candidat
 
 % The session travels with the symbolic problem data
 S = session(F);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 %SOLVESOS Sum of squares decomposition
 %
 %    [sol,m,B,residual] = solvesos(F,h,options,params,monomials) is used

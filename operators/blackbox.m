@@ -81,7 +81,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
             varargin{2} = g;
         end        
         varargin = {varargin{1:2},operator};
-        varargout{1} = S.define(mfilename,varargin{:});
+        varargout{1} = S.define('define',mfilename,varargin{:});
     else
         % MANY -> MANY
         y = [];
@@ -91,7 +91,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
             varargin_copy = varargin;
             varargin_copy{1} = varargin_copy{1}(i);
             varargin_copy = {varargin_copy{1:2},operator};
-            y = [y;S.define(mfilename,varargin_copy{:})];
+            y = [y;S.define('define',mfilename,varargin_copy{:})];
         end
         varargout{1} = reshape(y,n,m);
     end

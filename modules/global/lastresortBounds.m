@@ -27,12 +27,13 @@ if p.options.bmibnb.sdpbounder && isempty(p.evalMap) && all(p.variabletype <=2)
                 
                 A = A(:,v);
                 n = length(v);
-                gamma = sdpvar(1);
+                S = p.sess;
+                gamma = S.sdpvar(1);
                 sdpvar tau1 tau2
                 if ~isinf(upper)
                     U = upper;
                 else
-                    U = sdpvar(1);
+                    U = S.sdpvar(1);
                 end
                 H1 = [gamma zeros(1,n);zeros(n,1) -eye(n)];
                 H2 = [U - p.nonshiftedQP.f p.nonshiftedQP.c(v)'/2;p.nonshiftedQP.c(v)/2 -p.nonshiftedQP.Q(v,v)];
@@ -40,7 +41,7 @@ if p.options.bmibnb.sdpbounder && isempty(p.evalMap) && all(p.variabletype <=2)
                 if ~isinf(upper)
                     sol = optimize([[H1 - tau1*H2 - tau2*H3]>=0, tau1>=0],gamma,sdpsettings('verbose',p.options.verbose,'solver',p.solver.sdpsolver.tag));
                     if sol.problem == 0
-                        r = sqrt(max(0,value(gamma)));
+                        r = sqrt(max(0,value(gamma,sol)));
                         p.lb(v) = max(p.lb(v),-r);
                         p.ub(v) = min(p.ub(v),r);
                         disp('* - (managed to recover a radius on all variables)');

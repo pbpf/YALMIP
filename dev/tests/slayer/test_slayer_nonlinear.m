@@ -2,8 +2,11 @@ function tests = test_slayer_nonlinear
 tests = functiontests(localfunctions);
 
 function test_disjoint_hiddenconvex(testCase)
+S = yalmip.Session();
 
-sdpvar x y z
+x = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
+z = S.sdpvar(1,1);
 P = [-3 <= [x y z] <= 3, 
      [x^2-1 (x+z);(x+z) 1]>=0,
      [y^2-1 (x+y);(x+y) 1]>=0]

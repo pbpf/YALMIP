@@ -2,15 +2,16 @@ function tests = test_global_bmibnb_gamsrobot5
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x1 = sdpvar(1,1);
-x2 = sdpvar(1,1);
-x3 = sdpvar(1,1);
-x4 = sdpvar(1,1);
-x5 = sdpvar(1,1);
-x6 = sdpvar(1,1);
-x7 = sdpvar(1,1);
-x8 = sdpvar(1,1);
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
+x7 = S.sdpvar(1,1);
+x8 = S.sdpvar(1,1);
 x = [x1;x2;x3;x4;x5;x6;x7;x8];
 F = (-1<=x<=1);
 F = F + ( 0.004731*x1*x3 - 0.1238*x1 - 0.3578*x2*x3 - 0.001637*x2 - 0.9338*x4 + x7 == 0.3571);
@@ -25,4 +26,4 @@ obj = sum(x);
 
 sol = optimize(F,obj,sdpsettings('solver','bmibnb'))
 
-testCase.assertTrue(abs(value(obj)--3.5295) <= 1e-4)
+testCase.assertTrue(abs(value(obj, sol)--3.5295) <= 1e-4)

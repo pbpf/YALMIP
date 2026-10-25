@@ -2,18 +2,18 @@ function tests = test_global_st_fp1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_fp1.gms
 % Created 24-Jul-2007 14:16:00 using YALMIP R20070523
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(42*x1-50*sqr(x1)-50*sqr(x2)+44*x2-50*sqr(x3)+45*x3-50*sqr(x4)+47*x4-50*sqr(x5)+47.5*x5));
@@ -30,4 +30,4 @@ F=[F,0<=x5<=1];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--17) <= 1e-2) 
+testCase.assertTrue(abs(value(objective, sol)--17) <= 1e-2) 

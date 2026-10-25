@@ -2,23 +2,23 @@ function tests = test_global_st_qpc_m3c
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_qpc-m3c.gms
 % Created 06-Aug-2007 09:26:16 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(10*x1-0.068*x1*x1-0.046*x1*x2+10*x2-0.079*x1*x3+10*x3-0.051*x1*x4+10*x4-0.069*x1*x5+10*x5-0.068*x1*x6+10*x6-0.046*x1*x7+10*x7-0.079*x1*x8+10*x8-0.051*x1*x9+10*x9-0.069*x1*x10+10*x10-0.046*x2*x1-0.055*x2*x2-0.058*x2*x3-0.045*x2*x4-0.06*x2*x5-0.046*x2*x6-0.055*x2*x7-0.058*x2*x8-0.045*x2*x9-0.06*x2*x10-0.079*x3*x1-0.058*x3*x2-0.133*x3*x3-0.067*x3*x4-0.089*x3*x5-0.079*x3*x6-0.058*x3*x7-0.133*x3*x8-0.067*x3*x9-0.089*x3*x10-0.051*x4*x1-0.045*x4*x2-0.067*x4*x3-0.069*x4*x4-0.058*x4*x5-0.051*x4*x6-0.045*x4*x7-0.067*x4*x8-0.069*x4*x9-0.058*x4*x10-0.069*x5*x1-0.06*x5*x2-0.089*x5*x3-0.058*x5*x4-0.119*x5*x5-0.069*x5*x6-0.06*x5*x7-0.089*x5*x8-0.058*x5*x9-0.119*x5*x10-0.068*x6*x1-0.046*x6*x2-0.079*x6*x3-0.051*x6*x4-0.069*x6*x5-0.068*x6*x6-0.046*x6*x7-0.079*x6*x8-0.051*x6*x9-0.069*x6*x10-0.046*x7*x1-0.055*x7*x2-0.058*x7*x3-0.045*x7*x4-0.06*x7*x5-0.046*x7*x6-0.055*x7*x7-0.058*x7*x8-0.045*x7*x9-0.06*x7*x10-0.079*x8*x1-0.058*x8*x2-0.133*x8*x3-0.067*x8*x4-0.089*x8*x5-0.079*x8*x6-0.058*x8*x7-0.133*x8*x8-0.067*x8*x9-0.089*x8*x10-0.051*x9*x1-0.045*x9*x2-0.067*x9*x3-0.069*x9*x4-0.058*x9*x5-0.051*x9*x6-0.045*x9*x7-0.067*x9*x8-0.069*x9*x9-0.058*x9*x10-0.069*x10*x1-0.06*x10*x2-0.089*x10*x3-0.058*x10*x4-0.119*x10*x5-0.069*x10*x6-0.06*x10*x7-0.089*x10*x8-0.058*x10*x9-0.119*x10*x10)+0-(0));
@@ -49,4 +49,4 @@ F=[F,0<=x10];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)-0) <= 1e-2)
+testCase.assertTrue(abs(value(objective, sol)-0) <= 1e-2)

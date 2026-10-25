@@ -2,9 +2,10 @@ function tests = test_operator_optimizer18
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 ops = sdpsettings('solver','gurobi,linprog');
-x = sdpvar(2,1);
-c = sdpvar(2,1);
+x = S.sdpvar(2,1);
+c = S.sdpvar(2,1);
 P = optimizer([c'*x <= 1],-sum(x),ops,{c},[x]);
 S = [];
 for i = 1:500

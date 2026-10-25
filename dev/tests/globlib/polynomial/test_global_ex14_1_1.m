@@ -2,8 +2,12 @@ function tests = test_global_ex14_1_1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-sdpvar x1 x2 x3 objvar
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+objvar = S.sdpvar(1,1);
 
 F = ([]);
 F = F + (- x3 + objvar == 0);
@@ -16,9 +20,9 @@ F = F + (5 >= x1 >= -5) + (-5 <= x2 <= 5);
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'))
 
 testCase.assertTrue(sol.problem == 0)
-testCase.assertTrue(abs(value(objvar)-0) <= 1e-4)
+testCase.assertTrue(abs(value(objvar, sol)-0) <= 1e-4)
 
-value([x1 x2 x3])
+value([x1 x2 x3], sol)
 
 function y = sqr(x)
 y = x*x;

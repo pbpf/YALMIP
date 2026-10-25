@@ -2,19 +2,19 @@ function tests = test_global_ex8_1_8
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from ex8_1_8.gms
 % Created 28-Jul-2007 17:52:19 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(x4);
@@ -36,4 +36,4 @@ F=[F,1e-005<=x6<=16];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--0.3888) <= 1e-3)
+testCase.assertTrue(abs(value(objective, sol)--0.3888) <= 1e-3)

@@ -5,9 +5,15 @@ function varargout = or(varargin)
 switch class(varargin{1})
     case 'char'
         z = varargin{2};
-        S = z.sess;
         X = varargin{3};
         Y = varargin{4};
+        % The derived variable carries the session on the model.m path; on
+        % the expandmeta path z is empty, so take it from the operands
+        if isa(z,'sdpvar')
+            S = z.sess;
+        else
+            S = X.sess;
+        end
 
         F = ([]);
         x = S.binvar(1,1);
@@ -23,7 +29,7 @@ switch class(varargin{1})
     case {'lmi'}
         x = varargin{1};
         y = varargin{2};
-        varargout{1} = (varargin{1}.sess.define('lmior',varargin{:}) == 1);
+        varargout{1} = (varargin{1}.sess.define('define','lmior',varargin{:}) == 1);
 
     otherwise
 end

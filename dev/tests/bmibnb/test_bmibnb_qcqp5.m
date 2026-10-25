@@ -2,19 +2,20 @@ function tests = test_global_bmibnb_qcqp5
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x1 = sdpvar(1,1);
-x2 = sdpvar(1,1);
-x3 = sdpvar(1,1);
-x4 = sdpvar(1,1);
-x5 = sdpvar(1,1);
-x6 = sdpvar(1,1);
-x7 = sdpvar(1,1);
-x8 = sdpvar(1,1);
-x9 = sdpvar(1,1);
-x10 = sdpvar(1,1);
-x11 = sdpvar(1,1);
-t = sdpvar(1,1);
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
+x7 = S.sdpvar(1,1);
+x8 = S.sdpvar(1,1);
+x9 = S.sdpvar(1,1);
+x10 = S.sdpvar(1,1);
+x11 = S.sdpvar(1,1);
+t = S.sdpvar(1,1);
 x = [x1;x2;x3;x4;x5;x6;x7;x8;x9;x10;x11];
 
 % ...and 22 linear constraints
@@ -47,8 +48,8 @@ e = -[e1;e2;e3;e4;e5;e6;e7;e8;e9;e10;e11;e12;e13;e14;e15;e16;e17;e18;e19;e20;e21
 F = (10>=x>=0);
 F = F + (e>=0);
 
-f = sdpvar(F(find(is(F,'linear'))));
+f = S.sdpvar(F(find(is(F,'linear'))));
 F = F + cut(triu(f*f') >= 0);
 sol = optimize(F,obj,sdpsettings('solver','bmibnb','bmibnb.lpreduce',0))
 
-testCase.assertTrue(abs(value(obj)--36) <= 1e-6)
+testCase.assertTrue(abs(value(obj, sol)--36) <= 1e-6)

@@ -1,4 +1,10 @@
 function   [F,obj,options] = create_lrmodel(BlockedA,Blockedb,F_parametric,parobj,options,ParametricVariables)
+
+S = session(F_parametric);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 % Some special code for ther low-rank model in SDPLR
 % Experimental code, not official yet
 allb = [];
@@ -35,7 +41,7 @@ K.s = [K.s length(z)+1];
 zeroRow = zeros(1,size(allA,2));
 allA = [allA Mi;zeroRow 1 zeros(1,K.s(end)^2-1)];
 b = zeros(size(allA,1),1);b(end) = 1;
-y = sdpvar(length(b),1);
+y = S.sdpvar(length(b),1);
 CminusAy = -allA'*y;
 start = 1;
 

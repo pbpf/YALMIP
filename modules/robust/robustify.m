@@ -2,6 +2,10 @@ function [F,h,failure] = robustify(F,h,ops,w)
 
 % The session travels with the symbolic problem data
 S = session(F);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 
 %ROBUSTIFY  Derives robust counterpart.
 %

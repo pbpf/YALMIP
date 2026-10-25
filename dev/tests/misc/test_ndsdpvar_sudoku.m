@@ -2,13 +2,14 @@ function tests = test_ndsdpvar_sudoku
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 S = [0,0,1,9,0,0,0,0,8;6,0,0,0,8,5,0,3,0;0,0,7,0,6,0,1,0,0;...
      0,3,4,0,9,0,0,0,0;0,0,0,5,0,4,0,0,0;0,0,0,0,1,0,4,2,0;...
      0,0,5,0,7,0,9,0,0;0,1,0,8,4,0,0,0,7;7,0,0,0,0,9,2,0,0];
 
 p = 3;
-A = ndsdpvar(p^2,p^2,p^2,'full');
+A = S.sdpvar(p^2,p^2,p^2,'full');
 F = (binary(A));
 F = F + (sum(A,1) == 1);
 F = F + (sum(A,2) == 1);
@@ -35,7 +36,7 @@ sol = optimize(F);
 
 Z = 0;
 for i = 1:p^2
-      Z = Z  + i*value(A(:,:,i));
+      Z = Z  + i*value(A(:,:,i), sol);
 end
 testCase.assertTrue(sol.problem == 0);
 testCase.assertTrue(norm(sort(Z(:,1)) - (1:p^2)') <= 1e-4);

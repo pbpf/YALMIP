@@ -1,5 +1,7 @@
 function [F,feasible] = filter_norm_2(all_f,all_c_w,all_c_x,all_Q_xw,x,Zmodel,allw,X,Q_xx,VariableType)
 
+S = session(x);
+
 feasible = 1;
 % As a first step, we figure out the radius
 r = Zmodel.r;
@@ -28,7 +30,7 @@ for i = 1:length(all_f)
              F = F + (x'*Q_xx{i}*x+bi'*x + di - r*s >= 0);            
       %       F = F + (x'*Q_xx{i}*x+bi'*x + di - r*norm(full(Bi(used_rows,used)))*s >= 0);            
         else
-            s = sdpvar(1,1);
+            s = S.sdpvar(1,1);
             if length(used)==1
                 if nnz(Bi(:,used))==0
                     s = norm(full(ci(used)));

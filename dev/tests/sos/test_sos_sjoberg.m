@@ -2,11 +2,13 @@ function tests = test_sos_sjoberg
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Regression for a problem in getexponentbase
 % that caused issues in matrix sos
 
-sdpvar x1 x2 
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
 x = [x1 x2]';
 
 f = [x2;
@@ -19,7 +21,7 @@ gam = 1.52;
 
 % V = sum (c_i * x^something)
 z = monolist(x,4);
-c = sdpvar(length(z),1);
+c = S.sdpvar(length(z),1);
 V = c'*z;
 
 Vx = jacobian(V,x);
@@ -28,6 +30,6 @@ HJI = [Vx*f + f'*Vx.' + h'*h, 1/gam*Vx*g;
        1/gam*g'*Vx.' -1];
    
 [sol,m,B,residuals] = solvesos( (sos(-HJI)),[],sdpsettings('verbose',0),c);
-residual = norm(getbase(replace(-HJI-m{1}'*B{1}*m{1},c,value(c))),'inf')
+residual = norm(getbase(replace(-HJI-m{1}'*B{1}*m{1},c,value(c, sol))),'inf')
 
 testCase.assertTrue(residual < 1e-6);

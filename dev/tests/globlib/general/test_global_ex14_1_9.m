@@ -2,13 +2,13 @@ function tests = test_global_ex14_1_9
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-x2);
@@ -23,4 +23,4 @@ F=[F,100<=x1<=1000];
 % tightening
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb','bmibnb.roottight',0));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)-0) <= 1e-3)
+testCase.assertTrue(abs(value(objective, sol)-0) <= 1e-3)

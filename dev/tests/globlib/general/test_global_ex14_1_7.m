@@ -2,10 +2,20 @@ function tests = test_global_ex14_1_7
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-yalmip('clear')
 
-sdpvar x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 objvar; 
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
+x7 = S.sdpvar(1,1);
+x8 = S.sdpvar(1,1);
+x9 = S.sdpvar(1,1);
+x10 = S.sdpvar(1,1);
+objvar = S.sdpvar(1,1);
 
 F = ([]);
 

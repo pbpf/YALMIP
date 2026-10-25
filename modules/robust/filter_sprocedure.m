@@ -1,5 +1,7 @@
 function [F_xw,F_sprocedure] = filter_sprocedure(F_xw,w,uncertaintyModel,ops)
 
+S = session(F_xw);
+
 % Select the constraints to analyse
 if any(is(F_xw,'elementwise'))
     F_lp = F_xw(find(is(F_xw,'elementwise')));
@@ -23,7 +25,7 @@ if any(is(F_xw,'elementwise'))
             if opsin.verbose
                 disp(' - Using exact S-procedure to eliminate uncertainty');
             end
-            lambda = sdpvar(1);
+            lambda = S.sdpvar(1);
             if isempty(uncertaintyModel{1}.r)
                 g = uncertaintyModel{1}.g;
             else

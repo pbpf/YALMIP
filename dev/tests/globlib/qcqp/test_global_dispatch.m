@@ -2,18 +2,18 @@ function tests = test_global_dispatch
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from dispatch.gms
 % Created 28-Jul-2007 17:34:32 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-objvar = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+objvar = S.sdpvar(1);
 
 % Define constraints 
 F = ([]);
@@ -28,4 +28,4 @@ F=[F,45<=x3<=180];
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-3.1553e+003) <= 32)
+testCase.assertTrue(abs(value(objvar, sol)-3.1553e+003) <= 32)

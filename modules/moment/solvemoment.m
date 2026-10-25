@@ -94,21 +94,21 @@ end
 
 % Solve
 sol = solvesdp(Fnew,obj,sdpsettings(options,'relax',1));
-assign(nonlinears,value(linears));
+sol = assign(nonlinears,value(linears,sol),sol);
 
 % Construct SOS decompositions if the user wants these
 if nargout >= 4
-    sosout.t = relaxdouble(obj);
-    sosout.Q0 = dual(Fnew(1));
+    sosout.t = relaxdouble(obj,sol.eval);
+    sosout.Q0 = dual(Fnew(1),sol);
     sosout.v0 = u{end};
-    sosout.p0 = u{end}'*dual(Fnew(1))*u{end};
+    sosout.p0 = u{end}'*dual(Fnew(1),sol)*u{end};
     for i = 1:length(vecConstraints)
         if isinequality(i)
-            sosout.Qi{i} = dual(Fnew(i+1));
+            sosout.Qi{i} = dual(Fnew(i+1),sol);
             sosout.vi{i} = u{end}(1:length(sosout.Qi{i}));
             sosout.pi{i} = sosout.vi{i}'*sosout.Qi{i}*sosout.vi{i};
         else
-            sosout.Qi{i} = dual(Fnew(i+1));
+            sosout.Qi{i} = dual(Fnew(i+1),sol);
             sosout.vi{i} = ulong{end}(1:length(sosout.Qi{i}));
             sosout.pi{i} = sosout.Qi{i}'*sosout.vi{i};
         end
@@ -118,7 +118,7 @@ end
 % Get the moment matrices
 % M{end} = M_original;
 for i = 1:k+1
-    moments{i} = relaxdouble(M{i});
+    moments{i} = relaxdouble(M{i},sol.eval);
 end
 
 % Extract solutions if possible (at-least fesible and unbounded)

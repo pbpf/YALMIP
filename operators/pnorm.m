@@ -27,7 +27,7 @@ switch class(varargin{1})
         [n,m] = size(X);
         if isreal(X) & min(n,m)==1
             if varargin{2}>=1
-                varargout{1} = X.sess.define(mfilename,varargin{:});
+                varargout{1} = X.sess.define('define',mfilename,varargin{:});
             else
                 error('PNORM only applicable for p>=1');
             end

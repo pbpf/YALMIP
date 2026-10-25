@@ -117,7 +117,7 @@ else
             else
                 if ~all(b>0)
                     % Crappy enumeration requires feasible point
-                    [x_c,R] = chebyball(A*sdpvar(size(A,2),1) <= b);                   
+                    [x_c,R] = chebyball(A*S.sdpvar(size(A,2),1) <= b);                   
                 else
                     x_c = zeros(size(A,2),1);
                 end
@@ -159,7 +159,7 @@ end
 if length(F_xw_lp)>0
     rLP = [];
     if ~isempty(uncAux)
-        z = sdpvar(repmat(length(uncAux),1,size(vertices,2)),repmat(1,1,size(vertices,2)),'full');
+        z = S.sdpvar(repmat(length(uncAux),1,size(vertices,2)),repmat(1,1,size(vertices,2)),'full');
     end
     for i = 1:size(vertices,2)
         temp = replace(sdpvar(F_xw_lp),w,vertices(:,i),0);

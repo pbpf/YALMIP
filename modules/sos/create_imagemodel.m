@@ -1,5 +1,11 @@
 function [F,obj,BlockedQ,sol] = create_imagemodel(BlockedA,Blockedb,F_parametric,parobj,options);
 
+S = session(F_parametric);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
+
 
 % *********************************
 % IMAGE REPRESENTATION
@@ -14,7 +20,7 @@ for i = 1:length(BlockedA)
     A = [];
     for j = 1:length(BlockedA{i})
         n = sqrt(size(BlockedA{i}{j},2));
-        BlockedQ{i}{j} = sdpvar(n,n);
+        BlockedQ{i}{j} = S.sdpvar(n,n);
         q = [q;reshape(BlockedQ{i}{j},n^2,1)];
         A = [A BlockedA{i}{j}];
     end
@@ -31,7 +37,7 @@ if isempty(x_vars)
     A = base(:,1);base = base(:,2:end);
     B = (base(:,ismember(g_vars,q_vars)));
     Bnull = sparsenull(B);
-    t = sdpvar(size(Bnull,2),1);
+    t = S.sdpvar(size(Bnull,2),1);
     imQ = -B\A+Bnull*t;
 else
     A = base(:,1);base = base(:,2:end);
@@ -45,7 +51,7 @@ else
     jj(small)=[];
     kk(small)=[];
     Bnull = sparse(ii,jj,kk,size(Bnull,1),size(Bnull,2));    
-    t = sdpvar(size(Bnull,2),1);
+    t = S.sdpvar(size(Bnull,2),1);
     if options.sos.model == 2
         imQ = -Q1*(R1'\(A+C*recover(x_vars)))+Bnull*t;
     else

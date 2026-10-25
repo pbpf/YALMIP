@@ -21,8 +21,8 @@ x = recover(vars);
 
 % Trying to cope with cases as x+norm(w,1)+norm(w,2)<1, s.t norm(w,2)<1
 % In test_robust_5
-%extended_in_w = intersect(VariableType.w_variables,yalmip('extvariables'));
-%extended_in_F = intersect(vars,yalmip('extvariables'));
+%extended_in_w = intersect(VariableType.w_variables,S.getExtvariables());
+%extended_in_F = intersect(vars,S.getExtvariables());
 if ~(strcmp(ops.robust.auxreduce,'none') | strcmp(ops.robust.auxreduce,'affine'))
     if ~isempty(intersect(vars,intersect(VariableType.w_variables,S.getExtvariables())))
         F = F_xw;
@@ -110,7 +110,7 @@ elseif isequal(norm_p,'inf-norm')
                 % c(1) +  c(2:end)'*center + r*c(2:end)'*wnormalized >= 0
                 center = (Zmodel.lb + Zmodel.ub)/2;
                 r = (Zmodel.ub - Zmodel.lb)/2;
-                t = sdpvar(length(allw),1);
+                t = S.sdpvar(length(allw),1);
                 F = [F, c(1) + c(2:end)'*center - sum(t) >= 0, -t <= r.*c(2:end) <= t];
             end
       %  catch

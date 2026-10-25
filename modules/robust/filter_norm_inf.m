@@ -1,5 +1,7 @@
 function [F,feasible] = filter_norm_inf(all_f,all_c_w,all_c_x,all_Q_xw,x,Zmodel,allw,X,Q_xx,VariableType)
 
+S = session(x);
+
 if any(Zmodel.lb > Zmodel.ub)
     error('The uncertainty model is weird. Some of the lower bounds on the uncertainty are larger than the upper bounds. In other words, the feasible set for the uncertainty is empty.');    
 end
@@ -108,7 +110,7 @@ if ~isempty(collectA)
     elseif all(U<=0)
           F = F + (collectA*x + collectb+collectC*(-z) >= 0);
     else
-        t = sdpvar(size(collectC,2),1);
+        t = S.sdpvar(size(collectC,2),1);
         %  F = F + (collectA*x + collectb+collectC*t >= 0);
         %  F = F + (-t <= collectE*x + collectd <= t);
         F = F + ([-collectA -collectC;collectE -speye(length(t));-collectE -speye(length(t))]*[x;t] + [-collectb;collectd;-collectd] <= 0);

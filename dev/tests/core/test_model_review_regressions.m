@@ -36,14 +36,17 @@ for powers = {[1 2],[2 1],[1 3],[3 1],[2 3]}
 end
 
 function test_robust_norm_distinct_affine_terms(testCase)
-x = sdpvar(1); w = sdpvar(1); Z.r = 1; Z.center = 0;
+S = yalmip.Session();
+x = S.sdpvar(1); w = S.sdpvar(1); Z.r = 1; Z.center = 0;
 ops.verbose = 0; ops.robust.auxreduce = 'none'; V.w_variables = getvariables(w);
 [F,~] = filter_normball([-w*(x+1)>=0,-w*(x-1)>=0],Z,x,w,w,'2-norm',ops,V);
-vars = recover(depends(F)); assign(vars,zeros(length(vars),1)); assign(x,-1);
-testCase.verifyLessThan(min(check(F)),0);
+sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+vars = recover(depends(F)); sol = assign(vars,zeros(length(vars),1), sol); sol = assign(x,-1, sol);
+testCase.verifyLessThan(min(check(F, sol)),0);
 
 function test_polya_negative_coefficients(testCase)
-w = sdpvar(2,1);
+S = yalmip.Session();
+w = S.sdpvar(2,1);
 threw = false;
 try
     filter_polya(lmi(-w(1)^2-w(2)^2>=0),w,0);
@@ -53,17 +56,19 @@ end
 testCase.verifyTrue(threw);
 
 function test_iff_parallel_inequalities(testCase)
-x = sdpvar(1); b = binvar(1); bounds(x,-10,10);
+S = yalmip.Session();
+x = S.sdpvar(1); b = S.binvar(1); bounds(x,-10,10);
 cases = {[x<=1,x<=2],[x<=1,x>=2],[x<=2,x>=1]};
 points = [3 1.5 3];
 for i = 1:numel(cases)
     F = iff_internal(b,cases{i});
     aux = setdiff(depends(F),[getvariables(x),getvariables(b)]);
-    assign(x,points(i)); assign(b,0);
+    sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+    sol = assign(x,points(i), sol); sol = assign(b,0, sol);
     best = -Inf;
     for bits = 0:2^numel(aux)-1
-        assign(recover(aux),bitget(bits,1:numel(aux))');
-        best = max(best,min(check(F)));
+        sol = assign(recover(aux),bitget(bits,1:numel(aux))', sol);
+        best = max(best,min(check(F, sol)));
     end
     testCase.verifyGreaterThanOrEqual(best,-1e-12);
 end

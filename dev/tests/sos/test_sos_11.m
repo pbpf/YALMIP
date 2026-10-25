@@ -2,16 +2,17 @@ function tests = test_sos_3
 tests = functiontests({@test1});
 
 function test1(testCase)
+S = yalmip.Session();
 ops{1} = sdpsettings('sos.cong',0,'sos.model',1,'verbose',0);
 ops{2} = sdpsettings('sos.cong',1,'sos.model',2,'verbose',0);
 ops{3} = sdpsettings('sos.cong',0,'sos.newton',0,'verbose',0,'sos.extlp',0);
 
-x = sdpvar(1,1);
-y = sdpvar(1,1);
-z = sdpvar(1,1);
-t = sdpvar(1,1);
-s = sdpvar(1,1);
-w = sdpvar(1,1);
+x = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
+z = S.sdpvar(1,1);
+t = S.sdpvar(1,1);
+s = S.sdpvar(1,1);
+w = S.sdpvar(1,1);
 F = (sos(x^4+z^6))+(sos(x^2+(t+s+w-6)*x*z)) + ([w;s]>=0)+(t>=3);
 obj = w;
 for i = 1:length(ops)    
@@ -30,16 +31,16 @@ if nargin==3
 end
 
 ops.sos.model = 1;
-solvesos(F,obj,ops,pv);
-obj1 = value(obj);
-p1s = check(F(find(is(F,'sos'))));
-p1e = check(F(find(~is(F,'sos'))));
+sol = solvesos(F,obj,ops,pv);
+obj1 = value(obj, sol);
+p1s = check(F(find(is(F,'sos'))), sol);
+p1e = check(F(find(~is(F,'sos'))), sol);
 
 ops.sos.model = 2;
-solvesos(F,obj,ops,pv);
-obj2 = value(obj);
-p2s = check(F(find(is(F,'sos'))));
-p2e = check(F(find(~is(F,'sos'))));
+optsol = solvesos(F,obj,ops,pv);
+obj2 = value(obj, optsol);
+p2s = check(F(find(is(F,'sos'))), optsol);
+p2e = check(F(find(~is(F,'sos'))), optsol);
 
 fail = 0;
 

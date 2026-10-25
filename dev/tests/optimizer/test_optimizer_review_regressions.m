@@ -5,7 +5,8 @@ function setupOnce(testCase)
 testCase.TestData.options = sdpsettings('solver','+none','verbose',0);
 
 function test_merge_equalities(testCase)
-p = sdpvar(1); x = sdpvar(1); y = sdpvar(1);
+S = yalmip.Session();
+p = S.sdpvar(1); x = S.sdpvar(1); y = S.sdpvar(1);
 ops = testCase.TestData.options;
 a = optimizer([x==p,y>=0],x+y,ops,p,[x;y]);
 b = optimizer([x==p,y==1,y>=0],x+y,ops,p,[x;y]);
@@ -15,7 +16,8 @@ mb = b.model;
 testCase.verifyEqual(m.K.f,mb.K.f);
 
 function test_merge_sdp_blocks(testCase)
-p = sdpvar(1); x = sdpvar(1); y = sdpvar(1);
+S = yalmip.Session();
+p = S.sdpvar(1); x = S.sdpvar(1); y = S.sdpvar(1);
 ops = testCase.TestData.options;
 F1 = [x 1;1 y]>=0; F2 = [x-5 2;2 y-4]>=0; F3 = [x-5 2;2 y-100]>=0;
 a = optimizer([F1,x+y<=p],x+y,ops,p,[x;y]);
@@ -30,10 +32,11 @@ me = e.model;
 testCase.verifyEqual(me.K.s,[2 2 2]);
 
 function test_polynomial_gradient_creation_order(testCase)
+S = yalmip.Session();
 ops = testCase.TestData.options;
 for ordering = 1:2
-    x = sdpvar(1); f = x^3;
-    y = sdpvar(1); f = f+y^3;
+    x = S.sdpvar(1); f = x^3;
+    y = S.sdpvar(1); f = f+y^3;
     if ordering == 2
         f = x*y^2+y^3+2*x^2;
         expectedValue = 4*9+27+2*16;
@@ -51,7 +54,8 @@ for ordering = 1:2
 end
 
 function test_sdp_presolve_retains_coefficients(testCase)
-x = sdpvar(1); z = binvar(1);
+S = yalmip.Session();
+x = S.sdpvar(1); z = S.binvar(1);
 m = prepareSDP([1 1;1 x]>=0,-x+z,x,testCase.TestData.options);
 p = presolve_implied_from_SDP(m);
 ix = find(m.used_variables==getvariables(x));
@@ -59,7 +63,8 @@ testCase.verifyEqual(p.lb(ix),10);
 testCase.verifyEqual(p.F_struc,m.F_struc);
 
 function test_sdp_presolve_quadratic_objective(testCase)
-x = sdpvar(1); z = binvar(1);
+S = yalmip.Session();
+x = S.sdpvar(1); z = S.binvar(1);
 m = prepareSDP([x 1;1 1]>=0,x^2+z,x,testCase.TestData.options);
 p = presolve_implied_from_SDP(m);
 ix = find(m.used_variables==getvariables(x));

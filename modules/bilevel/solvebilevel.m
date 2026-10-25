@@ -524,8 +524,12 @@ info.ninfeascuts = ninfeascuts;
 info.ndomcuts = ndomcuts;
 
 if ~isempty(xsol)
-    assign(recover(all_variables(x_var)),xsol);
-    assign(recover(all_variables(y_var)),zsol);
+    % Stateless cutover: attach the solution as an explicit evaluation
+    % payload so that value(x,sol) works on the returned diagnostic
+    e.variables = [getvariables(recover(all_variables(x_var))) getvariables(recover(all_variables(y_var)))];
+    e.optvar = [xsol(:);zsol(:)];
+    e.values = [];
+    sol.eval = e;
 else
     sol.problem = 1;
 end
@@ -601,7 +605,11 @@ outer_p = p;
 function p = disjunction(p,variable,const,xstar)
 neq = p.K.f+1;
 
-x = sdpvar(length(p.c),1);
+% The disjunctive cut LP is fully self-contained (only numbers flow back),
+% so a fresh session owns its variables
+S = yalmip.Session();
+
+x = S.sdpvar(length(p.c),1);
 e = p.F_struc*[1;x];
 Model1 = [x(variable)==0,-e(1:p.K.f)==0, e(1+p.K.f:end)>=0];
 Model2 = [const*[1;x]==0,-e(1:p.K.f)==0, e(1+p.K.f:end)>=0];
@@ -612,18 +620,18 @@ A1 =  Ab1(:,2:end);
 b2 = -Ab2(:,1);
 A2 = Ab2(:,2:end);
 
-alpha = sdpvar(length(xstar),1);
-beta = sdpvar(1);
-mu1 = sdpvar(length(b1),1);
-mu2 = sdpvar(length(b2),1);
+alpha = S.sdpvar(length(xstar),1);
+beta = S.sdpvar(1);
+mu1 = S.sdpvar(length(b1),1);
+mu2 = S.sdpvar(length(b2),1);
 
 Objective  = alpha'*xstar-beta;
 Constraint = [alpha' == mu1'*A1,alpha' == mu2'*A2,beta <= mu1'*b1, beta <= mu2'*b2,mu1(neq+1:end)>0,mu2(neq+1:end)>0];
 Constraint = [Constraint,-1<alpha<1,sum(mu1)+sum(mu2)==1];
 
-solvesdp(Constraint,Objective,sdpsettings('verbose',0));
+soldisj = solvesdp(Constraint,Objective,sdpsettings('verbose',0));
 p.K.l = p.K.l + 1;
-p.F_struc = [p.F_struc;-double(beta) double(alpha)'];
+p.F_struc = [p.F_struc;-double(value(beta,soldisj)) double(value(alpha,soldisj))'];
 
 
 function p = disjunctionFAST(p,variable,const,xstar)
@@ -640,10 +648,8 @@ beta_ind = alpha_ind(end)+1;
 mu1_ind = (1:length(b1))+beta_ind;
 mu2_ind = (1:length(b2))+mu1_ind(end);
 
-alpha = sdpvar(length(xstar),1);
-beta = sdpvar(1);
-mu1 = sdpvar(length(b1),1);
-mu2 = sdpvar(length(b2),1);
+% The symbolic variables used to be created here to register the new
+% columns, but they were never used (only the numeric solution below is)
 
 p_hull = p;
 p_hull.c = zeros(mu2_ind(end),1);

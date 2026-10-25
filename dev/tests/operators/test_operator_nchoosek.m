@@ -2,8 +2,8 @@ function tests = test_operator_nchoosek
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-yalmip('clear');
-X = sdpvar(10,1);
+S = yalmip.Session();
+X = S.sdpvar(10,1);
 k = 3;
 alpha = rand(10,1).^5;
 Model = [sum(X)==40,3<=X<=15];

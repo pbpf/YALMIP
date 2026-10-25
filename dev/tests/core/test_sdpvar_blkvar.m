@@ -2,8 +2,9 @@ function tests = test_blkvar
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x = sdpvar(1);
+x = S.sdpvar(1);
 Yblk = blkvar;
 Yblk(1,1) = x;
 Yblk(1,2) = 2;

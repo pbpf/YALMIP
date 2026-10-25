@@ -2,16 +2,16 @@ function tests = test_global_circle
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from circle.gms
 % Created 17-Mar-2008 11:05:04 using YALMIP R20070810
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-objvar = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+objvar = S.sdpvar(1);
 
 % Define constraints 
 F = ([]);
@@ -30,4 +30,4 @@ F=[F,0<=objvar];
 % Solve problem
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb','bmibnb.absgaptol',1e-3,'bmibnb.relgaptol',1e-3))
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-4.5742) <= 1e-2)
+testCase.assertTrue(abs(value(objvar, sol)-4.5742) <= 1e-2)

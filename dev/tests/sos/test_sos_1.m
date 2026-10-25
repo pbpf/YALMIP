@@ -2,13 +2,15 @@ function tests = test_sos_1
 tests = functiontests({@test1});
 
 function test1(testCase)
-yalmip('clear');
+S = yalmip.Session();
 
 ops{1} = sdpsettings('sos.cong',0,'sos.model',1,'verbose',0);
 ops{2} = sdpsettings('sos.cong',1,'sos.model',2,'verbose',0);
 ops{3} = sdpsettings('sos.cong',0,'sos.newton',0,'verbose',0,'sos.extlp',0);
 
-sdpvar x s t;
+x = S.sdpvar(1,1);
+s = S.sdpvar(1,1);
+t = S.sdpvar(1,1);
 F = (sos(1+x+(1-s)*x^2-s))+(sos(2+2*x+x^4-8*t))+(s>=0.49)+(s+t<=0.55);
 obj= -s-t;
 
@@ -24,16 +26,16 @@ if nargin==3
 end
 
 ops.sos.model = 1;
-solvesos(F,obj,ops,pv);
-obj1 = value(obj);
-p1s = check(F(find(is(F,'sos'))));
-p1e = check(F(find(~is(F,'sos'))));
+sol = solvesos(F,obj,ops,pv);
+obj1 = value(obj, sol);
+p1s = check(F(find(is(F,'sos'))), sol);
+p1e = check(F(find(~is(F,'sos'))), sol);
 
 ops.sos.model = 2;
-solvesos(F,obj,ops,pv);
-obj2 = value(obj);
-p2s = check(F(find(is(F,'sos'))));
-p2e = check(F(find(~is(F,'sos'))));
+optsol = solvesos(F,obj,ops,pv);
+obj2 = value(obj, optsol);
+p2s = check(F(find(is(F,'sos'))), optsol);
+p2e = check(F(find(~is(F,'sos'))), optsol);
 
 fail = 0;
 

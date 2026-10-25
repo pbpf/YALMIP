@@ -15,7 +15,7 @@ switch class(varargin{1})
         varargout{1} = sum(svd(varargin{1}));
         
     case 'sdpvar'
-        varargout{1} = varargin{1}.sess.define(mfilename,varargin{:});
+        varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{:});
         
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
         if isequal(varargin{1},'graph')

@@ -2,20 +2,20 @@ function tests = test_global_ex7_2_2
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from ex7_2_2.gms
 % Created 28-Jul-2007 17:38:18 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-objvar = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+objvar = S.sdpvar(1);
 
 % Define constraints 
 objvar = -x4;
@@ -36,4 +36,4 @@ F=[F,1e-005<=x6<=16];
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'))
 
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)--0.3888) <= 1e-3)
+testCase.assertTrue(abs(value(objvar, sol)--0.3888) <= 1e-3)

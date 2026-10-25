@@ -138,7 +138,7 @@ for i = 1:length(b)
                 non_zeroBirow = find(sum(abs(Bi'),2));
                 zeroBirow = find(sum(abs(Bi'),2) == 0);
                 if length(non_zeroBirow)>1
-                    t = sdpvar(length(non_zeroBirow),1);
+                    t = S.sdpvar(length(non_zeroBirow),1);
                     F = F + ((bi'+e'*Bi')*x + (di+e'*ci) - sum(t) >= 0) + (-t <= T(non_zeroBirow,:)*(ci+Bi'*x) <= t);
                 else
                     F = F + ((bi'+e'*Bi')*x + (di+e'*ci) - T(non_zeroBirow,:)*(ci+Bi'*x) >= 0) ;
@@ -155,14 +155,14 @@ for i = 1:length(b)
             Flocal = [];
             
             if Zmodel.K.f > 0
-                zeta = sdpvar(Zmodel.K.f,1);            
+                zeta = S.sdpvar(Zmodel.K.f,1);            
                 lhs1 = lhs1 + Zmodel.F_struc(top:top + Zmodel.K.f-1,2:end)'*zeta;
                 lhs2 = lhs2 - Zmodel.F_struc(top:top + Zmodel.K.f-1,1)'*zeta;
                 top = top + Zmodel.K.f;
             end
 
             if Zmodel.K.l > 0
-                zeta = sdpvar(Zmodel.K.l,1);
+                zeta = S.sdpvar(Zmodel.K.l,1);
                 Flocal = Flocal + (zeta >= 0);
                 lhs1 = lhs1 + Zmodel.F_struc(top:top + Zmodel.K.l-1,2:end)'*zeta;
                 lhs2 = lhs2 - Zmodel.F_struc(top:top + Zmodel.K.l-1,1)'*zeta;
@@ -172,14 +172,14 @@ for i = 1:length(b)
             if any(Zmodel.K.q)
                 if all(Zmodel.K.q == Zmodel.K.q(1)) && Zmodel.K.q(1)>2
                     % Complete vectorization possible
-                    zeta = sdpvar(Zmodel.K.q(1),length(Zmodel.K.q),'full');
+                    zeta = S.sdpvar(Zmodel.K.q(1),length(Zmodel.K.q),'full');
                     Flocal = Flocal + cone(zeta);
                     lhs1 = lhs1 + Zmodel.F_struc(top:top + sum(Zmodel.K.q)-1,2:end)'*zeta(:);
                     lhs2 = lhs2 - Zmodel.F_struc(top:top + sum(Zmodel.K.q)-1,1)'*zeta(:);
                     top = top + sum(Zmodel.K.q);
                 else
                     for j = 1:length(Zmodel.K.q)
-                        zeta = sdpvar(Zmodel.K.q(j),1);
+                        zeta = S.sdpvar(Zmodel.K.q(j),1);
                         if length(zeta)>2
                             Flocal = Flocal + (cone(zeta));
                         else
@@ -194,7 +194,7 @@ for i = 1:length(b)
             
             if Zmodel.K.s(1) > 0
                 for j = 1:length(Zmodel.K.s)
-                    zeta = sdpvar(Zmodel.K.s(j));
+                    zeta = S.sdpvar(Zmodel.K.s(j));
                     Flocal = Flocal + (zeta >= 0);
                     lhs1 = lhs1 + Zmodel.F_struc(top:top + Zmodel.K.s(j)^2-1,2:end)'*zeta(:);
                     lhs2 = lhs2 - Zmodel.F_struc(top:top + Zmodel.K.s(j)^2-1,1)'*zeta(:);
@@ -215,7 +215,7 @@ for i = 1:length(b)
                 % A*zeta == -b +  Bi'*x + ci
                 % zets ==...
                 Anull = null(full(Alhs));
-                zeta2 = (Alhs\(-blhs +  Bi'*x + ci))+Anull*sdpvar(size(Anull,2),1);
+                zeta2 = (Alhs\(-blhs +  Bi'*x + ci))+Anull*S.sdpvar(size(Anull,2),1);
                 lhs2 = replace(lhs2,recover(depends(lhs1)),zeta2);
                 Flocal = replace(Flocal,recover(depends(lhs1)),zeta2);
             else

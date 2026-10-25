@@ -2,8 +2,12 @@ function tests = test_bmibnb_nonlinearktkt
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-sdpvar x1 x2 y1 y2
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+y1 = S.sdpvar(1,1);
+y2 = S.sdpvar(1,1);
 x=[x1,x2];y=[y1,y2];
 ops=sdpsettings('solver','bmibnb');
 
@@ -14,4 +18,4 @@ g = [-x1^2+2*x1-x2^2+2*y1-y2-3<=0;-x2-3*y1+4*y2+4<=0;-y1<=0;-y2<=0];
 K = kkt(g,f,[x1 x2]);
 sol = optimize([G,K,g],F,ops);
 testCase.assertTrue(sol.problem == 0)
-testCase.assertTrue(abs(value(F)--12.6787) <= 1e-2) 
+testCase.assertTrue(abs(value(F, sol)--12.6787) <= 1e-2) 

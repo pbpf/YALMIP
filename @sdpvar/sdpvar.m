@@ -30,6 +30,16 @@ if isstruct(varargin{1})
     return
 end
 
+% Internal creation pathway used by yalmip.Session methods and the
+% dispatcher: the session handle travels in a cell so that this plain
+% function call does not dispatch back to a Session method.
+if nargin >= 2 && isequal(varargin{end-1},'session') && iscell(varargin{end})
+    S = varargin{end}{1};
+    args = varargin(1:end-2);
+    sys = sdpvarCore(S, args{:});
+    return
+end
+
 % 1-argument copy/convert paths used internally by operator overloads
 if nargin==1
     if isa(varargin{1},'sdpvar')

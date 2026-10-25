@@ -2,9 +2,13 @@ function tests = test_operator_optimizer17
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Test partial instantiation
 
-sdpvar x a y b
+x = S.sdpvar(1,1);
+a = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
+b = S.sdpvar(1,1);
 ops = sdpsettings('solver','gurobi,quadprog');
 P = optimizer([0 <= [x y] <= 10, x + y <= 1],a^3 + (x-a)^2+5*(y-b)^2,ops,{a,b},[x y]);
 H = P{{0.5,[]}}
@@ -27,7 +31,11 @@ H = P{{0.5,[]}}
 [sol,infeas] = H{0.9};
 testCase.assertTrue(norm(sol-[ 0.4333    0.5667]) <= 1e-3);
 
-sdpvar x a b c y
+x = S.sdpvar(1,1);
+a = S.sdpvar(1,1);
+b = S.sdpvar(1,1);
+c = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
 P = optimizer([0 <= [x y] <= 10, x + y <= c],a^3 + (x-a)^2+5*(y-b)^2,ops,{a,c,b},[y x]);
 sol = P{{4,5,6}}
 testCase.assertTrue(norm(sol-[5 0]) <= 1e-3);
@@ -43,7 +51,12 @@ sol = H{[c == 6]}
 testCase.assertTrue(norm(sol-[4+1/3 5/3]) <= 1e-3);
 
 function test2(testCase)
-sdpvar x a b c y
+S = yalmip.Session();
+x = S.sdpvar(1,1);
+a = S.sdpvar(1,1);
+b = S.sdpvar(1,1);
+c = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
 ops = sdpsettings('solver','gurobi,quadprog');
 P = optimizer([0 <= [x y] <= 10, x + y <= c],(x-b*a)^2+5*(y-b)^2,ops,{a,c,b},[y x]);
 sol = P{{4,5,6}}
@@ -53,7 +66,12 @@ H = P{{[],5,[]}};
 testCase.assertTrue(norm(sol-[1.8333 3.1667]) <= 1e-3);
 
 function test3(testCase)
-sdpvar x a b c y
+S = yalmip.Session();
+x = S.sdpvar(1,1);
+a = S.sdpvar(1,1);
+b = S.sdpvar(1,1);
+c = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
 ops = sdpsettings('solver','gurobi,quadprog');
 P = optimizer([0 <= [x y] <= 10, x + y <= c],(x-b*a)^2+c*(y-b)^2,ops,{a,c,b},[y x]);
 sol = P{{4,5,6}}

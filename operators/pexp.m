@@ -39,7 +39,7 @@ switch class(varargin{1})
         if ~isequal(prod(size(varargin{1})),2)
             error('PEXP only defined for 2x1 arguments');
         else
-            varargout{1} = varargin{1}.sess.define(mfilename,varargin{1});
+            varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{1});
         end
 
     case 'char'

@@ -2,6 +2,7 @@ function tests = test_mpt_lti_1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Data
 A = [2 -1;1 0];nx = 2;
@@ -12,10 +13,10 @@ C = [0.5 0.5];
 N = 3;
 
 % States x(k), ..., x(k+N)
-x = sdpvar(repmat(nx,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N),repmat(1,1,N));
 
 % Inputs u(k), ..., u(k+N) (last one not used)
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
 
 % Value functions
 J = cell(1,N);

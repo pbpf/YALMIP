@@ -2,16 +2,17 @@ function tests = test_bnb_misdp
 tests = functiontests(localfunctions);
 
 function test_misdp(testCase)
+S = yalmip.Session();
 % Test two regression bugs
 % 1. quadratic costs in binary SDP
 % 2. OR on SDP constraints
 
-X = sdpvar(3,3);
+X = S.sdpvar(3,3);
 obj = trace((X-2*eye(3))*(X-2*eye(3))');
 sol = optimize((X<=3*eye(3)) + ((X>=eye(3)) | (X<=-eye(3))) + (-50 <= X(:) <= 50),obj,sdpsettings('verbose',0,'debug',1,'sedumi.free',0));
 
 testCase.assertTrue(sol.problem==0);
-testCase.assertTrue(abs(value(obj)) <= 1e-5);
+testCase.assertTrue(abs(value(obj, sol)) <= 1e-5);
 
 
 Loc_n=4;
@@ -24,7 +25,7 @@ s4=3.8259;
 Cov_M=[1.501 0.523 0.978 0.978; 3.002 1.046 1.956 1.956; 4.503 1.569 2.934 2.934]';
 Z=[2500 1500 800]; %$,cost
 %variable claim
-X=binvar(Nvar,1);    % [q11 q12 q13 q21 q22 q23 q31 q32 q33 q41 q42 q43]
+X=S.binvar(Nvar,1);    % [q11 q12 q13 q21 q22 q23 q31 q32 q33 q41 q42 q43]
 %Constraints (LMIs)
 for i=1:Loc_n
     k=3*i-2;
@@ -51,4 +52,4 @@ cc(3*Sen_n+1:end)=Z;
 obj=cc*X;
 sol = optimize(F,obj,sdpsettings('solver','bnb','verbose',0));
 testCase.assertTrue(sol.problem==0);
-testCase.assertTrue(abs(value(obj)-3100) <= 1);
+testCase.assertTrue(abs(value(obj, sol)-3100) <= 1);

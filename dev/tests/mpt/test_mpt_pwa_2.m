@@ -2,6 +2,7 @@ function tests = test_mpt_pwa_2
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Data
 A = [2 -1;1 0];nx = 2;
@@ -12,13 +13,13 @@ C = [0.5 0.5];
 N = 4;
 
 % States x(k), ..., x(k+N)
-x = sdpvar(repmat(nx,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N),repmat(1,1,N));
 
 % Inputs u(k), ..., u(k+N) (last one not used)
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
 
 % Binary for PWA selection
-d = binvar(2,1);
+d = S.binvar(2,1);
 
 % Compare
 sysStruct.A{1} = A;
@@ -77,7 +78,7 @@ for k = N-1:-1:1
     F = F + (-5 <= x{k+1}   <= 5);
 
     % PWA Dynamics
-    d = binvar(2,1);dd = [dd;d];
+    d = S.binvar(2,1);dd = [dd;d];
     F = F + (implies(d(1),x{k+1} == (A*x{k}+B*u{k})));
     F = F + (implies(d(2),x{k+1} == (A*x{k}+pi*B*u{k})));
     F = F + (implies(d(1),x{k}(1) >= 0));

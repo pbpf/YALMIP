@@ -2,23 +2,23 @@ function tests = test_global_st_fp5
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_fp5.gms
 % Created 24-Jul-2007 14:16:06 using YALMIP R20070523
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(-5*sqr(x1)-20*x1-5*sqr(x2)-80*x2-5*sqr(x3)-20*x3-5*sqr(x4)-50*x4-5*sqr(x5)-60*x5-5*sqr(x6)-90*x6-5*sqr(x7))-10*x8-10*x9-10*x10);
@@ -50,4 +50,4 @@ F=[F,0<=x10<=1];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--268.0146) <= 1e-2) 
+testCase.assertTrue(abs(value(objective, sol)--268.0146) <= 1e-2) 

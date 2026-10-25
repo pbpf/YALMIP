@@ -2,19 +2,19 @@ function tests = test_global_ex3_1_3
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from ex3_1_3.gms
 % Created 28-Jul-2007 19:00:46 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
 
 objvar = -(-(-25*sqr(x1-2)-sqr(x2-2)-sqr(x3-1)-sqr(x4-4)-sqr(x5-1)-sqr(x6-4)));
 % Define constraints 
@@ -37,4 +37,4 @@ F=[F,0<=x6<=10];
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)- -310) <= 1e-1) 
+testCase.assertTrue(abs(value(objvar, sol)- -310) <= 1e-1) 

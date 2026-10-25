@@ -2,13 +2,14 @@ function tests = test_global_bmibnb_qcqp2
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x1 = sdpvar(1,1);
-x2 = sdpvar(1,1);
-x3 = sdpvar(1,1);
-x4 = sdpvar(1,1);
-x5 = sdpvar(1,1);
-x6 = sdpvar(1,1);
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
 
 obj = -25*(x1-2)^2-(x2-2)^2-(x3-1)^2-(x4-4)^2-(x5-1)^2-(x6-4)^2;
 
@@ -18,4 +19,4 @@ F = F + (6>=x1+x2>=2);
 F = F + (1<=x3<=5) + (0<=x4<=6)+(1<=x5<=5)+(0<=x6<=10)+(x1>=0)+(x2>=0);
 sol = optimize(F,obj,sdpsettings('solver','bmibnb'))
 
-testCase.assertTrue(abs(value(obj)--310) <= 1e-3)
+testCase.assertTrue(abs(value(obj, sol)--310) <= 1e-3)

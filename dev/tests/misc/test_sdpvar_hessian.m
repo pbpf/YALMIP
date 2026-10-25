@@ -2,8 +2,10 @@ function tests = test_sdpvar_hessian
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-sdpvar x y
+x = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
 testCase.assertTrue(all(all(zeros(2)==hessian(x,[x y]))));
 testCase.assertTrue(all(all(zeros(2)==hessian(x+y,[x y]))));
 testCase.assertTrue(all(all([0 1;1 0]==hessian(x*y,[x y]))));

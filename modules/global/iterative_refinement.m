@@ -135,6 +135,10 @@ end
 
 
 function [fval x y z info] = refiner(Aeq, beq, f, K, options, l, fd, ld, beqd, Ld, xEst, yEst, zEst, beq0, l0, beqd0, Ld0, zoom)
+
+% The refinement variables are purely local (all outputs are numeric), so
+% a fresh session owns them
+S = yalmip.Session();
 % [fval x y z info] = refiner(Aeq, beq, f, K, options, l, fd, ld, beqd, Ld, xEst, yEst, zEst, beq0, l0, beqd0, Ld0, zoom)
 %
 % Tries to solve the linear program
@@ -330,7 +334,7 @@ if ((nbIter > 1) && refinePrimal) || ((nbIter == 1) && solvePrimalFirst)
             disp(' ');
         end
         % To solve the primal in primal form
-        x = sdpvar(size(f,1), 1);
+        x = S.sdpvar(size(f,1), 1);
         obj = double(f)'*x;
         F = [double(Aeq)*(x+[zeros(K.f,1); double(l)]) == double(beq), x(K.f+[1:K.l]) >= 0];
         sol = solvesdp(F,obj,ops);
@@ -340,10 +344,10 @@ if ((nbIter > 1) && refinePrimal) || ((nbIter == 1) && solvePrimalFirst)
             % solution...
             nbIter = nbIter - 1;
             fval = [];
-            x = value(x)+[zeros(K.f,1);l];
-            y = dual(F(1));
+            x = value(x,sol)+[zeros(K.f,1);l];
+            y = dual(F(1),sol);
             if any(K.l)
-                z = dual(F(2));
+                z = dual(F(2),sol);
             else
                 z = [];
             end
@@ -358,10 +362,10 @@ if ((nbIter > 1) && refinePrimal) || ((nbIter == 1) && solvePrimalFirst)
         end
         
         % We save the result
-        xi = gemify_f(value(x))+[zeros(K.f,1);l];
-        yi = gemify_f(dual(F(1)));
+        xi = gemify_f(value(x,sol))+[zeros(K.f,1);l];
+        yi = gemify_f(dual(F(1),sol));
         if any(K.l)
-            zi = gemify_f(dual(F(2)));
+            zi = gemify_f(dual(F(2),sol));
         else
             zi = [];
         end
@@ -374,8 +378,8 @@ if ((nbIter > 1) && refinePrimal) || ((nbIter == 1) && solvePrimalFirst)
             disp(' ');
         end
         % To solve the primal in dual form
-        ypd = sdpvar(size(beq,1),1);
-        zpd = sdpvar(size(l,1),1);
+        ypd = S.sdpvar(size(beq,1),1);
+        zpd = S.sdpvar(size(l,1),1);
         objpd = double(beq)'*ypd - double(l)'*zpd;
         Fpd = [double(Aeq)'*ypd - [zeros(K.f,1); zpd] == -double(f), zpd >= 0];
         sol = solvesdp(Fpd,objpd,ops);
@@ -385,17 +389,17 @@ if ((nbIter > 1) && refinePrimal) || ((nbIter == 1) && solvePrimalFirst)
             % solution...
             nbIter = nbIter - 1;
             fval = [];
-            x = -dual(Fpd(1));
-            y = value(ypd);
-            z = value(zpd);
+            x = -dual(Fpd(1),sol);
+            y = value(ypd,sol);
+            z = value(zpd,sol);
             info = sol;
             return;
         end
         
         % We save the result
-        xi = gemify_f(-dual(Fpd(1)));
-        yi = gemify_f(value(ypd));
-        zi = gemify_f(value(zpd));
+        xi = gemify_f(-dual(Fpd(1),sol));
+        yi = gemify_f(value(ypd,sol));
+        zi = gemify_f(value(zpd,sol));
         
         dimacsp = sol.dimacs;
     end
@@ -419,7 +423,7 @@ if ((nbIter > 1) && refineDual) || ((nbIter == 1) && ~solvePrimalFirst)
         % We solve the dual in primal form (so that it coincides with the
         % primal for the first iteration)
 
-        xdd = sdpvar(size(beqd,1), 1);
+        xdd = S.sdpvar(size(beqd,1), 1);
         objdd = double(beqd)'*xdd + double(Ld)'*xdd(K.f+[1:K.l]);
         Fdd = [double(Aeq)*(xdd+[zeros(K.f,1);double(ld)]) == double(fd), xdd(K.f+[1:K.l]) >= 0];
         sold = solvesdp(Fdd,-objdd,ops);
@@ -429,10 +433,10 @@ if ((nbIter > 1) && refineDual) || ((nbIter == 1) && ~solvePrimalFirst)
             % solution...
             nbIter = nbIter - 1;
             fval = [];
-            x = value(xdd)+[zeros(K.f,1);ld];
-            y = dual(Fdd(1));
+            x = value(xdd,sold)+[zeros(K.f,1);ld];
+            y = dual(Fdd(1),sold);
             if any(K.l)
-                z = dual(Fdd(2))+Ld;
+                z = dual(Fdd(2),sold)+Ld;
             else
                 z = Ld;
             end
@@ -446,10 +450,10 @@ if ((nbIter > 1) && refineDual) || ((nbIter == 1) && ~solvePrimalFirst)
             return;
         end
         
-        xdi = gemify_f(value(xdd))+[zeros(K.f,1);ld];
-        ydi = gemify_f(dual(Fdd(1)));
+        xdi = gemify_f(value(xdd,sold))+[zeros(K.f,1);ld];
+        ydi = gemify_f(dual(Fdd(1),sold));
         if any(K.l)
-            zdi = gemify_f(dual(Fdd(2))+Ld);
+            zdi = gemify_f(dual(Fdd(2),sold)+Ld);
         else
             zdi = Ld;
         end
@@ -462,8 +466,8 @@ if ((nbIter > 1) && refineDual) || ((nbIter == 1) && ~solvePrimalFirst)
             disp(' ');
         end
         % Solve the dual as a dual
-        yd = sdpvar(size(fd,1),1);
-        zd = sdpvar(size(ld,1),1);
+        yd = S.sdpvar(size(fd,1),1);
+        zd = S.sdpvar(size(ld,1),1);
         objd = double(fd)'*yd - double(ld)'*zd;
         Fd = [double(Aeq)'*yd - [zeros(K.f,1); (zd + double(Ld))] == double(beqd), zd >= 0];
         sold = solvesdp(Fd,objd,ops);
@@ -473,17 +477,17 @@ if ((nbIter > 1) && refineDual) || ((nbIter == 1) && ~solvePrimalFirst)
             % solution...
             nbIter = nbIter - 1;
             fval = [];
-            x = -dual(Fd(1));
-            y = value(yd);
-            z = value(zd)+Ld;
+            x = -dual(Fd(1),sold);
+            y = value(yd,sold);
+            z = value(zd,sold)+Ld;
             info = sold;
             return;
         end
         
         % We save the result
-        ydi = gemify_f(value(yd));
-        zdi = gemify_f(value(zd))+Ld;
-        xdi = -gemify_f(dual(Fd(1)));
+        ydi = gemify_f(value(yd,sold));
+        zdi = gemify_f(value(zd,sold))+Ld;
+        xdi = -gemify_f(dual(Fd(1),sold));
         %tdi = gemify_f(dual(Fd(2))); % This is basically the same as xdi...
 
         dimacsd = sold.dimacs;

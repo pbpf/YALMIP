@@ -2,8 +2,12 @@ function tests = test_operator_optimizer20
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-yalmip('clear')
-sdpvar x y a b c
+S = yalmip.Session();
+x = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
+a = S.sdpvar(1,1);
+b = S.sdpvar(1,1);
+c = S.sdpvar(1,1);
 ops = sdpsettings('solver','gurobi,quadprog');
 P = optimizer([0 <= [x y] <= 10, x + y <= exp(c)],(x-a)^2+5*(y-b)^2,ops,{a,b,c},[x y]);
 sol = P{[c == log(5), a == 3, b == 4]}

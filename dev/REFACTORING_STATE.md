@@ -133,3 +133,39 @@ The foundation is already in place; read it before editing anything.
   against a session created in the test.
 - The old `yalmip('getinternalsdpvarstate')`/`setinternalsdpvarstate` pairs
   (globlib tests) → `st = S.snapshotState(); ... S.restoreState(st);`
+
+---
+
+## HANDOFF (session boundary) — Stage 3 integration state
+
+The tree is MID-CUTOVER: all conversions are in place (0 global, 0 persistent,
+0 yalmip(' calls outside dev, dispatcher deleted, tests migrated) but the
+session-creation path has ONE known unresolved link and the full pipeline has
+not yet been smoke-tested end-to-end.
+
+### Immediate next steps (in order)
+1. **sdpvarCore visibility**: `+yalmip/Session.m` sdpvar() method routes via
+   `sdpvar(varargin{:},'session',{obj})` -> `@sdpvar/sdpvar.m` keyword branch ->
+   `sdpvarCore(S,args)` — but sdpvarCore lives in `@sdpvar/` and is not callable
+   with a Session first argument. It was MOVED to `extras/sdpvarCore.m` already
+   (git mv), but external `class(struct,'sdpvar')` construction needs verification
+   (quick probe: build a struct with all sdpvar fields and call class(s,'sdpvar')
+   from a plain function; if it errors, keep sdpvarCore in @sdpvar and instead
+   pass a dummy sdpvar as first arg, or perform construction inside sdpvar.m).
+2. Then run `dev/baseline/smoke3.m` (covers creation, optimize, value/dual,
+   operators, session isolation, old-API errors, sdisplay, optimizer, version).
+3. Fix forward through smoke failures; then run the per-suite gate
+   (`dev/baseline/run_stage.m`) and compare with
+   `python3 dev/baseline/compare_stage.py` (0 NEW failures = pass).
+4. Commit "Stage 3" once green; then Stages 4-6 per the plan.
+
+### Key invariants for any fix
+- The ONE allowed dispatch pattern: Session methods one-liner ->
+  `yalmip.dispatch(obj,'cmd',args)` (+yalmip/dispatch.m holds the former
+  switch over session state; original dispatcher indexing preserved:
+  varargin{1} = command string).
+- Creation route: S.sdpvar(...) -> sdpvar(...,'session',{S}) keyword ->
+  sdpvarCore(S,...) -> appendYALMIPvariables(S,...). Fast paths in sdpvar.m
+  take an optional TRAILING session argument.
+- Evaluation: optimize returns diagnostic with `.eval` (S.evalSnapshot());
+  value(x,sol)/dual(F,sol)/assign(x,v,sol) read sol.eval.

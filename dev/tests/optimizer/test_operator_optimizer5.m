@@ -2,8 +2,12 @@ function tests = test_operator_optimizer5
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-sdpvar x y u z 
-A = sdpvar(2,3);
+S = yalmip.Session();
+x = S.sdpvar(1,1);
+y = S.sdpvar(1,1);
+u = S.sdpvar(1,1);
+z = S.sdpvar(1,1);
+A = S.sdpvar(2,3);
 P1 = optimizer([x <= u,y <= z], -x-y,[],[u;z],[x;y]);
 sol1 = P1{[2;3]};
 testCase.assertTrue(norm(sol1-[2;3]) <= 1e-4);

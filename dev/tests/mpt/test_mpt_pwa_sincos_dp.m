@@ -2,6 +2,7 @@ function tests = test_mpt_pwa_sincos_dp
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Prediction horizon
 N = 2;
 
@@ -16,13 +17,13 @@ nx = 2;
 nu = 1;
 
 % States x(k), ..., x(k+N)
-x = sdpvar(repmat(nx,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N),repmat(1,1,N));
 
 % Inputs u(k), ..., u(k+N) (last one not used)
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
 
 % Binary for PWA selection
-d = binvar(2,1);
+d = S.binvar(2,1);
 
 % Value functions
 J = cell(1,N);
@@ -32,7 +33,7 @@ J{N} = 0;
 
 for k = N-1:-1:1
     % Feasible region
-     t = sdpvar(2,1);
+     t = S.sdpvar(2,1);
      bounds(x{k},sysStruct.xmin,sysStruct.xmax);
      bounds(u{k},sysStruct.umin,sysStruct.umax);
      bounds(x{k+1},sysStruct.xmin,sysStruct.ymax);

@@ -69,7 +69,13 @@ switch class(X)
         varargout{1} = setupMeta(lmi([]), mfilename,varargin{:});
         
     case 'char'        
-        varargout{1} = implies_internal(varargin{3:end-1});
+        % Called from model.m with a trailing session, or from expandmeta
+        % without one (the 'expand' path)
+        if isa(varargin{end},'yalmip.Session')
+            varargout{1} = implies_internal(varargin{3:end-1});
+        else
+            varargout{1} = implies_internal(varargin{3:end});
+        end
         
     case 'logical'
         if length(X)==1

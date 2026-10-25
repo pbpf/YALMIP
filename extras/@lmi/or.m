@@ -5,5 +5,5 @@ function varargout = or(varargin)
 if nargin == 1
     varargout{1} = varargin{1};
 else
-    varargout{1} = (varargin{1}.sess.define('lmior',varargin{:}) == 1);
+    varargout{1} = (varargin{1}.sess.define('define','lmior',varargin{:}) == 1);
 end

@@ -2,22 +2,22 @@ function tests = test_global_ex9_2_5
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from ex9_2_5.gms
 % Created 28-Jul-2007 17:54:49 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-objvar = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
+x1 = S.sdpvar(1);
+objvar = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
 
 % Define constraints 
 objvar = (x3-3)*(x3-3)+(x1-2)*(x1-2);
@@ -41,4 +41,4 @@ F=[F,0<=x9];
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-5) <= 1e-2)
+testCase.assertTrue(abs(value(objvar, sol)-5) <= 1e-2)

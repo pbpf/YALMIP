@@ -1,6 +1,10 @@
 function [F,obj,m,everything,modeltype] = compilesos(F,obj,options,params,candidateMonomials)
 
 S = session(F);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 %COMPILESOS Derive sum-of-squares model without solving
 %
 %    [F,obj,m] = compilesos(F,h,options,params,monomials) compiles the SOS
@@ -305,7 +309,7 @@ end
 %  polytope reduction
 % ************************************************
 if options.sos.newton
-    temp=sdpvar(1,1);
+    temp=S.sdpvar(1,1);
     tempops = options;
     tempops.solver = 'cdd,glpk,*';  % CDD is generally robust on these problems
     tempops.verbose = 0;
@@ -345,7 +349,7 @@ for constraint = 1:length(p)
         % specifically for this case        
         previous_exponent_p_monoms = [];%exponent_p_monoms;
         n = length(p{constraint});
-        A_basis = getbase(sdpvar(n,n,'full'));d = find(triu(ones(n)));A_basis = A_basis(d,2:end);
+        A_basis = getbase(S.sdpvar(n,n,'full'));d = find(triu(ones(n)));A_basis = A_basis(d,2:end);
         BlockedA{constraint} = {A_basis};
         Blockedb{constraint} = p{constraint}(d);        
         BlockedN{constraint} = {zeros(1,0)};

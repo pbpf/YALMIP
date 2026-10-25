@@ -1,6 +1,10 @@
 function [Fnew, obj, M,k,x,u,n,deg,linears,nonlinears,vecConstraints,isinequality,ulong] = momentmodel(F,obj,k,keepnonlinears)
 
 S = session(F);
+% Fall back to a fresh session when the constraint set is empty
+if isempty(S)
+    S = yalmip.Session();
+end
 
 if nargin < 2
     obj = [];

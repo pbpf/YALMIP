@@ -2,18 +2,19 @@ function tests = test_global_bmibnb_gamsrobot4
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x1 = sdpvar(1,1);
-x2 = sdpvar(1,1);
-x3 = sdpvar(1,1);
-x4 = sdpvar(1,1);
-x5 = sdpvar(1,1);
-x6 = sdpvar(1,1);
-x7 = sdpvar(1,1);
-x8 = sdpvar(1,1);
-x9 = sdpvar(1,1);
-x10 = sdpvar(1,1);
-t = sdpvar(1,1);
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
+x5 = S.sdpvar(1,1);
+x6 = S.sdpvar(1,1);
+x7 = S.sdpvar(1,1);
+x8 = S.sdpvar(1,1);
+x9 = S.sdpvar(1,1);
+x10 = S.sdpvar(1,1);
+t = S.sdpvar(1,1);
 x = [x1;x2;x3;x4;x5;x6;x7;x8;x9;x10];
 
 e1=    20*x1 + 20*x2 + 60*x3 + 60*x4 + 60*x5 + 60*x6 + 5*x7 + 45*x8 + 55*x9   + 65*x10 - 600.1;
@@ -43,4 +44,4 @@ F = F + ([e1;e2;e3;e4;e5;e6;e7;e8;e9;e10]<=0);
 
 sol = optimize(F,obj,sdpsettings('solver','bmibnb'))
 
-testCase.assertTrue(abs(value(obj)--382.695) <= 1e-4)
+testCase.assertTrue(abs(value(obj, sol)--382.695) <= 1e-4)

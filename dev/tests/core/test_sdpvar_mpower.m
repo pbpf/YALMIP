@@ -2,9 +2,10 @@ function tests = test_sdpvar_mpower
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-x = sdpvar(1);
-X = sdpvar(2);
+x = S.sdpvar(1);
+X = S.sdpvar(2);
 Y = randn(2);Y = Y*Y';
 
 testCase.assertTrue(isequal(x^2-x.^2,0))
@@ -35,11 +36,12 @@ try
 	testCase.assertTrue(false);
 catch
 end
-assign(x,3);
-testCase.assertTrue(norm(value(Y^x) - Y^3) <= 1e-5)
-assign(x,1);
-testCase.assertTrue(norm(value(Y^-1) - Y^-1) <= 1e-5)
+sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+sol = assign(x,3, sol);
+testCase.assertTrue(norm(value(Y^x, sol) - Y^3) <= 1e-5)
+sol = assign(x,1, sol);
+testCase.assertTrue(norm(value(Y^-1, sol) - Y^-1) <= 1e-5)
 
 Y = [1 2;3 4];
-assign(x,2);
-testCase.assertTrue(norm(value(Y^x) - Y^2) <= 1e-5)
+sol = assign(x,2, sol);
+testCase.assertTrue(norm(value(Y^x, sol) - Y^2) <= 1e-5)

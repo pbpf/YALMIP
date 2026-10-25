@@ -2,8 +2,12 @@ function tests = test_sos_peyrl
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-sdpvar x1 x2 x3 x4;
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+x4 = S.sdpvar(1,1);
 x = [x1;x2;x3;x4];
 n = length(x);
 
@@ -45,17 +49,22 @@ N = 4;
 
 % The Lyapunov functions Vi(x):
 lm = monolist(x,N,2);
-p1 = sdpvar(size(lm,1),1); define(p1);
+p1 = S.sdpvar(size(lm,1),1); define(p1);
 V1 = p1'*lm;
 
 lm = monolist(x,N);
-p2 = sdpvar(size(lm,1),1); define(p2);
+p2 = S.sdpvar(size(lm,1),1); define(p2);
 V2 = p2'*lm;
-p3 = sdpvar(size(lm,1),1); define(p3);
+p3 = S.sdpvar(size(lm,1),1); define(p3);
 V3 = p3'*lm;
 
 
-sdpvar eps1 eps2 eps3 eps4 eps5 eps6
+eps1 = S.sdpvar(1,1);
+eps2 = S.sdpvar(1,1);
+eps3 = S.sdpvar(1,1);
+eps4 = S.sdpvar(1,1);
+eps5 = S.sdpvar(1,1);
+eps6 = S.sdpvar(1,1);
 pd1 = eps1*sum(x.^N);
 pd2 = eps2*sum(x.^N);
 pd3 = eps3*sum(x.^N);
@@ -65,19 +74,19 @@ pd6 = eps6*sum(x.^N);
 
 % Create the aijk, bijk SOS-polys and cij:
 lm = monolist(x,N/2-1);
-A11 = sdpvar(size(lm,1)); (A11); a11 = lm'*A11*lm;
-A12 = sdpvar(size(lm,1)); (A12); a12 = lm'*A12*lm;
-A21 = sdpvar(size(lm,1)); (A21); a21 = lm'*A21*lm;
-A31 = sdpvar(size(lm,1)); (A31); a31 = lm'*A31*lm;
+A11 = S.sdpvar(size(lm,1)); (A11); a11 = lm'*A11*lm;
+A12 = S.sdpvar(size(lm,1)); (A12); a12 = lm'*A12*lm;
+A21 = S.sdpvar(size(lm,1)); (A21); a21 = lm'*A21*lm;
+A31 = S.sdpvar(size(lm,1)); (A31); a31 = lm'*A31*lm;
 
-B11 = sdpvar(size(lm,1)); (B11); b11 = lm'*B11*lm;
-B12 = sdpvar(size(lm,1)); (B12); b12 = lm'*B12*lm;
-B21 = sdpvar(size(lm,1)); (B21); b21 = lm'*B21*lm;
-B31 = sdpvar(size(lm,1)); (B31); b31 = lm'*B31*lm;
+B11 = S.sdpvar(size(lm,1)); (B11); b11 = lm'*B11*lm;
+B12 = S.sdpvar(size(lm,1)); (B12); b12 = lm'*B12*lm;
+B21 = S.sdpvar(size(lm,1)); (B21); b21 = lm'*B21*lm;
+B31 = S.sdpvar(size(lm,1)); (B31); b31 = lm'*B31*lm;
 
 lm = monolist(x,N-1);
-C12 = sdpvar(size(lm,1)); (C12); c12 = lm'*C12*lm;
-C13 = sdpvar(size(lm,1)); (C13); c13 = lm'*C13*lm;
+C12 = S.sdpvar(size(lm,1)); (C12); c12 = lm'*C12*lm;
+C13 = S.sdpvar(size(lm,1)); (C13); c13 = lm'*C13*lm;
 
 % Constraints:
 F = (sos(V1 - a11*g11 - a12*g12));

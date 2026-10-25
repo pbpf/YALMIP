@@ -1,11 +1,13 @@
 function SOSModel = dualtososrobustness(UncertainConstraint,UncertaintySet,UncertainVariables,DecisionVariables,p_tau_degree,localizer_tau_degree,Z_degree,verbosity)
+
+S = session(UncertainConstraint);
   
 [E,F] = getEFfromSET(UncertaintySet);
 [F0,Fz,Fx,Fxz] = getFzxfromSET(UncertainConstraint,UncertainVariables,DecisionVariables);
 
 if is(UncertainConstraint,'sdp')
     n = length(F0);
-    v = sdpvar(n,1);
+    v = S.sdpvar(n,1);
     d = v'*F0*v;
     b = [];for i = 1:length(Fx);b = [b;v'*Fx{i}*v];end
     c = [];for i = 1:length(Fz);c = [c;v'*Fz{i}*v];end   
@@ -23,7 +25,7 @@ if is(UncertainConstraint,'sdp')
     end
 elseif is(UncertainConstraint,'socp')
     n = length(F0)-1;
-    v = sdpvar(n,1);
+    v = S.sdpvar(n,1);
     d = [1 v']*F0;
     b = [];for i = 1:length(Fx);b = [b;[1 v']*Fx{i}];end
     c = [];for i = 1:length(Fz);c = [c;[1 v']*Fz{i}];end
@@ -94,7 +96,7 @@ for i = 1:length(Z)
     elseif is(UncertaintySet(i),'socp')
         % To get a SOS condition on dual Z{i}(v) in socp, we have to
         % introduce a new variable to scalarize the socp
-        u = sdpvar(length(Z{i})-1,1);
+        u = S.sdpvar(length(Z{i})-1,1);
         [tau,coefftau] = polynomial(v,localizer_tau_degree);
         coeffs = [coeffs;coefftau];
         D = [D, sos([1 u']*Z{i}-tau*(1-u'*u))];        

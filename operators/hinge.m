@@ -27,7 +27,7 @@ switch class(varargin{1})
         elseif p == 1
             varargout{1} = max(0,X);
         else
-            varargout{1} = X.sess.define(mfilename,X,p);
+            varargout{1} = X.sess.define('define',mfilename,X,p);
         end
         
     case 'char' % YALMIP send 'model' when it wants the epigraph or hypograph

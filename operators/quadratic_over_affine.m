@@ -44,7 +44,7 @@ switch class(varargin{1})
                     q = R*x,
                 end
                 varargin{1} = q;
-                varargout{1} = q.sess.define('quadratic_over_affine_expanded',varargin{:});
+                varargout{1} = q.sess.define('define','quadratic_over_affine_expanded',varargin{:});
             end
         else
             error('First argument should be quadratic and second affine')

@@ -2,33 +2,33 @@ function tests = test_global_st_fp7c
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_fp7c.gms
 % Created 06-Aug-2007 09:43:07 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(-10*sqr(x1)-10*sqr(x2)-10*sqr(x3)-10*sqr(x4)-10*sqr(x5)-10*sqr(x6)-10*sqr(x7)-10*sqr(x8)-10*sqr(x9)-10*sqr(x10)-10*sqr(x11)-10*sqr(x12)-10*sqr(x13)-10*sqr(x14)-10*sqr(x15)-10*sqr(x16)-10*sqr(x17)-10*sqr(x18)-10*sqr(x19)-10*sqr(x20))+0-(0));
@@ -69,4 +69,4 @@ F=[F,0<=x20];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--8695.0122) <= 1)
+testCase.assertTrue(abs(value(objective, sol)--8695.0122) <= 1)

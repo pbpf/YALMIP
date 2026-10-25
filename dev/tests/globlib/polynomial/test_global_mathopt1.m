@@ -2,15 +2,15 @@ function tests = test_global_mathopt1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from mathopt1.gms
 % Created 24-Jul-2007 13:38:40 using YALMIP R20070523
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(10*sqr(sqr(x1)-x2)+sqr((-1)+x1)));
@@ -25,4 +25,4 @@ F=[F,-15<=x2<=20];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)-0) <= 1e-2)
+testCase.assertTrue(abs(value(objective, sol)-0) <= 1e-2)

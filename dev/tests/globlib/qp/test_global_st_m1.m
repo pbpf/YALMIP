@@ -2,33 +2,33 @@ function tests = test_global_st_m1
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from st_m1.gms
 % Created 06-Aug-2007 09:35:33 using YALMIP R20070725
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-x1 = sdpvar(1);
-x2 = sdpvar(1);
-x3 = sdpvar(1);
-x4 = sdpvar(1);
-x5 = sdpvar(1);
-x6 = sdpvar(1);
-x7 = sdpvar(1);
-x8 = sdpvar(1);
-x9 = sdpvar(1);
-x10 = sdpvar(1);
-x11 = sdpvar(1);
-x12 = sdpvar(1);
-x13 = sdpvar(1);
-x14 = sdpvar(1);
-x15 = sdpvar(1);
-x16 = sdpvar(1);
-x17 = sdpvar(1);
-x18 = sdpvar(1);
-x19 = sdpvar(1);
-x20 = sdpvar(1);
+x1 = S.sdpvar(1);
+x2 = S.sdpvar(1);
+x3 = S.sdpvar(1);
+x4 = S.sdpvar(1);
+x5 = S.sdpvar(1);
+x6 = S.sdpvar(1);
+x7 = S.sdpvar(1);
+x8 = S.sdpvar(1);
+x9 = S.sdpvar(1);
+x10 = S.sdpvar(1);
+x11 = S.sdpvar(1);
+x12 = S.sdpvar(1);
+x13 = S.sdpvar(1);
+x14 = S.sdpvar(1);
+x15 = S.sdpvar(1);
+x16 = S.sdpvar(1);
+x17 = S.sdpvar(1);
+x18 = S.sdpvar(1);
+x19 = S.sdpvar(1);
+x20 = S.sdpvar(1);
 
 % Define objective function 
 objective = -(-(540.792129732*x1-3*sqr(x1)-sqr(x2)+92.0068003629*x2-7*sqr(x3)-2390.75252039*x3-7*sqr(x4)-8085.40130479*x4-9*sqr(x5)-4627.10173328*x5-4*sqr(x6)-12452.7098353*x6-6*sqr(x7)+9419.17874069*x7-8*sqr(x8)+7689.14130566*x8-sqr(x9)-5154.76865125*x9-sqr(x10)-9814.99860313*x10-6*sqr(x11)-3701.15304202*x11-7*sqr(x12)+12818.4489533*x12-sqr(x13)-7825.52846743*x13-4*sqr(x14)-52.6053189782*x14-2*sqr(x15)+6727.68114413*x15-5*sqr(x16)+6093.30280299*x16-7*sqr(x17)-1139.49658357*x17-6*sqr(x18)+7666.77668727*x18-9*sqr(x19)+7371.88647018*x19-9*sqr(x20)-16412.9116807*x20)+0-(0));
@@ -70,4 +70,4 @@ F=[F,0<=x20];
 % Solve problem
 sol = optimize(F,objective,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objective)--461356.9389) <= 100)
+testCase.assertTrue(abs(value(objective, sol)--461356.9389) <= 100)

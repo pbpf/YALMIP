@@ -31,7 +31,7 @@ switch class(varargin{1})
             S = X.sess;
             y = [];
             for i = 1:prod(dim)
-                y = [y;S.define(mfilename,extsubsref(X,i),varargin{2})];
+                y = [y;S.define('define',mfilename,extsubsref(X,i),varargin{2})];
             end
             y = reshape(y,dim);
             varargout{1} = y;

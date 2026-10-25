@@ -2,15 +2,15 @@ function tests = test_global_prob06
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model generated from prob06.gms
 % Created 17-Mar-2008 10:40:41 using YALMIP R20070810
 
 % Setup a clean YALMIP environment 
-yalmip('clear') 
 
 % Define all variables 
-objvar = sdpvar(1);
-x2 = sdpvar(1);
+objvar = S.sdpvar(1);
+x2 = S.sdpvar(1);
 
 % Define constraints 
 F = ([]);
@@ -22,4 +22,4 @@ F=[F,1<=x2<=5.5];
 % Solve problem
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-1.1771) <= 1e-1) 
+testCase.assertTrue(abs(value(objvar, sol)-1.1771) <= 1e-1) 

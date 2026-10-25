@@ -2,10 +2,13 @@ function tests = test_global_ex14_1_8
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
-yalmip('clear')
 
-sdpvar x1 x2 x3 objvar; 
+x1 = S.sdpvar(1,1);
+x2 = S.sdpvar(1,1);
+x3 = S.sdpvar(1,1);
+objvar = S.sdpvar(1,1);
 
 F = ([]);
 
@@ -23,4 +26,4 @@ F = F + (-1 <= [x1 x2 ] <= 1);
 
 sol = optimize(F,objvar,sdpsettings('bmibnb.uppersolver','fmincon','solver','bmibnb'));
 testCase.assertTrue(sol.problem==0)
-testCase.assertTrue(abs(value(objvar)-0) <= 2e-2)
+testCase.assertTrue(abs(value(objvar, sol)-0) <= 2e-2)

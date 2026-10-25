@@ -13,7 +13,7 @@ function varargout = nnz(varargin)
 switch class(varargin{1})
 
     case 'constraint'
-        varargout{1} = varargin{1}.sess.define('nnz',varargin{1});
+        varargout{1} = varargin{1}.sess.define('define','nnz',varargin{1});
 
     case 'char'
         t = varargin{2};

@@ -2,9 +2,10 @@ function tests = test_operator_optimizer10
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 % Model data
 A0 = [2 -1;1 0.207];
-A = sdpvar(2,2,'full');
+A = S.sdpvar(2,2,'full');
 B = [1;.12];
 B0 = B;
 nx = 2; % Number of states
@@ -15,8 +16,8 @@ Q = eye(2);
 R = 2;
 N = 8;
 
-u = sdpvar(repmat(nu,1,N),repmat(1,1,N));
-x = sdpvar(repmat(nx,1,N+1),repmat(1,1,N+1));
+u = S.sdpvar(repmat(nu,1,N),repmat(1,1,N));
+x = S.sdpvar(repmat(nx,1,N+1),repmat(1,1,N+1));
 
 constraints = [];
 objective = 0;
