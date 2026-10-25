@@ -77,7 +77,7 @@ switch class(varargin{1})
                         F = [-absX <= X <= absX];
                         F = [F,sum(s)<= t,s>=0];
                         for i = 1:length(X)
-                            F = [F,detset(absX(i),[repmat(t,1,l-m) s(i)])];
+                            F = [F,detset(absX(i),[repmat(t,1,l-m) s(i)],sdpsession(varargin));]
                             F = [F,detset(-absX(i),[repmat(t,1,l-m) s(i)])];
                         end
                     else

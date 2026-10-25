@@ -1,8 +1,15 @@
-function F = detset(t,P)
+function F = detset(t,P,S)
+%DETSET Internal function used in construction of MAXDET formulations
+%
+% F = detset(t,P,S) creates the model t <= det(P)^(1/(2^ceil(log2(length(P)))))
+% Session S (optional) threads variable creation.
 %DETSET Internal function used in construction of MAXDET formulations
 %
 % F = detset(t,P) creates the model t <= det(P)^(1/(2^ceil(log2(length(P)))))
 
+if nargin < 3
+    S = sessOf(P);
+end
 [n,m]=size(P);
 
 if max(n,m)==1
@@ -26,10 +33,13 @@ else
         % Is P complex?
         if is(P,'complex')
             P = [real(P) imag(P);-imag(P) real(P)];
-            [n,m]=size(P);
+            if nargin < 3
+    S = sessOf(P);
+end
+[n,m]=size(P);
         end
 
-        D = tril(sdpvar(n,n));
+        D = tril(S.sdpvar(n,n));
         delta = diag(D);
         F = ([P D;D' diag(delta)] >= 0);
         p = 2^ceil(log2(n));
@@ -46,7 +56,7 @@ else
             if p2 * 2 ~= p,
                 x = [ x ; t ];
             end
-            x_new = sdpvar(p2,1);
+            x_new = S.sdpvar(p2,1);
             for i = 1:p2
                 F = F + gmset(x_new(i),x(2*i-1),x(2*i));
             end
@@ -55,7 +65,7 @@ else
         end
     else
         while p > 2
-            x_new = sdpvar(p/2,1);
+            x_new = S.sdpvar(p/2,1);
             for i = 1:p/2
                 F = F + gmset(x_new(i),x(2*i-1),x(2*i));
             end

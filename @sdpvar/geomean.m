@@ -113,7 +113,7 @@ switch class(varargin{1})
                 end
             end
 
-            varargout{1} = F + detset(t,x);
+            varargout{1} = F + detset(t,x,sdpsession(varargin));
 
             if (min(size(X))>1) & ishermitian(X0)
                 varargout{2} = struct('convexity','concave','monotonicity','none','definiteness','positive');

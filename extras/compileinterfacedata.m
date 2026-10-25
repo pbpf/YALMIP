@@ -606,7 +606,7 @@ if ~isempty(logdetStruct)
                 F = F(1:end-1);
             end
         end
-        F = F + detset(t,P{1});
+        F = F + detset(t,P{1},S);
         if isempty(h)
             h = -t;
             if length(logdetStruct.P) > 1 && options.verbose>0 && options.warning>0

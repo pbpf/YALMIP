@@ -69,8 +69,8 @@ try
             S.setdependence([getvariables(extstruct.var)],newAux);
         end
     end
-catch
-    error(['Failed when trying to create a model for the "' extstruct.fcn '" operator']);
+catch ME
+    error(['Failed when trying to create a model for the "' extstruct.fcn '" operator: ' ME.message]);
 end
 
 % Make sure all operators have these properties, and that they are
