@@ -6,7 +6,7 @@ if nargin < 2
 end
 
 lmi_variables = X.lmi_variables;
-opt_variables = solution.variables;
+opt_variables = solution.eval.variables;
 
 values = zeros(1+length(lmi_variables),1);
 values(1)=1;

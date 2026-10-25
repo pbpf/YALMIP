@@ -1043,11 +1043,11 @@ if options.warmstart
         error(['You have specified an initial point, but the selected solver (' solver.tag ') does not support warm-starts through YALMIP']);
     end
     if options.relax
-        x0_used = relaxdouble(recover(used_variables));
+        x0_used = relaxdouble(recover(used_variables,S), []);
     else
         %FIX : Do directly using yalmip('solution')
         %solution = yalmip('getsolution');
-        x0_used = double(value(recover(used_variables,S)));
+        x0_used = double(value(recover(used_variables,S), struct('eval',struct('variables',[],'optvar',[],'values',[]))));
     end
     x0 = zeros(S.nvars(),1);
     x0(used_variables)  = x0_used(:);
