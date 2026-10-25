@@ -187,3 +187,20 @@ not yet been smoke-tested end-to-end.
   take an optional TRAILING session argument.
 - Evaluation: optimize returns diagnostic with `.eval` (S.evalSnapshot());
   value(x,sol)/dual(F,sol)/assign(x,v,sol) read sol.eval.
+
+## HANDOFF 2 (session boundary) — after creation-chain green
+
+smoke3 all green (commit f74cc45). Suite state (stage3d): core 29/42,
+operators 37/53, misc 3/8 — remaining errors cluster in the OPERATOR
+EXPANSION path. Next session, attack in this order:
+1. operators/model.m line 73: the catch swallows the real error — run
+   e.g. `S.sdpvar(2);F=[norm(x)<=1];optimize(F)` without catch to see the
+   underlying failure (suspect: max_internal/norm operators calling
+   S.define with wrong arg convention, or sessCheck line 10 rejecting
+   operands that are struct-payload sdpvars).
+2. sessCheck.m line 10: dumps when operand is a converted struct? Verify
+   sess1's try/catch works for all operand shapes.
+3. compileinterfacedata.m:766, sdpsettings.m:341, linearize (value
+   single-arg inside library code), test HigherOrder/'x' typos in tests.
+Known-OK: creation chain, constraints, MILP/NLP solve, value/dual/assign
+with explicit sol, session isolation, sdisplay names, optimizer, version.
