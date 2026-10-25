@@ -41,7 +41,7 @@ if n*m==1
     
 else
     dfdx = [];
-    AllVars = recover(unique([depends(f) getvariables(x)]));
+    AllVars = recover(unique([depends(f) getvariables(x)]), sessOf(f));
 
     for i = 1:length(f)
         dfdx = [dfdx;scalar_jacobian(f(i),x,AllVars)];
@@ -63,7 +63,7 @@ if isa(f,'double')
 end
 
 if nargin==2
-    AllVars = recover(uniquestripped([depends(f) getvariables(x)]));
+    AllVars = recover(uniquestripped([depends(f) getvariables(x)]), sessOf(f));
     %AllVars = recover(uniquestripped([deepdepends(f) depends(f) getvariables(x)]));
 end
 

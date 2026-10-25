@@ -6,7 +6,8 @@ if size(newton_m,1)==1 & nnz(newton_m)==0
     return
 end
 
-S = x.sess;
+S = sessOf(x);
+if isempty(S), S = sessOf(newton_m); end
 [mt,oldvariabletype,mt_hash,hash] = S.getMonomtable();
 
 origSize = size(mt,1);

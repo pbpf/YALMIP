@@ -1,12 +1,13 @@
-function plin = linearize(p)
-% LINEARIZE Linearize SDPVAR object
+function plin = linearize(p, sol)
+% LINEARIZE Linearize SDPVAR object at a solution
 %
-% h = LINEARIZE(p)
+% h = LINEARIZE(p, sol)
 %
-% Returns linearization p(double(x)) + dp(double(x))*(x-double(x))
-% where x is the SDPVAR variables defining the polynomial p(x)
+% Returns linearization p(value(x)) + dp(value(x))*(x-value(x))
+% where x is the SDPVAR variables defining the polynomial p(x), and the
+% values are taken from the solution payload sol (stateless refactor).
 %
-% See also SDPVAR, JACOBIAN
+% See also SDPVAR, JACOBIAN, VALUE
 
 if isa(p,'double')
     plin = zeros(size(p));
@@ -18,9 +19,9 @@ if is(p,'linear') & ~is(p,'compound')
     return
 end
 
-x = recover(depends(p));
-x0 = double(x);
-p0 = double(p);
+x = recover(depends(p), sessOf(p));
+x0 = value(x, sol);
+p0 = value(p, sol);
 
 n = size(p,1);
 m = size(p,2);
@@ -28,7 +29,7 @@ m = size(p,2);
 if ~isfield(p.extra, 'jacobian') || isempty(p.extra.jacobian)
     p.extra.jacobian = jacobian(p,x);
 end
-J = value(p.extra.jacobian);
+J = value(p.extra.jacobian, sol);
 
 if min(n,m)>1
     plin = [];
@@ -36,5 +37,5 @@ if min(n,m)>1
         plin = [plin p0(:,i)+squeeze(J(:,i,:))*(x-x0)];
     end
 else
-    plin = p0+double(J)*(x-x0);
+    plin = p0+value(J, sol)*(x-x0);
 end

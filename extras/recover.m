@@ -12,7 +12,11 @@ if isempty(lmi_variables)
     varargout{1} = [];
 else
     if isa(lmi_variables,'ndsdpvar') || isa(lmi_variables,'sdpvar') || isa(lmi_variables,'lmi') || isa(lmi_variables,'constraint')
-        varargout{1} = recover(depends(lmi_variables), S);
+        if nargin < 2
+            varargout{1} = recover(depends(lmi_variables));
+        else
+            varargout{1} = recover(depends(lmi_variables), S);
+        end
     else
         if nargin < 2
             S = [];

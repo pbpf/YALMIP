@@ -10,7 +10,7 @@ sol = assign(x,x0, sol);
 p = x^5+4*x^4+3*x^3+2*x^2+x-1;
 dp0 = value(5*x^4+16*x^3+9*x^2+4*x+1, sol);
 p0 = value(p, sol);
-pLin = linearize(p);
+pLin = linearize(p, sol);
 sol = assign(x,6, sol)
 testCase.assertTrue(norm(value(pLin, sol)-value(p0+dp0'*(x-x0), sol))<1e-10);
 
@@ -25,7 +25,7 @@ sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
 sol = assign(x,x0, sol);
 p0 = value(p, sol);
 dp0 = value(dp, sol);
-pLin = linearize(p);
+pLin = linearize(p, sol);
 sol = assign(x,(1:n)*2, sol);
 testCase.assertTrue(norm(value(pLin, sol)-value(p0+dp0'*(x-x0), sol))<1e-10);
 
@@ -49,7 +49,7 @@ for i = 1:m
 	end
 end
 p0 = value(p, sol);
-pLin = linearize(p);
+pLin = linearize(p, sol);
 
 sol = assign(X,randn(n,n), sol);
 dX = value(X-X0, sol);
