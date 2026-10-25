@@ -138,6 +138,24 @@ The foundation is already in place; read it before editing anything.
 
 ## HANDOFF (session boundary) — Stage 3 integration state
 
+LATEST STATE (end of session): creation chain now reaches
+`sdpvar.m` keyword branch -> inlined core -> `appendYALMIPvariables(S,...)`.
+Current blocking error (exact stack):
+
+    Error in yalmip.Session/getMonomtable
+    Error in sdpvar (line 334)          % [mt,variabletype,...] = S.getMonomtable();
+    Error in yalmip.Session/sdpvar (line 106)
+    "Variable output array 'varargout' must be a cell array."
+
+Diagnosis hint: the one-liner is
+`function varargout = getMonomtable(obj, varargin); varargout = yalmip.dispatch(obj,'monomtable',varargin{:}); end`
+Inspect `+yalmip/dispatch.m` case 'monomtable' (early `return` paths and the
+nargout==2/4 branches) for a path where varargout is assigned a non-cell or
+where the case falls through without assigning varargout while nargout>0.
+NOTE: sdpvarCore was merged INTO @sdpvar/sdpvar.m (keyword branch) because
+@sdpvar-folder functions cannot be called with a non-sdpvar first argument,
+and class(struct,'sdpvar') is illegal outside the @folder.
+
 The tree is MID-CUTOVER: all conversions are in place (0 global, 0 persistent,
 0 yalmip(' calls outside dev, dispatcher deleted, tests migrated) but the
 session-creation path has ONE known unresolved link and the full pipeline has
