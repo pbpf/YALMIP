@@ -1,4 +1,5 @@
 function [F,feasible] = filter_normball(F_xw,Zmodel,x,w,allw,norm_p,ops,VariableType)
+HigherOrder = [];
 
 S = session(F_xw);
 
