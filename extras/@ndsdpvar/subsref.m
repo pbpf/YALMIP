@@ -32,7 +32,7 @@ if isequal(refs.type,'()')
         X = Y;
         X.conicinfo = [0 0];
         X.dim = [prod(X.dim) 1];
-        X = sdpvar([],[],[],[],[],[],[],struct(X),session(X));
+        X = sdpvar([],[],[],[],[],[],[],struct(X));
         return
     end
 end

@@ -1,0 +1,3 @@
+STAGE_RESULT stage3k core passed=18 failed=1 incomplete=23
+STAGE_RESULT stage3k misc passed=1 failed=0 incomplete=7
+STAGE_TOTAL stage3k passed=19 failed=1 incomplete=30
