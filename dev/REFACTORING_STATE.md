@@ -204,3 +204,19 @@ EXPANSION path. Next session, attack in this order:
    single-arg inside library code), test HigherOrder/'x' typos in tests.
 Known-OK: creation chain, constraints, MILP/NLP solve, value/dual/assign
 with explicit sol, session isolation, sdisplay names, optimizer, version.
+
+## HANDOFF 3 — Stage 3 convergence state (core 34/42, operators 40/53)
+
+Next attack list (highest value first):
+1. sessCheck:10 cluster (sort/max/nchoosek/rcone models): operator model
+   bodies call S.sdpvar/sessCheck on operands WITHOUT sess — find where
+   those operands are built (suspect: dispatch.m 'define' branches and
+   @sdpvar/{sort,max,...}.m char paths calling sdpvarFast WITHOUT session
+   or recover(ids) without S). grep for sdpvarFast( calls lacking S and
+   recover( calls without ,S in dispatch.m + @sdpvar + operators.
+2. value line 13 x3 (linearize): @sdpvar/linearize internally calls
+   value(x) single-arg — thread the solution payload or make linearize
+   accept sol.
+3. model:73 passthrough reveals per-operator causes one by one (geomean
+   detset:68 composition, exp/interp1 'Dot indexing').
+4. misc 3/8: blackbox value single-arg; implies sdpsettings:341.
