@@ -62,22 +62,10 @@ if ~isempty(model.lb)
 end
 
 % These are needed to avoid recomputation due to ipopts double call to get
-% f and df, and g and dg
-global latest_x_f
-global latest_x_g
-global latest_df
-global latest_f
-global latest_G
-global latest_g
-global latest_xevaled
-global latest_x_xevaled
-global sdpLayer
-latest_G = [];
-latest_g = [];
-latest_x_f = [];
-latest_x_g = [];
-latest_xevaled = [];
-latest_x_xevaled = [];
+% f and df, and g and dg. State is kept in a per-solve handle object instead
+% of global variables.
+model.memo = yalmip.EvalMemo();
+sdpLayer = struct();
 sdpLayer.nullVectors = cell(length(model.K.s),1);
 sdpLayer.eigenVectors = cell(length(model.K.s),1);
 sdpLayer.oldGradient = cell(length(model.K.s),1);
@@ -90,6 +78,7 @@ elseif isequal(model.options.slayer.m,-1)
 else
     sdpLayer.n = repmat(model.options.slayer.m,1,length(model.K.s));
 end
+model.memo.sdpLayer = sdpLayer;
 
 funcs.objective = @(x)ipopt_callback_f(x,model);
 funcs.gradient = @(x)ipopt_callback_df(x,model);

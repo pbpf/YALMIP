@@ -124,7 +124,8 @@ if options.expand
         end
     catch
     end
-    [F,failure,cause,operators] = expandmodel(F,h,options);
+    [F,failure,cause,expansionstate] = expandmodel(F,h,options);
+    operators = expansionstate.ALREADY_MODELLED;
     % Models temporarily added for analysis phase. Can be deleted now
     try
         F('placeholder') = [];

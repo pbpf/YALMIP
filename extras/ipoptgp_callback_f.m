@@ -1,8 +1,6 @@
 function f = ipoptgp_callback_f(x,prob)
 
-global latest_x_f
-global latest_df
-
+M = prob.memo;
 x = x(:);
-[f,latest_df] = fmincon_fungp(x,prob);
-latest_x_f = x;
+[f,M.df] = fmincon_fungp(x,prob);
+M.xF = x;

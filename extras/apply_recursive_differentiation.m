@@ -1,12 +1,17 @@
 function dX = apply_recursive_differentiation(model,x,requested,recursivederivativeprecompute)
 
-global newmodel
-persistent dX0
-persistent index
-persistent mtT
-persistent monomTablePattern
-persistent ss
-persistent lastrequested
+% Chain-rule precomputation is cached on the per-solve memo handle (formerly
+% persistent variables plus a global newmodel flag). The cache is rebuilt on
+% the first call of a solve, and whenever the requested derivative set changes.
+if ~isfield(model,'memo') || isempty(model.memo)
+    memo = yalmip.EvalMemo();
+else
+    memo = model.memo;
+end
+if isempty(memo.diffCache)
+    memo.diffCache = struct('valid',0,'dX0',[],'index',[],'mtT',[],'monomTablePattern',[],'ss',[],'lastrequested',[]);
+end
+cache = memo.diffCache;
 
 % Compute all evaluation-based derivatives df(x)
 dxi = [];
@@ -35,7 +40,7 @@ end
 
 % Apply chain-rule. This code is horrible
 
-if newmodel || ~isequal(requested,lastrequested);
+if ~cache.valid || ~isequal(requested,cache.lastrequested);
     % Some precalc save over iterations
     ss = any(model.deppattern(requested,model.linearindicies),1);
     monomTablePattern = logical(model.monomtable);
@@ -44,14 +49,21 @@ if newmodel || ~isequal(requested,lastrequested);
     dxi1 = [dxi model.linearindicies];
     dxj1 = [dxj 1:length(model.linearindicies)];
     dxs1 = [dxs(:)' ones(length(model.linearindicies),1)'];
-    dX = sparse(dxi1,dxj1,dxs1,length(model.c),length(model.linearindicies));    
-    dX0 = dX;
-    index = sub2ind([length(model.c),length(model.linearindicies)],dxi,dxj);   
-    newmodel = 0;
-    lastrequested = requested;
+    dX = sparse(dxi1,dxj1,dxs1,length(model.c),length(model.linearindicies));
+    cache.valid = 1;
+    cache.dX0 = dX;
+    cache.index = sub2ind([length(model.c),length(model.linearindicies)],dxi,dxj);
+    cache.mtT = mtT;
+    cache.monomTablePattern = monomTablePattern;
+    cache.ss = ss;
+    cache.lastrequested = requested;
+    memo.diffCache = cache;
 else
-    dX = dX0;
-    dX(index) = dxs;
+    dX = cache.dX0;
+    dX(cache.index) = dxs;
+    mtT = cache.mtT;
+    monomTablePattern = cache.monomTablePattern;
+    ss = cache.ss;
 end
 
 for i = 1:length(model.evaluation_scheme)

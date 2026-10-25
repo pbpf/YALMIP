@@ -63,11 +63,9 @@ end
 % solver. 
 % model = compressLifted(model);
 
-global latest_xevaled
-global latest_x_xevaled
-global sdpLayer
-latest_xevaled = [];
-latest_x_xevaled = [];
+% Per-solve callback memoization state (replaces former global variables)
+model.memo = yalmip.EvalMemo();
+sdpLayer = struct();
 sdpLayer.oldGradient = cell(length(model.K.s),1);
 sdpLayer.reordering  = cell(length(model.K.s),1);
 sdpLayer.nullVectors = cell(length(model.K.s),1);
@@ -80,6 +78,7 @@ elseif isequal(model.options.slayer.m,-1)
 else
     sdpLayer.n = repmat(model.options.slayer.m,1,length(model.K.s));
 end
+model.memo.sdpLayer = sdpLayer;
 
 showprogress('Calling FMINCON',model.options.showprogress);
 

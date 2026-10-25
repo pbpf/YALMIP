@@ -109,25 +109,13 @@ pen.ioptions(13) = 2;
 pen.my_f_hessian = '';
 pen.my_g_hessian = '';
 
-% Initialize the call-backs with a persistent model structure
-pennonm_callback_f([],model);
-pennonm_callback_df([],model);
-pennonm_callback_g([],[],model);
-pennonm_callback_dg([],[],model);
-
-% These are needed to avoid recomputation due to pennons scalarized
-% computation scheme in all-backs
-global latest_x
-global latest_x_g
-global latest_df
-global latest_G
-global latest_g
-latest_G= [];
-latest_g = [];
-latest_df = [];
-latest_f = [];
-latest_x = [];
-latest_x_g = [];
+% The compiled model and per-solve memoization state are passed to the
+% callbacks via function handles (no persistent or global variables).
+model.memo = yalmip.EvalMemo();
+pen.my_f = @(x) pennonm_callback_f(x,model);
+pen.my_f_gradient = @(x) pennonm_callback_df(x,model);
+pen.my_g = @(i,x) pennonm_callback_g(i,x,model);
+pen.my_g_gradient = @(i,x) pennonm_callback_dg(i,x,model);
 
 % Solve
 solvertime = tic;

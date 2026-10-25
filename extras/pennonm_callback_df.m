@@ -1,17 +1,9 @@
-function [nnz,ind,val] = pennonm_callback_df(x,model_in)
+function [nnz,ind,val] = pennonm_callback_df(x,model)
 
-global latest_x
-global latest_df
-
-persistent model
-if nargin>1
-    model = model_in;
-    return
-end
-
+M = model.memo;
 x = x(:);
-if isequal(x,latest_x)
-    df = latest_df;
+if isequal(x,M.x)
+    df = M.df;
 else
     [f,df] = fmincon_fun(x,model);
 end

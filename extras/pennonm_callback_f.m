@@ -1,16 +1,7 @@
-function f = pennonm_callback_f(x,model_in)
-
-global latest_x
-global latest_df
-
-persistent model
-if nargin>1
-    model = model_in;
-    return
-end
+function f = pennonm_callback_f(x,model)
 
 % We compute both function value and gradient. If pennon calls later to get
-% gradient, we have saved in a global variable (yea, I know, globals suck)
+% gradient, it is served from the per-solve memo in the model.
 x = x(:);
-[f,latest_df] = fmincon_fun(x,model);
-latest_x = x;
+[f,model.memo.df] = fmincon_fun(x,model);
+model.memo.x = x;

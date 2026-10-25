@@ -67,15 +67,9 @@ if ~any(model.variabletype(usedinObjective)) & any(any(model.Q))
     end
 end
 
-global latest_xevaled
-global latest_x_xevaled
-global latest_x_g
-global latest_x_f
-global sdpLayer
-latest_xevaled = [];
-latest_x_xevaled = [];
-latest_x_g = [];
-latest_x_f = [];
+% Per-solve callback memoization state (replaces former global variables)
+model.memo = yalmip.EvalMemo();
+sdpLayer = struct();
 sdpLayer.nullVectors = cell(length(model.K.s),1);
 sdpLayer.eigenVectors = cell(length(model.K.s),1);
 sdpLayer.oldGradient = cell(length(model.K.s),1);
@@ -89,6 +83,7 @@ elseif isequal(model.options.slayer.m,-1)
 else
     sdpLayer.n = repmat(model.options.slayer.m,1,length(model.K.s));
 end
+model.memo.sdpLayer = sdpLayer;
 
 if ~isinf(model.options.slayer.m)
     % Prune jacobian sparsity

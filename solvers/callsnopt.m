@@ -61,13 +61,10 @@ G = [ones(1,size(G,2));G];
 [iGfun,jGvar] = find(G);
 model.sparsityElements = find(G);
 
-usrf = 'snopt_callback';
-snopt_callback([],model);
-
-global latest_xevaled
-global latest_x_xevaled
-latest_xevaled = [];
-latest_x_xevaled = [];
+% Per-solve callback memoization state (replaces former global variables).
+% The compiled model is passed to the callback via the function handle.
+model.memo = yalmip.EvalMemo();
+usrf = @(x)snopt_callback(x,model);
 
 solvertime = tic;
 if strcmpi(model.solver.version,'cmex')

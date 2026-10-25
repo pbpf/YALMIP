@@ -44,8 +44,7 @@ for ordering = 1:2
     end
     [~,~,~,m] = export([1<=x<=5,1<=y<=5],f,ops);
     m = yalmip2nonlinearsolver(m);
-    global latest_xevaled latest_x_xevaled
-    latest_xevaled = []; latest_x_xevaled = [];
+    m.memo = yalmip.EvalMemo();
     [v,g] = fmincon_fun([4;3],m);
     testCase.verifyEqual(v,expectedValue,'AbsTol',1e-12);
     testCase.verifyEqual(g(:),expectedGradient,'AbsTol',1e-12);

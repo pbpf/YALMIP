@@ -132,8 +132,8 @@ if problem == 0
     jAvar = [];
     G = ones(size(Fupp,1),length(xupp));
     [iGfun,jGvar] = find(G);
-    usrf = 'snoptgp_callback';
-    snoptgp_callback([],prob);
+    prob.memo = yalmip.EvalMemo();
+    usrf = @(x)snoptgp_callback(x,prob);
     solvertime = tic;
     if options.verbose == 0
         evalc('[xout,F,xmul,Fmul,inform, xstate, Fstate, ns, ninf, sinf, mincw, miniw, minrw] = snoptcmex( solveopt, x0, xlow, xupp, xmul, xstate, Flow, Fupp, Fmul, Fstate,ObjAdd, ObjRow, A, iAfun(:), jAvar(:),iGfun(:), jGvar(:), usrf );');

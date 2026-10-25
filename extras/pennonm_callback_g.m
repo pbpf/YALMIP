@@ -1,23 +1,12 @@
-function gi = pennonm_callback_g(i,x,model_in)
+function gi = pennonm_callback_g(i,x,model)
 
-global latest_G
-global latest_g
-global latest_x_g
-
-persistent model
-persistent g
-persistent geq
-
-if nargin>2
-    model = model_in;
-    return
-end
+M = model.memo;
 
 % Compute the nonlinear terms in the constraints
 x = x(:);
-if ~isequal(latest_x_g,x)
+if ~isequal(M.xG,x)
     [g,geq,dg,dgeq] = fmincon_con(x,model);
-    latest_x_g = x;
+    M.xG = x;
     % Append with linear constraints
     g = [g;geq];
     if ~isempty(model.A)
@@ -35,7 +24,7 @@ if ~isequal(latest_x_g,x)
         G = [G;model.Aeq];
     end
 
-    
+
     start = length(x) - sum((model.K.s).*(model.K.s+1)/2)+1;
     for j = 1:length(model.K.s)
         ni = model.K.s(j);
@@ -48,14 +37,14 @@ if ~isequal(latest_x_g,x)
         start = start + ni*(ni+1)/2;
     end
     [cc,cg] = detfun(X,6);
-    
+
     G(end+1,end-2)=0;%cg(Ti);
     g(end+1)=0;%X(end-2,end);
-    
-    latest_G = G;
-    latest_g = g;
-    
+
+    M.G = G;
+    M.g = g;
+
 else
-    g = latest_g;
+    g = M.g;
 end
 gi = full(g(i+1));

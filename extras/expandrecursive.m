@@ -1,8 +1,8 @@
-function [F_expand,failure,cause] = expandrecursive(variable,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,goal_vexity,allExtStruct,w)
+function [F_expand,failure,cause,state] = expandrecursive(variable,F_expand,extendedvariables,monomtable,variabletype,where,level,options,method,extstruct,goal_vexity,allExtStruct,w,state)
 
 % Some crazy stuff to help out when hand;ling nonocnvex and other
-% non-standard problems
-global DUDE_ITS_A_GP ALREADY_MODELLED ALREADY_MODELLED_INDEX REMOVE_THESE_IN_THE_END MARKER_VARIABLES OPERATOR_IN_POLYNOM LUbounds CONSTRAINTCUTSTATE
+% non-standard problems. The expansion state (formerly global variables) is
+% threaded through the state argument.
 
 % Assume no failure due to failed model or convexity propagation
 cause = '';
@@ -10,7 +10,7 @@ failure = 0;
 
 % We only expand this variable if it hasn't already been modelled in
 % another constraint, and that model is sufficicent for the current case.
-if  ~alreadydone(getvariables(variable),method,goal_vexity)
+if  ~alreadydone(getvariables(variable),method,goal_vexity,state)
 
     % Request model for this variable
     ext_index = find(getvariables(variable) == extendedvariables);
@@ -20,14 +20,14 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
 
     % If properties has length longer than one, it means that several
     % definitions have been returned. We should now compare the bounds
-    % available in the global variable LUbounds, with the domain for these
+    % available in the state variable LUbounds, with the domain for these
     % different definitions.
     if length(properties)>1
         all_definitions = properties;
         properties = properties{1};
         % Assume that the first model is the global one
         for i = 2:length(all_definitions)
-            if (all_definitions{i}.domain(1)<= LUbounds(getvariables(arguments),1)) & (all_definitions{i}.domain(2)>= LUbounds(getvariables(arguments),2))
+            if (all_definitions{i}.domain(1)<= state.LUbounds(getvariables(arguments),1)) & (all_definitions{i}.domain(2)>= state.LUbounds(getvariables(arguments),2))
                 properties = all_definitions{i};
                 break
             end      
@@ -47,7 +47,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
     if ~isempty(properties)
         if isfield(properties,'extra')
             if strcmp(properties.extra,'marker')
-                MARKER_VARIABLES = [MARKER_VARIABLES getvariables(variable)];
+                state.MARKER_VARIABLES = [state.MARKER_VARIABLES getvariables(variable)];
             end
         end
     end
@@ -116,7 +116,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
 
     % We save variable models for future use
    if failure == 0
-   done = save_model_expansion(method,goal_vexity,F_graph,properties);
+   [done,state] = save_model_expansion(method,goal_vexity,F_graph,properties,state);
    if done
        return
    end
@@ -140,7 +140,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
     [ix,jx,kx] = find(monomtable(getvariables(variable),:));
     if ~isempty(jx) % Bug in 6.1
         if any(kx>1)
-            OPERATOR_IN_POLYNOM = [OPERATOR_IN_POLYNOM extendedvariables(jx(find(kx>1)))];
+            state.OPERATOR_IN_POLYNOM = [state.OPERATOR_IN_POLYNOM extendedvariables(jx(find(kx>1)))];
         end
     end
 
@@ -195,7 +195,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
 
         if ~isempty(index_in_expression)
             for i = index_in_expression
-                if ~milpalreadydone(expressionvariables(i))
+                if ~milpalreadydone(expressionvariables(i),state)
                     if do_not_check_nonlinearity  
                         if full_basis_data_created == 0
                             fullbasis = getbase(arguments);
@@ -220,14 +220,14 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
                     go_concave = (go_concave1 | go_concave2 | go_concave3 | go_concave4) & ~strcmpi(method,'integer');
                         
                     if go_convex
-                        [F_expand,failure,cause] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state);
                     elseif go_concave
-                        [F_expand,failure,cause] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state);
                     elseif isequal(properties.monotonicity,'exact')
-                        [F_expand,failure,cause] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],goal_vexity,allExtStruct,w);
+                        [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],goal_vexity,allExtStruct,w,state);
                     else
                         if options.allownonconvex%milp
-                            [F_expand,failure,cause] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'none',allExtStruct,w);
+                            [F_expand,failure,cause,state] = expandrecursive(recover(expressionvariables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,'exact',[],'none',allExtStruct,w,state);
                         else
                             failure = 1;
                             cause = ['Monotonicity required at ' where ' at level ' num2str(level)];
@@ -237,7 +237,7 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
                 end
             end
         end
-        if ~do_not_check_nonlinearity  & ~DUDE_ITS_A_GP & ~options.expandbilinear & ~options.allownonconvex
+        if ~do_not_check_nonlinearity  & ~state.DUDE_ITS_A_GP & ~options.expandbilinear & ~options.allownonconvex
             if isa(expression,'sdpvar')
                 if degree(expression)~=1 &~is(expression,'signomial')
                     [Q,c,f,x,info] = quaddecomp(expression);
@@ -272,8 +272,8 @@ if  ~alreadydone(getvariables(variable),method,goal_vexity)
     
     % If the variable modelled originates in a constraint which is a cut in
     % the global solver, all defined constraints are also cuts
-    if isa(F_graph,'lmi') | isa(F_graph,'constraint') & CONSTRAINTCUTSTATE
-        F_graph = setcutflag(lmi(F_graph),CONSTRAINTCUTSTATE);
+    if isa(F_graph,'lmi') | isa(F_graph,'constraint') & state.CONSTRAINTCUTSTATE
+        F_graph = setcutflag(lmi(F_graph),state.CONSTRAINTCUTSTATE);
     end
     
     F_expand = F_expand + F_graph;

@@ -1,14 +1,10 @@
 function df = ipoptgp_callback_df(x,model)
 
-global latest_x_f
-global latest_df
-
+M = model.memo;
 x = x(:);
-if isequal(x,latest_x_f)
-    df = latest_df;
+if isequal(x,M.xF)
+    df = M.df;
 else
     [f,df] = fmincon_fungp(x,model);
-    latest_df = df;
+    M.df = df;
 end
-
-

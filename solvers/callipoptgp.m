@@ -94,16 +94,7 @@ Flow = [repmat(-inf,max(prob.map),1);repmat(0,size(prob.G,1),1)];
 
 % These are needed to avoid recomputation due to ipopts double call to get
 % f and df, and g and dg (not fully done yet in geometric version)
-global latest_x_f
-global latest_x_g
-global latest_df
-global latest_f
-global latest_G
-global latest_g
-latest_G = [];
-latest_g = [];
-latest_x_f = [];
-latest_x_g = [];
+prob.memo = yalmip.EvalMemo();
 
 funcs.objective = @(x)ipoptgp_callback_f(x,prob);
 funcs.gradient = @(x)ipoptgp_callback_df(x,prob);

@@ -1,8 +1,6 @@
 function [g,geq,dg,dgeq,xevaled] = fmincon_con(x,model,xevaled)
 
-global latest_xevaled
-global latest_x_xevaled
-global sdpLayer
+M = model.memo;
 
 % Early bail for linear problems
 g    = [];
@@ -18,14 +16,14 @@ end
 
 % Compute all nonlinear variables
 if nargin<3
-    if isequal(x,latest_x_xevaled)
-        xevaled = latest_xevaled;
+    if isequal(x,M.xXevaled)
+        xevaled = M.xevaled;
     else
         xevaled = zeros(1,length(model.c));
         xevaled(model.linearindicies) = x;
         xevaled = apply_recursive_evaluation(model,xevaled);
-        latest_x_xevaled = x;
-        latest_xevaled = xevaled;
+        M.xXevaled = x;
+        M.xevaled = xevaled;
     end
 end
 
@@ -89,7 +87,7 @@ if any(model.K.s)
             eigenvalues = cumsum(eigenvalues);
         end
         % These will reordered later
-        g = [g;-eigenvalues(1:sdpLayer.n(i))];
+        g = [g;-eigenvalues(1:M.sdpLayer.n(i))];
         %g = [g;-v(1:min(n,sdpLayer.n))];FX
         top = top + n^2;
     end
@@ -309,7 +307,7 @@ function [dg,reordering] = computeSDPDeriv(model,xevaled,newdxx)
 top = startofSDPCone(model.K);
 newF = [];newcuts = 1;
 B=model.F_struc(:,2:end)*newdxx;
-global sdpLayer
+sdpLayer = model.memo.sdpLayer;
 reordering = [];
 
 for i = 1:length(model.K.s)
@@ -429,6 +427,7 @@ for i = 1:length(model.K.s)
     newF = [newF;newSDPblock];
     top = top + n^2;
 end
+model.memo.sdpLayer = sdpLayer;
 dg = -newF;
 
 function newdxx = computeMonomialVariableJacobian(model,x)
@@ -466,7 +465,7 @@ for i = 1:size(X,1)
 end
 
 function  g = reorderEigenvalueG(g,model)
-global sdpLayer
+sdpLayer = model.memo.sdpLayer;
 if ~isempty(sdpLayer.reordering{1})
     %g_nonsdp = g(1:end-sum(min(sdpLayer.n,model.K.s)));%FX
     g_nonsdp = g(1:end-sum(sdpLayer.n));

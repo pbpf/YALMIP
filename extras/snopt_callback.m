@@ -1,10 +1,6 @@
-function [F,G] = snopt_callback(x,mmodel)
-
-persistent model
-if nargin > 1
-    model = mmodel;
-    return
-end
+function [F,G] = snopt_callback(x,model)
+% SNOPT user callback. The compiled model is passed via the function handle
+% installed by solvers/callsnopt.m (no persistent or global state).
 
 if model.SimpleLinearObjective | model.SimpleQuadraticObjective
     [f,df] = fmincon_fun_liftlayer(x,model);

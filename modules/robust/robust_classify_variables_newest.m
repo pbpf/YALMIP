@@ -46,11 +46,11 @@ for i = 1:length(F)
     end            
 end
 ops.removeequalities = 0;
-[F_x,failure,cause] = expandmodel(F_x,h,ops);
-[F_w,failure,cause] = expandmodel(F_w,[],ops);
+[F_x,failure,cause,state] = expandmodel(F_x,h,ops);
+[F_w,failure,cause,state] = expandmodel(F_w,[],ops);
 ops.expandbilinear = 1;
 ops.reusemodel = 1; % Might be case x+norm(w)<1, norm(w)<1
-[F_xw,failure,cause] = expandmodel(F_xw,h,ops,w);
+[F_xw,failure,cause,state] = expandmodel(F_xw,h,ops,w,state);
 
 w_variables = depends(F_w);
 x_variables = unique([depends(F_x) depends(F_xw) depends(h)]);

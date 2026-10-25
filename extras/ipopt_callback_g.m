@@ -1,12 +1,9 @@
 function g = ipopt_callback_g(x,model)
-
-global latest_x_g
-global latest_G
-global latest_g
 x = x(:);
+M = model.memo;
 
-% Compute the nonlinear terms in the constraints and Jacobians for later   
-[g,geq,dg,dgeq] = fmincon_con_liftlayer(x,model);    
+% Compute the nonlinear terms in the constraints and Jacobians for later
+[g,geq,dg,dgeq] = fmincon_con_liftlayer(x,model);
 
 % Append with linear constraints
 g = [g;geq];
@@ -27,5 +24,5 @@ if ~isempty(model.Aeq)
 end
 
 % Save the Jacobian, and information about for which x it was computed
-latest_G = sparse(G);
-latest_x_g = x;
+M.G = sparse(G);
+M.xG = x;

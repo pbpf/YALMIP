@@ -1,11 +1,9 @@
 function H = penlab_callback_dff(x,model)
 
-global latest_x_f
-global latest_df
-
+M = model.memo;
 x = x(:);
-if isequal(x,latest_x_f)
-    df = latest_df;
+if isequal(x,M.xF)
+    df = M.df;
 else
     [f,df] = fmincon_fun(x,model);
 end

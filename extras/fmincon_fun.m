@@ -1,18 +1,15 @@
 function [f,df,xevaledout,dx] = fmincon_fun(x,model)
 
-global latest_xevaled
-global latest_x_xevaled
-
 % Apply the precomputed evaluation scheme (if necessary)
 xevaled = zeros(1,length(model.c));
 xevaled(model.linearindicies) = x;
 if ~model.SimpleLinearObjective
-    if isequal(x,latest_x_xevaled)
-        xevaled = latest_xevaled;
-    else       
+    if isequal(x,model.memo.xXevaled)
+        xevaled = model.memo.xevaled;
+    else
         xevaled = apply_recursive_evaluation(model,xevaled);
-        latest_xevaled = xevaled;
-        latest_x_xevaled = x;
+        model.memo.xevaled = xevaled;
+        model.memo.xXevaled = x;
     end
 end
 xevaledout=xevaled;

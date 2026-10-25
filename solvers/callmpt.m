@@ -2,19 +2,15 @@ function output = callmpt(interfacedata)
 
 % This file is kept for MPT2 compatability
 
-% Speeds up solving LPs in mpmilp
-global mptOptions
-if ~isstruct(mptOptions)
-    mpt_error
-end
-
 % Convert
 Matrices = yalmip2mpt(interfacedata);
 
-% Get some MPT options
+% Get some MPT options. The former global mptOptions handshake with MPT was
+% removed in the stateless refactor; MPT falls back to its internal defaults.
+% Solver selection should be done through sdpsettings instead.
 options = interfacedata.options;
-options.mpt.lpsolver = mptOptions.lpsolver;
-options.mpt.milpsolver = mptOptions.milpsolver;
+options.mpt.lpsolver = '';
+options.mpt.milpsolver = '';
 options.mpt.verbose = options.verbose;
 
 if options.savedebug

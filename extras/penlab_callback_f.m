@@ -1,8 +1,6 @@
 function [f,model] = penlab_callback_f(x,model)
 
-global latest_x_f
-global latest_df
-
+M = model.memo;
 x = x(:);
-[f,latest_df] = fmincon_fun(x,model);
-latest_x_f = x;
+[f,M.df] = fmincon_fun(x,model);
+M.xF = x;

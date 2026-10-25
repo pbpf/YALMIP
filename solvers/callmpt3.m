@@ -1,18 +1,16 @@
 function output = callmpt3(interfacedata)
 
-% Speeds up solving LPs in mpmilp
-global MPTOPTIONS
-if ~isstruct(MPTOPTIONS)
-    mpt_error
-end
-
 % Convert
+
+% The former global MPTOPTIONS handshake with MPT3 was removed in the
+% stateless refactor; MPT falls back to its internal defaults. Solver
+% selection should be done through sdpsettings instead.
 Matrices = yalmip2mpt(interfacedata);
 
 % Get some MPT options
 options = interfacedata.options;
-options.mpt.lpsolver = MPTOPTIONS.lpsolver;
-options.mpt.milpsolver = MPTOPTIONS.milpsolver;
+options.mpt.lpsolver = '';
+options.mpt.milpsolver = '';
 options.mpt.verbose = options.verbose;
 
 if options.savedebug

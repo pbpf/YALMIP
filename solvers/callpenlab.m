@@ -26,20 +26,7 @@ showprogress('Calling PENLAB',model.options.showprogress);
 
 % These are needed to avoid recomputation due to penlab double call to get
 % f and df, and g and dg
-global latest_x_f
-global latest_x_g
-global latest_df
-global latest_f
-global latest_G
-global latest_g
-global latest_xevaled
-global latest_x_xevaled
-latest_G = [];
-latest_g = [];
-latest_x_f = [];
-latest_x_g = [];
-latest_xevaled = [];
-latest_x_xevaled = [];
+model.memo = yalmip.EvalMemo();
 
 penm.userdata=model;
 

@@ -66,9 +66,10 @@ showprogress('Calling FMINSEARCH',options.showprogress);
 % Precalc for the callbacks
 model = setup_fmincon_params(model);
 if (model.SimpleQuadraticObjective | model.SimpleNonlinearObjective) & isempty(model.evalMap)
-    options.fmincon.GradObj = 'on';    
+    options.fmincon.GradObj = 'on';
 end
 
+model.memo = yalmip.EvalMemo();
 fun = @(x,m)fmincon_fun(x,m);
 
 solvertime = tic;
