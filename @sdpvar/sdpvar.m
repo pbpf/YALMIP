@@ -55,14 +55,60 @@ end
 
 % Session-based creation (the former user syntax sdpvar(n,m,...) now goes
 % through yalmip.Session/sdpvar, which appends the internal session payload)
-if ~(nargin >= 2 && isequal(varargin{end-1},'session') && iscell(varargin{end}))
-
-
+usesession = (nargin >= 2 && isequal(varargin{end-1},'session') && iscell(varargin{end}));
+if usesession
+    S = varargin{end}{1};
+    args = varargin(1:end-2);
+    varargin = args;
+end
+if ~usesession && nargin < 5
     error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); x = S.sdpvar(3,1).')
 end
-S = varargin{end}{1};
-args = varargin(1:end-2);
-varargin = args;
+if ~usesession
+    % Plain fast-path call (5+ args, possibly struct passthrough)
+    if nargin == 8
+        sys = sdpvar('finalize', varargin{8});
+    else
+        sess = [];
+        varargs = varargin;
+        switch numel(varargs)
+            case 5
+                sys.basis = varargs{5}; sys.lmi_variables = varargs{4};
+                sys.dim(1) = varargs{1}; sys.dim(2) = varargs{2}; sys.typeflag = 0;
+                sys.savedata = []; sys.extra = []; sys.extra.expanded = [];
+                sys.extra.opname = ''; sys.extra.createTime = definecreationtime;
+                sys.conicinfo = 0; sys.originalbasis = 'unknown';
+            case 6
+                sys.basis = varargs{5}; sys.lmi_variables = varargs{4};
+                sys.dim(1) = varargs{1}; sys.dim(2) = varargs{2}; sys.typeflag = varargs{6};
+                sys.savedata = []; sys.extra = []; sys.extra.expanded = [];
+                sys.extra.opname = ''; sys.extra.createTime = definecreationtime;
+                sys.conicinfo = 0; sys.originalbasis = 'unknown';
+            case 7
+                sys.basis = varargs{5}; sys.lmi_variables = varargs{4};
+                sys.dim(1) = varargs{1}; sys.dim(2) = varargs{2}; sys.typeflag = varargs{6};
+                sys.savedata = []; sys.extra = varargs{7}; sys.extra.expanded = [];
+                sys.extra.opname = ''; sys.extra.createTime = '';
+                sys.conicinfo = varargs{7}; sys.originalbasis = 'unknown';
+            otherwise
+                error('YALMIP:sdpvarInternal','Wrong number of internal fast-path arguments (%d).', numel(varargs))
+        end
+        constants = find(sys.lmi_variables==0);
+        if ~isempty(constants)
+            sys.lmi_variables(constants) = [];
+            sys.basis(:,1) = sys.basis(:,1) + sum(sys.basis(:,1+constants),2);
+            sys.basis(:,1+constants) = [];
+        end
+        sys.sess = sess;
+        if ~isfield(sys,'name'), sys.name = ''; end
+        if isempty(sys.lmi_variables)
+            sys = full(reshape(sys.basis(:,1),sys.dim(1),sys.dim(2)));
+        else
+            sys = class(sys,'sdpvar');
+        end
+    end
+    return
+end
 
 if S.gemInPath()
     try

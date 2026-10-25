@@ -1,0 +1,4 @@
+STAGE_RESULT stage3s core passed=38 failed=1 incomplete=3
+STAGE_RESULT stage3s operators passed=42 failed=0 incomplete=11
+STAGE_RESULT stage3s misc passed=6 failed=0 incomplete=2
+STAGE_TOTAL stage3s passed=86 failed=1 incomplete=16
