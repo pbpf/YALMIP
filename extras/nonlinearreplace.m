@@ -22,7 +22,7 @@ if isequal(getbase(Y),[0 1]) && isequal(getbase(W),[0 -1]) && isequal(getvariabl
     end
 end
 
-U = sdpvar(length(W),1);
+U = S.sdpvar(length(W),1);
 for kk = 1:length(Y)
     Z = [];
     for ii = 1:size(X,1)

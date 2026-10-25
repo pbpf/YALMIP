@@ -116,7 +116,7 @@ else
     local_monoms_left = monomtable(used_variables,:);
     local_monoms_left(:,replaced_vars) = 0;
     used_left = find(sum(local_monoms_left,1));
-    base = recovermonoms(local_monoms_left(:,used_left),recover(used_left));
+    base = recovermonoms(local_monoms_left(:,used_left),recover(used_left, sessOf(X)));
     base = base.*gain(:);
     Z = X.basis(:,1);
     Z = Z + X.basis(:,2:end)*base;
