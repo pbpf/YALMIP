@@ -1,6 +1,12 @@
-function [A,b] = generate_kernel_representation_data(N,N_unique,exponent_m2,exponent_p,p,options,p_base_parametric,ParametricIndicies,MonomIndicies,FirstRun)
+function [A,b,cache] = generate_kernel_representation_data(N,N_unique,exponent_m2,exponent_p,p,options,p_base_parametric,ParametricIndicies,MonomIndicies,cache)
 
-persistent saveData
+% The congruence/kernel partition data reused across similar SOS cones is
+% carried by the explicit CACHE argument (formerly a persistent variable).
+% The caller (compilesos) owns the cache for one SOS compilation pass.
+if nargin < 10
+    cache = [];
+end
+saveData = cache;
 
 exponent_p_parametric = exponent_p(:,ParametricIndicies);
 exponent_p_monoms = exponent_p(:,MonomIndicies);
@@ -14,7 +20,7 @@ parametric = full((~isempty(ParametricIndicies) & any(any(exponent_p_parametric)
 
 % For problems with a lot of similar cones, this saves some time
 reuse = 0;
-if ~isempty(saveData) && isequal(saveData.N,N) & ~FirstRun
+if ~isempty(saveData) && isequal(saveData.N,N)
     n = saveData.n;
     ind = saveData.ind;
     if  isequal(saveData.N_unique,N_unique) & isequal(saveData.exponent_m2,exponent_m2)% & isequal(saveData.epm,exponent_p_monoms)
@@ -112,6 +118,7 @@ else
     end
 end
 saveData.ind = ind;
+cache = saveData;
 
 % Some parametric terms in p(x,t) do not appear in v'Qv
 % So these have to be added 0*Q = b

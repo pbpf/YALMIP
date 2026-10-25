@@ -1,0 +1,2 @@
+STAGE_RESULT stage1 sos passed=26 failed=0 incomplete=0
+STAGE_TOTAL stage1 passed=26 failed=0 incomplete=0

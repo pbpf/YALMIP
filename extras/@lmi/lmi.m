@@ -2,9 +2,6 @@ function F = lmi(X,handlestring,dummy,noprune,symmetryKnown)
 
 superiorto('sdpvar')
 
-persistent temp
-persistent F0
-
 fast = 0;
 noprune = 0;
 symmetryKnown = 0;
@@ -15,7 +12,6 @@ switch nargin
         F.savedata = [];
         F.dualized = 0;
         F = class(F,'lmi');
-        F0 = F;
         return
     case 1
         handlestring = '';
@@ -35,19 +31,15 @@ switch nargin
         error('Wrong number of arguments')
 end
 
-if isempty(F0)
-    F.clauses  = {};
-    F.LMIid    = [];
-    F.savedata = [];
-    F.dualized = 0;
-    try
-        F = class(F,'lmi');
-    catch
-        disp('Failure in creating SET object. Restart MATLAB and try again, or type clear classes')
-    end
-    F0 = F;
-else
-    F = F0;
+% Fresh empty lmi prototype (formerly a cached persistent object)
+F.clauses  = {};
+F.LMIid    = [];
+F.savedata = [];
+F.dualized = 0;
+try
+    F = class(F,'lmi');
+catch
+    disp('Failure in creating SET object. Restart MATLAB and try again, or type clear classes')
 end
 
 % Return empty LMI in degenerate case
@@ -254,26 +246,19 @@ if all(TypeofConstraint == 2) && all(strict==strict(1))
             vecF = vecF(:);        
         end
     end
-    if isempty(temp)
-        temp.data=vecF;
-        temp.type = 2;
-        temp.symbolic=X;
-        temp.handle=handlestring;
-        temp.strict = strict(1);
-        temp.cut = 0;
-        temp.expanded = 0;
-        temp.lift = 0;
-        temp.schurfun  = '';
-        temp.schurdata = [];
-        temp.jointprobabilistic = [];
-        temp.confidencelevel = [];
-        temp.extra = [];
-    else
-        temp.data=vecF;
-        temp.symbolic=X;
-        temp.handle=handlestring;
-        temp.strict = strict(1);
-    end
+    temp.data=vecF;
+    temp.type = 2;
+    temp.symbolic=X;
+    temp.handle=handlestring;
+    temp.strict = strict(1);
+    temp.cut = 0;
+    temp.expanded = 0;
+    temp.lift = 0;
+    temp.schurfun  = '';
+    temp.schurdata = [];
+    temp.jointprobabilistic = [];
+    temp.confidencelevel = [];
+    temp.extra = [];
     F.clauses{1}{1} = temp;
     
 %     F.clauses{1}{1}.data=vecF;

@@ -69,8 +69,8 @@ end
 % *************************************************************************
 % Partition initial set to simplicies
 % *************************************************************************
-node_keeper;
-node_keeper(THETA,X,OBJ);
+nodes = struct('THETA',[],'X',[],'OBJ',[]);
+[nodes,~] = mpcvx_nodes_append(nodes,THETA,X,OBJ);
 T = delaunayn(THETA',{'Qz','Qt'});
 
 if p.options.mpcvx.plot
@@ -84,7 +84,8 @@ end
 % *************************************************************************
 optimal_simplicies = [];
 for i = 1:size(T,1)
-    optimal_simplicies = [optimal_simplicies mp_simplex(p,solver,T(i,:)')];
+    [simplex_solution_i,nodes] = mp_simplex(p,solver,T(i,:)',nodes);
+    optimal_simplicies = [optimal_simplicies simplex_solution_i];
 end
 mpsolvertime = etime(clock,mpsolvertime);
 
@@ -94,7 +95,7 @@ mpsolvertime = etime(clock,mpsolvertime);
 Pn = polytope;
 j = 1;
 for i = 1:size(optimal_simplicies,2)
-    [theta,x,obj] = node_keeper(optimal_simplicies(:,i));
+    [theta,x,obj] = mpcvx_nodes_get(nodes,optimal_simplicies(:,i));
     m = size(theta,1);
     Minv = inv([ones(1,m+1);theta]);
     Vbar = obj'*Minv;
@@ -132,11 +133,11 @@ output.solveroutput.x = p.used_variables(Matrices.param_var);
 
 output.solvertime   = mpsolvertime;
 
-function simplex_solution = mp_simplex(p,solver,theta_indicies)
+function [simplex_solution,nodes] = mp_simplex(p,solver,theta_indicies,nodes)
 
 % Get the vertices, the optimal solution in the vertices and the optimal
 % cost in the vertices
-[theta,x,obj] = node_keeper(theta_indicies);
+[theta,x,obj] = mpcvx_nodes_get(nodes,theta_indicies);
 
 % Parametric dimension
 m = size(theta,1);
@@ -190,7 +191,7 @@ if eps_CP_S_abs > p.options.mpcvx.absgaptol & eps_CP_S_rel > p.options.mpcvx.rel
     [x_i,obj_i] = solve_node(pbound,solver,thetac);
     
     % Add to list of vertices
-    new_index = node_keeper(thetac(:),x_i(:),obj_i);
+    [nodes,new_index] = mpcvx_nodes_append(nodes,thetac(:),x_i(:),obj_i);
 
     % Partition current simplex and solve recursively in each new simplex
     % THe simplex is split such that the worst/case point is a vertex in
@@ -220,14 +221,16 @@ if eps_CP_S_abs > p.options.mpcvx.absgaptol & eps_CP_S_rel > p.options.mpcvx.rel
         indicies2 = []
         for i = 1:size(theta1,2)
             [x_i,obj_i] = solve_node(p,solver,theta1(:,i));
-            indicies1 = [indicies1  node_keeper(theta1(:,i),x_i(:),obj_i)];
+            [nodes,c1] = mpcvx_nodes_append(nodes,theta1(:,i),x_i(:),obj_i);
+            indicies1 = [indicies1  c1];
             X1   = [X1 x_i];
             OBJ1 = [OBJ1 obj_i];
         end
 
         for i = 1:size(theta2,2)
             [x_i,obj_i] = solve_node(p,solver,theta2(:,i));
-            indicies2 = [indicies2  node_keeper(theta2(:,i),x_i(:),obj_i)];
+            [nodes,c2] = mpcvx_nodes_append(nodes,theta2(:,i),x_i(:),obj_i);
+            indicies2 = [indicies2  c2];
             X2   = [X2 x_i];
             OBJ2 = [OBJ2 obj_i];
         end
@@ -235,21 +238,24 @@ if eps_CP_S_abs > p.options.mpcvx.absgaptol & eps_CP_S_rel > p.options.mpcvx.rel
         T2 = (delaunayn(theta2',{'Qz','Qt'}));
         for i = 1:size(T1,1)
             index = indicies1(T1);
-            simplex_solution =  [simplex_solution mp_simplex(p,solver,index(i,:))];
+            [sol_i,nodes] = mp_simplex(p,solver,index(i,:),nodes);
+            simplex_solution =  [simplex_solution sol_i];
         end
         for i = 1:size(T2,1)
             index = indicies2(T2);
-            simplex_solution =  [simplex_solution mp_simplex(p,solver,index(i,:))];
+            [sol_i,nodes] = mp_simplex(p,solver,index(i,:),nodes);
+            simplex_solution =  [simplex_solution sol_i];
         end
 
     else
-        
+
         for i = 1:(size(theta,1)+1)
             j = 1:(size(theta,1)+1);
             j(i)=[];
             theta_test = [theta(:,j) thetac];
-            if min(svd([ones(1,size(theta_test,2));theta_test]))>1e-4            
-                simplex_solution =  [simplex_solution mp_simplex(p,solver,[theta_indicies(j);new_index])];
+            if min(svd([ones(1,size(theta_test,2));theta_test]))>1e-4
+                [sol_i,nodes] = mp_simplex(p,solver,[theta_indicies(j);new_index],nodes);
+                simplex_solution =  [simplex_solution sol_i];
             end
         end
     end
@@ -267,29 +273,20 @@ else
     simplex_solution = theta_indicies(:);
 end
 
-function varargout = node_keeper(varargin)
+function [nodes,count] = mpcvx_nodes_append(nodes,THETA,X,OBJ)
+%MPCVX_NODES_APPEND Append vertex data to the explicit accumulator
+%   (replaces the former persistent node_keeper)
+nodes.THETA = [nodes.THETA THETA];
+nodes.X     = [nodes.X X];
+nodes.OBJ   = [nodes.OBJ OBJ];
+count = size(nodes.THETA,2);
 
-persistent savedTHETA
-persistent savedX
-persistent savedOBJ
-
-switch nargin
-    case 0 % CLEAR
-        savedTHETA = [];
-        savedX     = [];
-        savedOBJ   = [];
-    case 3 % Append
-        savedTHETA = [savedTHETA varargin{1}];
-        savedX     = [savedX varargin{2}];
-        savedOBJ   = [savedOBJ varargin{3}];
-        varargout{1} = size(savedTHETA,2);
-    case 1 % Get data
-        varargout{1} = savedTHETA(:,varargin{1});
-        varargout{2} = savedX(:,varargin{1});
-        varargout{3} = savedOBJ(:,varargin{1});varargout{3} = varargout{3}(:);
-    otherwise
-        error('!')
-end
+function [theta,x,obj] = mpcvx_nodes_get(nodes,ind)
+%MPCVX_NODES_GET Read vertex data from the explicit accumulator
+theta = nodes.THETA(:,ind);
+x = nodes.X(:,ind);
+obj = nodes.OBJ(:,ind);
+obj = obj(:);
 
 
 function [THETA,problem] = ray_shoot(p,solver)

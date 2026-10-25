@@ -172,7 +172,10 @@ function [fval x y z info] = refiner(Aeq, beq, f, K, options, l, fd, ld, beqd, L
 
 %% Parameters setting
 
-persistent nbIter ops highPrecisionSupported allDimacsTot
+% The former persistent variables (nbIter, ops, highPrecisionSupported,
+% allDimacsTot) are plain locals: with the current single-argument solver
+% signature every invocation takes the first-call initialization branch, so
+% no state is carried between calls.
 
 
 %% Arguments analysis and setup

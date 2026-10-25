@@ -1,3 +1,3 @@
-function f = pennlp_fun(x)
+function f = pennlp_fun(x,model)
 
-f = datasaver(1,x);
+f = datasaver(1,x,[],model.memo);

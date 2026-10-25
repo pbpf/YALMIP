@@ -318,6 +318,7 @@ end
 % ************************************************
 %% LOOP THROUGH ALL SOS CONSTRAINTS
 % ************************************************
+kernelcache = []; % Reused across similar cones within this compilation pass
 for constraint = 1:length(p)
     % *********************************************
     %% FIND THE VARIABLES IN p, SORT, UNIQUE ETC
@@ -494,7 +495,7 @@ for constraint = 1:length(p)
             p_base_parametric = [p_base_parametric parameterizedbase(p{constraint}(i,j),z,params,ParametricIndicies,exponent_p,p_base((i-1)*n+j,:))];
         end
     end
-    [BlockedA{constraint},Blockedb{constraint}] = generate_kernel_representation_data(N,N_unique,exponent_m2,exponent_p,p{constraint},options,p_base_parametric,ParametricIndicies,MonomIndicies,constraint==1);
+    [BlockedA{constraint},Blockedb{constraint},kernelcache] = generate_kernel_representation_data(N,N_unique,exponent_m2,exponent_p,p{constraint},options,p_base_parametric,ParametricIndicies,MonomIndicies,kernelcache);
 
     % SAVE FOR LATER
     BlockedN{constraint} = N;

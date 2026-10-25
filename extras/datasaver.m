@@ -1,60 +1,47 @@
-function  data = datasaver(varargin)
+function  data = datasaver(op,x,i,memo)
+%DATASAVER Evaluate compiled PENNLP function/constraint data at x
+%
+%   The compiled data and the cached monomial evaluation live on the
+%   per-solve memo handle (memo.payload), replacing the former persistent
+%   storage in this function. Initialized by solvers/callpennlp.m.
 
-persistent saved
+d = memo.payload;
 
-if nargin > 3
-    saved.savedfunctiondata = varargin{1};
-    saved.savedfunctionGradientdata = varargin{2};
-    saved.savedfunctionHessiandata = varargin{3};
-    saved.savedconstraintdata = varargin{4};
-    saved.savedconstraintGradientdata = varargin{5};
-    saved.savedconstraintHessiandata = varargin{6};
-    saved.m = size(saved.savedconstraintdata.F_struc,1);
-    saved.n = length(saved.savedfunctiondata.linearindicies);
-    saved.monomials = [];
-    saved.x = randn(saved.n,1);
-    return
-end
-
-x = varargin{2};
-if ~isequal(x,saved.x)
+if ~isequal(x,d.x)
     % Recompute the monomial terms for new x
-    saved.monomials=ones(1,size(saved.savedfunctiondata.monomtable,2));
-    saved.monomials(saved.savedfunctiondata.linearindicies) = x(:)';
-   % changed = find(x-saved.x);
-   % changed = saved.savedfunctiondata.linearindicies(changed);
-   % changedmonomials = find(any(saved.savedfunctiondata.monomtable(saved.savedfunctiondata.nonlinearindicies,changed),2));
-    
-    for i = 1:length(saved.savedfunctiondata.nonlinearindicies)
-        saved.monomials(saved.savedfunctiondata.nonlinearindicies(i)) = prod(saved.monomials.^saved.savedfunctiondata.monomtable(saved.savedfunctiondata.nonlinearindicies(i),:));
+    d.monomials=ones(1,size(d.savedfunctiondata.monomtable,2));
+    d.monomials(d.savedfunctiondata.linearindicies) = x(:)';
+
+    for k = 1:length(d.savedfunctiondata.nonlinearindicies)
+        d.monomials(d.savedfunctiondata.nonlinearindicies(k)) = prod(d.monomials.^d.savedfunctiondata.monomtable(d.savedfunctiondata.nonlinearindicies(k),:));
     end
-    saved.x = x;
+    d.x = x;
+    memo.payload = d;
 end
 
-switch varargin{1}
+switch op
     case 1
-        F = saved.savedfunctiondata.F_struc;
-        x = varargin{2};
+        F = d.savedfunctiondata.F_struc;
     case 2
-        F = saved.savedfunctionGradientdata.F_struc;
+        F = d.savedfunctionGradientdata.F_struc;
     case 3
-        F = saved.savedfunctionHessiandata.F_struc;
+        F = d.savedfunctionHessiandata.F_struc;
     case 4
-        if nargin == 2
-            % ipopt call
-            F = saved.savedconstraintdata.F_struc;
+        if isempty(i)
+            % ipopt-style call
+            F = d.savedconstraintdata.F_struc;
         else
             % pennlp call
-            F = saved.savedconstraintdata.F_struc(1+varargin{3},:);
+            F = d.savedconstraintdata.F_struc(1+i,:);
         end
     case 5
-        F = saved.savedconstraintGradientdata.F_struc;
-        start = 1+(varargin{3}-1)*saved.n;
-        F = F(varargin{3}:saved.m:end,:);
+        F = d.savedconstraintGradientdata.F_struc;
+        start = 1+(i-1)*d.n;
+        F = F(i:d.m:end,:);
     case 6
-        F = saved.savedconstraintHessiandata.F_struc;
-        F = full(F((varargin{3}-1)+(1:saved.m:saved.m*saved.n^2),:));        
+        F = d.savedconstraintHessiandata.F_struc;
+        F = full(F((i-1)+(1:d.m:d.m*d.n^2),:));
     otherwise
 end
 
-data = (F*[1;saved.monomials(:)]);
+data = (F*[1;d.monomials(:)]);

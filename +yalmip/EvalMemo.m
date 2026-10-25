@@ -30,7 +30,7 @@ classdef EvalMemo < handle
         dgeq = []         % last equality gradient (KNITRO)
         x = []            % x at last multivariate objective callback (PENNON)
         sdpLayer = []     % LMI layer state (eigenvalue reordering, null vectors)
-        model = []        % compiled model handed to named-callback interfaces
+        payload = []      % solver-specific data payload (e.g. PENNLP compiled data)
         diffCache = []    % chain-rule precomputation cache for apply_recursive_differentiation
     end
 end

@@ -92,7 +92,17 @@ functionHessiandata.F_struc    = F_struc(start:start+n^2-1,:);start = start+n^2;
 constraintGradientdata.F_struc = F_struc(start:start+n*m-1,:);start = start+n*m;
 constraintHessiandata.F_struc  = F_struc(start:end,:);start = start+n*m;
 
-datasaver(functiondata,functionGradientdata,functionHessiandata,constraintdata,constraintGradientdata,constraintHessiandata)
+% The compiled data and the callback cache live on the per-solve memo
+% handle (replaces the former persistent storage in datasaver).
+model.memo = yalmip.EvalMemo();
+model.memo.payload = struct('savedfunctiondata',functiondata, ...
+    'savedfunctionGradientdata',functionGradientdata, ...
+    'savedfunctionHessiandata',functionHessiandata, ...
+    'savedconstraintdata',constraintdata, ...
+    'savedconstraintGradientdata',constraintGradientdata, ...
+    'savedconstraintHessiandata',constraintHessiandata, ...
+    'm',size(constraintdata.F_struc,1),'n',length(functiondata.linearindicies), ...
+    'monomials',[],'x',randn(length(functiondata.linearindicies),1));
 
 Infinity = 1.0E38;
 pen.nvars = n;
@@ -105,12 +115,14 @@ pen.ubv = ub(:)';
 pen.lbc = lbc(:)';
 pen.ubc = ubc(:)';
 pen.xinit= x0(:)';
-pen.my_f = 'pennlp_fun';
-pen.my_f_gradient = 'pennlp_fungrad';
-pen.my_f_hessian = 'pennlp_funhess';
-pen.my_g = 'pennlp_con';
-pen.my_g_gradient = 'pennlp_congrad';
-pen.my_g_hessian =  'pennlp_conhess';
+% Compiled data is passed to the callbacks via function handles (no
+% persistent or global variables).
+pen.my_f = @(x) pennlp_fun(x,model);
+pen.my_f_gradient = @(x) pennlp_fungrad(x,model);
+pen.my_f_hessian = @(x) pennlp_funhess(x,model);
+pen.my_g = @(i,x) pennlp_con(i,x,model);
+pen.my_g_gradient = @(i,x) pennlp_congrad(i,x,model);
+pen.my_g_hessian =  @(i,x) pennlp_conhess(i,x,model);
 
 ops = struct2cell(options.pennlp);ops = [ops{1:end}];
 pen.ioptions = [ops(1:2) options.verbose ops(3:15)];
