@@ -1,2 +1,6 @@
 
 *.asv
+dev/baseline/*.xml
+dev/baseline/*.mat
+dev/baseline/*.log
+.zcode/
