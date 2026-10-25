@@ -1,6 +1,7 @@
 function Z = variable_replace(X,Y,W)
+S = sdpvarargumentsession(X,Y,W);
 
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = S.getMonomtable();
 if isequal(getbase(Y),[0 1]) && isequal(getbase(W),[0 1])    
     % Super standard case, replace monom with other monom
     % However, it is a nonlinear monom to be replaced
@@ -69,13 +70,13 @@ end
 % in a catch to be safe.
 try
     Xvariables = getvariables(Z);
-    extvar = yalmip('extvariables');
+    extvar = S.getExtvariables();
     Xext = find(ismember(Xvariables,extvar));
     if ~isempty(Xext)
         %We must dig down in extended operators to see if they use the replaced
         %set of variables
         for i = 1:length(Xext)
-            extstruct = yalmip('extstruct',Xvariables(Xext(i)));
+            extstruct = S.extstruct(Xvariables(Xext(i)));
             anychanged = 0;
             for j = 1:length(extstruct.arg)
                 if isa(extstruct.arg{j},'sdpvar')
@@ -88,7 +89,7 @@ try
                 end
             end
             if anychanged
-                Zi = yalmip('define',extstruct.fcn,extstruct.arg{:});
+                Zi = S.define('define',extstruct.fcn,extstruct.arg{:});
                 Xvariables(Xext(i)) = getvariables(Zi);
             end
         end

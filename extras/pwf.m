@@ -1,4 +1,5 @@
 function varargout = pwf(varargin)
+S = sdpvarargumentsession(varargin{:});
 %PWF Defines a piecewise function
 %
 % t = PWF(h1,F1,h2,F2,...,hn,Fn)
@@ -93,7 +94,7 @@ switch class(varargin{1})
                 pwq{1}.Pfinal = union(pwq{1}.Pn);                                              
                 varargout{1} = pwq_yalmip(pwq,z,'general');
             else
-                varargout{1} = yalmip('define',mfilename,varargin{:});
+                varargout{1} = S.define('define',mfilename,varargin{:});
             end
         else
             y = [];
@@ -103,7 +104,7 @@ switch class(varargin{1})
                 for j = 1:(length(varargin)/2)
                     VV{2*j-1} = VV{2*j-1}(i);
                 end
-                y = [y;yalmip('define',mfilename,VV{:})];
+                y = [y;S.define('define',mfilename,VV{:})];
             end
             varargout{1} = y;
         end

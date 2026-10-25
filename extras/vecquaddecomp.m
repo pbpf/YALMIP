@@ -1,4 +1,5 @@
 function [Q,c,f,x,info] = vecquaddecomp(p,z)
+S = sdpvarargumentsession(p,z);
 %QUADDECOMP Internal function to decompose quadratic expression
 
 [n,m]=size(p);
@@ -9,7 +10,7 @@ c = cell(n*m,1);
 f = cell(n*m,1);
 
 % Involved in polynomial expression
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = S.getMonomtable();
 x_lin = getvariables(p);
 x_var = find(any(mt(x_lin,:),1));
 if nargin==2

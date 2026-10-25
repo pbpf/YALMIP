@@ -1,9 +1,10 @@
 function [F_xw,F_polya] = filter_polya(F_xw,w,N)
 
+S = session(F_xw);
 F_polya = [];
 Fvars = getvariables(F_xw);
 wvars = getvariables(w);
-[mt,vt] = yalmip('monomtable');
+[mt,vt] = S.getMonomtable();
 if ~(N==ceil(N)) & (N>=0)
     error('The power in robust.polya must be a non-negative integer');
 end
@@ -92,7 +93,7 @@ for i = 1:size(p,1)
     end
 end
 Nmax = -inf;
-mt = yalmip('monomtable');
+mt = S.getMonomtable();
 for i = 1:size(p,1)
     for j = 1:size(p,2)
         for k = 1:length(pi_monoms{i,j})

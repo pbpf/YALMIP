@@ -116,7 +116,7 @@ if isLogicalVector(X,S) && isLogicalVector(Y,S)
      return
  end
 Y = Y(:);
-d = binvar(length(Y),3);
+d = S.binvar(length(Y),3);
 % We have to model every single line of equality.
 % di1 : Yi < -eps
 % di2 : -eps < Yi < eps

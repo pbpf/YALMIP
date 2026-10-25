@@ -1,4 +1,8 @@
 function [F,h,failure] = robustify(F,h,ops,w)
+
+% The session travels with the symbolic problem data
+S = session(F);
+
 %ROBUSTIFY  Derives robust counterpart.
 %
 % [Frobust,objrobust,failure] = ROBUSTIFY(F,h,options) is used to derive
@@ -56,7 +60,7 @@ else
 end
 
 % We keep track of auxilliary generated variables
-nInitial = yalmip('nvars');
+nInitial = S.nvars();
 
 % Find the scenario, extract uncertainty model and classifiy variables
 [UncertainModel,Uncertainty,VariableType,ops] = decomposeUncertain(F,h,w,ops);
@@ -94,10 +98,10 @@ end
 
 % FIXME: SYNC with expandmodel?
 if ~isempty(UncertainModel.F_x)
-    nv = yalmip('nvars');
-    yalmip('setbounds',1:nv,repmat(-inf,nv,1),repmat(inf,nv,1));
+    nv = S.nvars();
+    S.setbounds(1:nv,repmat(-inf,nv,1),repmat(inf,nv,1));
     LU = getbounds(UncertainModel.F_x);
-    yalmip('setbounds',1:nv,LU(:,1),LU(:,2));
+    S.setbounds(1:nv,LU(:,1),LU(:,2));
 end
         
 % At this point, we have to decide on the algorithm we should use for
@@ -173,7 +177,7 @@ conic = ~isequal(Uncertainty.Zmodel.K.s,0) | ~isequal(Uncertainty.Zmodel.K.q,0);
 if (conic | isequal(ops.robust.lplp,'duality')) & ~ops.robust.forced_enumeration
     F_lp = extractConstraints(UncertainModel.F_xw,'elementwise');
     UncertainModel.F_xw = UncertainModel.F_xw - F_lp;
-    nv = yalmip('nvars');
+    nv = S.nvars();
     F_filter = filter_duality(F_lp,Uncertainty.Zmodel,x,w,ops);
     F_robust = F_robust + F_filter;
     if isa(F_filter,'lmi') & ops.verbose
@@ -205,11 +209,11 @@ if enumerationfailed
     else
         F_lp = extractConstraints(UncertainModel.F_xw,'elementwise');
         UncertainModel.F_xw = UncertainModel.F_xw - F_lp;
-        nv = yalmip('nvars');
+        nv = S.nvars();
         F_filter = filter_duality(F_lp,Uncertainty.Zmodel,x,w,ops);
         if ops.verbose
             if isa(F_filter,'lmi')
-             disp([' - Duality introduced ' num2str(yalmip('nvars')-nv') ' variables, ' num2str(nnz(is(F_filter,'equality'))) ' equalities, ' num2str(nnz(is(F_filter,'elementwise'))) ' LP inqualities and ' num2str(nnz(is(F_filter,'sdp'))+nnz(is(F_filter,'socp'))) ' conic constraints']);
+             disp([' - Duality introduced ' num2str(S.nvars()-nv') ' variables, ' num2str(nnz(is(F_filter,'equality'))) ' equalities, ' num2str(nnz(is(F_filter,'elementwise'))) ' LP inqualities and ' num2str(nnz(is(F_filter,'sdp'))+nnz(is(F_filter,'socp'))) ' conic constraints']);
             end
         end
         F_robust = F_robust + F_filter;
@@ -235,11 +239,11 @@ h = UncertainModel.h;
 F = expanded(F,1); % This is actually done already in expandmodel
 h = expanded(h,1); % But this one has to be done manually
 
-nNow = yalmip('nvars');
+nNow = S.nvars();
 if nNow > nInitial
     % YALMIP has introduced auxilliary variables
     % We mark these as auxilliary
-    yalmip('addauxvariables',nInitial+1:nNow);
+    S.addauxvariables(nInitial+1:nNow);
 end
 
 if ops.verbose

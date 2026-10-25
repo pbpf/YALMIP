@@ -22,7 +22,8 @@ if prod(size(f))>1
     error('Hessian only defined for scalars.')
 end
 
-if any(ismember([getvariables(f) depends(f)],yalmip('extvariables')))
+S = sdpvarargumentsession(f,x);
+if any(ismember([getvariables(f) depends(f)],S.getExtvariables()))
     error('Hessian is only applicable to polynomial expressions');
 end
 

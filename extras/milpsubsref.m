@@ -1,4 +1,5 @@
 function varargout = milpsubsref(varargin)
+S = sdpvarargumentsession(varargin{:});
 %MILPSUBSREF
 
 switch class(varargin{1})
@@ -17,7 +18,7 @@ switch class(varargin{1})
                     y = [];
                     for i = 1:length(index)
                         varargin{2}.subs{1} = index(i);
-                        y = [y;yalmip('define',mfilename,varargin{:})];
+                        y = [y;S.define('define',mfilename,varargin{:})];
                     end
                     % Figure out dims of variable
                     X = randn(size(varargin{1}));
@@ -26,7 +27,7 @@ switch class(varargin{1})
                     y = reshape(y,size(X,1),size(X,2));
                     varargout{1} = y;
                 else
-                    varargout{1} = yalmip('define',mfilename,varargin{:});
+                    varargout{1} = S.define('define',mfilename,varargin{:});
                 end
             case 2
                 index1 = varargin{2}.subs{1};
@@ -41,14 +42,14 @@ switch class(varargin{1})
                 if length(index1)*length(index2) == 1
                     varargin{2}.subs{1} = index1;
                     varargin{2}.subs{2} = index2;
-                    y = yalmip('define',mfilename,varargin{:});
+                    y = S.define('define',mfilename,varargin{:});
                 else
                     for i = 1:length(index1)
                         temp = [];
                         for j = 1:length(index2)
                             varargin{2}.subs{1} = index1(i);
                             varargin{2}.subs{2} = index2(j);
-                            temp = [temp yalmip('define',mfilename,varargin{:})];
+                            temp = [temp S.define('define',mfilename,varargin{:})];
                         end
                         y = [y;temp];
                     end
@@ -79,7 +80,7 @@ switch class(varargin{1})
                     varargin{2}.subs{1} = index1;
                     varargin{2}.subs{2} = index2;
                     varargin{2}.subs{3} = index3;
-                    y = yalmip('define',mfilename,varargin{:});
+                    y = S.define('define',mfilename,varargin{:});
                 else
                     temp = [];
                     for i = 1:length(index1)                        
@@ -88,7 +89,7 @@ switch class(varargin{1})
                                 varargin{2}.subs{1} = index1(i);
                                 varargin{2}.subs{2} = index2(j);
                                 varargin{2}.subs{3} = index3(k);
-                                temp = [temp yalmip('define',mfilename,varargin{:})];
+                                temp = [temp S.define('define',mfilename,varargin{:})];
                             end
                         end                        
                     end                    

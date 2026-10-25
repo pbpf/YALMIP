@@ -1,8 +1,9 @@
 function [F_xw,F_robust] = filter_eliminatation(F_xw,w,order,ops)
+S = session(F_xw);
 F_robust = ([]);
 Fvars = getvariables(F_xw);
 wvars = getvariables(w);
-[mt,vt] = yalmip('monomtable');
+[mt,vt] = S.getMonomtable();
 if any(sum(mt(Fvars,wvars),2)>order)
     if ops.verbose
         disp(' - Complicating terms in w encountered. Trying to eliminate by forcing some decision variables to 0');

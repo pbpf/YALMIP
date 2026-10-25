@@ -3,7 +3,8 @@ function [F,changed] = convertlogics(F)
 
 changed = 0;
 if length(F)>0
-    extvariables = yalmip('logicextvariables');
+    S = session(F);
+    extvariables = S.logicextvariables();
     if ~isempty(extvariables)       
         for i = 1:length(F)
             if is(F(i),'elementwise')

@@ -1,5 +1,7 @@
 function [UncertainModel,Uncertainty,VariableType,ops,failure] = decomposeUncertain(F,h,w,ops)
 
+S = session(F);
+
 failure = 0;
 % Do we have any uncertainty declarations variables?
 [F,w] = extractUncertain(F,w);
@@ -31,7 +33,7 @@ if ops.verbose
 end
 
 % Integer variables are OK in x, but not in the uncertainty
-integervars = [yalmip('binvariables') yalmip('intvariables')];
+integervars = [S.getBinvariables() S.getIntvariables()];
 ind = find(is(F_original,'integer') | is(F_original,'binary'));
 if ~isempty(ind)
     integervars = [integervars getvariables(F(ind))];
@@ -510,7 +512,7 @@ function Fnew = projectOut(F,w,newAuxVariables,uncertaintyGroups,ops)
 
 w_variables = getvariables(w);
 
-Graph = yalmip('getdependence');
+Graph = session(F).getdependence();
 for i = 1:length(uncertaintyGroups)
     Graph(w_variables(uncertaintyGroups{i}),w_variables(uncertaintyGroups{i}))=1;
 end

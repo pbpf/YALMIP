@@ -41,7 +41,7 @@ function f = check_for_special_cases(g);
 f = [];
 % Check for slog(1+a(x)/y)
 vars = getvariables(g);
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = g.sess.getMonomtable();
 % All signomials
 if all(variabletype(vars)==4)
     % All xi/yi

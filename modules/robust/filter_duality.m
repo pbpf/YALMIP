@@ -1,5 +1,7 @@
 function [F,feasible] = filter_duality(F_xw,Zmodel,x,w,ops)
 
+S = session(F_xw);
+
 % Creates robustified version of the uncertain set of linear inequalities
 % s.t A(w)*x <= b(w) for all F(w) >= 0 where F(w) is a conic set, here
 % given in YALMIP numerical format.
@@ -85,7 +87,7 @@ if ops.verbose
     disp(' - Using duality to eliminate uncertainty');
 end
 
-nv = yalmip('nvars');
+nv = S.nvars();
 simple_rows = [];
 for i = 1:length(b)
    

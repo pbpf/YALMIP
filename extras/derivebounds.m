@@ -4,7 +4,8 @@ function [M,m,infbound,lowerinf,upperinf] = derivebounds(f,lowerupper)
 basis = getbase(f);
 fvars = getvariables(f);
 if nargin == 1
-    lowerupper = yalmip('getbounds',fvars);
+    S = sdpvarargumentsession(f);
+    lowerupper = S.getbounds(fvars);
 else
     lowerupper = lowerupper(fvars,:);
 end

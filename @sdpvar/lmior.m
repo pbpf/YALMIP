@@ -9,7 +9,7 @@ switch class(varargin{1})
 
         allextvars = S.getExtvariables();
         X = {};
-        for i = 3:nargin
+        for i = 3:nargin-1
             Xtemp = expandor(varargin{i},allextvars);
             for j = 1:length(Xtemp)
                 X{end + 1} = Xtemp{j};

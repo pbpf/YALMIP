@@ -1,4 +1,5 @@
 function [Fdual,objdual,y,X] = primalize(F,obj)
+S = session(F);
 % PRIMALIZE Create the dual of an SDP given in dual form
 %
 % [Fd,objd,y] = primalize(F,obj)
@@ -101,4 +102,4 @@ Fdual = Fdual + (-model.b == model.A'*xvec);
 yvars = union(getvariables(F),getvariables(obj));
 y = recover(yvars);
 
-yalmip('associatedual',getlmiid(Fdual(end)),y);
+S.associatedual(getlmiid(Fdual(end)),y);

@@ -1,10 +1,11 @@
 function Z = nonlinearreplace(X,Y,W)
+S = sdpvarargumentsession(X,Y,W);
 
 % Very slow, but easily coded. Hopefully not used much
 
 % Special case for replace(x,y,-y)
 if isequal(getbase(Y),[0 1]) && isequal(getbase(W),[0 -1]) && isequal(getvariables(Y),getvariables(W)) && is(Y,'linear')
-    mt = yalmip('monomtable');    
+    mt = S.getMonomtable();    
     xv = getvariables(X);
     yv = getvariables(Y);
     if all(mt(:,yv) == fix(mt(:,yv)) )

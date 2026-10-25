@@ -1,5 +1,7 @@
 function [F,mptmissing] = filter_enumeration(F_xw,Zmodel,x,w,ops,uncertaintyTypes,separatedZmodel,VariableType)
 
+S = session(F_xw);
+
 mptmissing = 0;
 if length(F_xw) == 0
     F = [];
@@ -148,7 +150,7 @@ F_xw_socp_sdp = F_xw -  F_xw_lp;
 F = ([]);
 
 x_Flp = depends(F_xw_lp);
-uncAux = yalmip('auxvariablesW');
+uncAux = S.getAuxvariablesW();
 uncAux = recover(intersect(x_Flp,VariableType.aux_with_w_dependence));
 if isequal(ops.robust.auxreduce,'none')
     uncAux = [];

@@ -57,7 +57,7 @@ boundsAlreadySet = 0;
 if ~isempty(F)
     meta = find(is(F,'meta'));
     if ~isempty(meta)
-        state.LUbounds=setupBounds(F+extractglobalboundsmeta(F),options,extendedvariables);
+        state.LUbounds=setupBounds(F+extractglobalboundsmeta(F),options,extendedvariables,S);
         boundsAlreadySet = 1;
         F = expandmeta(F);
     end
@@ -141,7 +141,7 @@ if ~isempty(F)
     % in YALMIP. This is done in order to get tighter big-M models
 
     if boundsAlreadySet == 0;
-        state.LUbounds = setupBounds(F,options,extendedvariables);
+        state.LUbounds = setupBounds(F,options,extendedvariables,S);
     end
 
     % Expand equalities first, since these might generate nonconvex models,

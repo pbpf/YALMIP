@@ -1,4 +1,5 @@
 function solution = savesdpafile(varargin)
+S = sdpvarargumentsession(varargin{:});
 %SAVESDPAFILE Saves a problem definition in the SDPA format
 %
 %    SAVESDPAFILE(F,h,'filename')    Saves the problem min(h(x)), F(x)>0 to the file filename
@@ -21,7 +22,7 @@ end
 
 % Expand nonlinear operators
 [F,failure,cause] = expandmodel(F,h,sdpsettings);
-nvars = yalmip('nvars');
+nvars = S.nvars();
 
 if failure % Convexity propgation failed
     interfacedata = [];
@@ -122,5 +123,5 @@ else
 end
 
 % Save to file
-integer_variables = find(ismember(used_variables,yalmip('intvariables')));
+integer_variables = find(ismember(used_variables,S.getIntvariables()));
 createsdplibfile(F_struc, K, c, filename,integer_variables);

@@ -1,4 +1,5 @@
 function solution = saveampl(varargin)
+S = sdpvarargumentsession(varargin{:});
 %SAVEAMPL Saves a problem definition in AMPL format
 %
 %    SAVEAMPL(F,h,'filename')    Saves the problem min(h(x)), F(x)>0 to the file filename
@@ -28,7 +29,7 @@ if failure % Convexity propgation failed
 end
 
 %% FIXME: SYNC with expandmodel etc. Same in compileinterfacedata
-setupBounds(F,options,yalmip('extvariables'));
+setupBounds(F,options,S.getExtvariables(),S);
 solver.constraint.equalities.polynomial=0;
 solver.constraint.binary=1;
 solver.constraint.integer=0;
@@ -36,12 +37,12 @@ solver.constraint.integer=0;
         
         
 %%
-nvars = yalmip('nvars');
+nvars = S.nvars();
 vars = depends(F);
 vars = unique([vars depends(h)]);
 
-binvars = yalmip('binvariables');
-integervars = yalmip('intvariables');
+binvars = S.getBinvariables();
+integervars = S.getIntvariables();
 
 for i = 1:length(F)
     if is(F(i),'binary')
@@ -149,7 +150,7 @@ fclose(fid);
 
 function symb_pvec = amplexpr(pvec,vars,binvars,integervars)
 
-extVariables = yalmip('extvariables');
+extVariables = S.getExtvariables();
 for pi = 1:size(pvec,1)
     for pj = 1:size(pvec,2)
         p = pvec(pi,pj);
@@ -179,7 +180,7 @@ for pi = 1:size(pvec,1)
             for i = 1:length(LinearVariables)                
                 v1 = find(extVariables==LinearVariables(i));
                 if ~isempty(v1)
-                    e = yalmip('extstruct',extVariables(v1));
+                    e = S.extstruct(extVariables(v1));
                     inner = amplexpr(e.arg{1},vars,binvars,integervars);
                     names{i} = [e.fcn '(' inner{1} ')'];   
                     names{i} = strrep(names{i},'mpower_internal','');

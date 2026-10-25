@@ -191,10 +191,10 @@ end
 if writetofile
     
     fprintf(fileOUT,['%% Model generated from ' fileName '\n']);
-    [d] = yalmip('ver');
+    [d] = {yalmipversion()};
     fprintf(fileOUT,['%% Created ' datestr(now) ' using YALMIP R' d '\n\n']);
     fprintf(fileOUT,'%% Setup a clean YALMIP environment \n');
-    fprintf(fileOUT,'yalmip(''clear'') \n\n');
+    fprintf(fileOUT,'S_ = yalmip.Session(); %% stateless YALMIP session\n\n');
 
     %fprintf(fileOUT,'%% Define non-standard operators \n');
     %fprintf(fileOUT,'sqr = @(x) x.*x;\n\n');

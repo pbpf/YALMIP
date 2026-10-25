@@ -14,7 +14,8 @@ if islinear(F)
     return
 end
 
-[monomtable,variabletype] = yalmip('monomtable');
+S = session(F);
+[monomtable,variabletype] = S.getMonomtable();
 
 if any(variabletype == 4)
     if issignomial(F)
@@ -27,8 +28,8 @@ no_changed = 0;
 i_changed = [];
 % Make sure bounds a pre-processed, in case we look for rotated cone which
 % requires us to know lower bounds
-nv = yalmip('nvars');
-LU = yalmip('getbounds',1:nv);
+nv = S.nvars();
+LU = S.getbounds(1:nv);
 LUhere = getbounds(F,[],LU);
 for i = 1:1:length(F)
     if max(variabletype(getvariables(F(i)))) <= 1

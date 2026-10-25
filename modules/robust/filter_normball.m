@@ -1,5 +1,7 @@
 function [F,feasible] = filter_normball(F_xw,Zmodel,x,w,allw,norm_p,ops,VariableType)
 
+S = session(F_xw);
+
 % Creates robustified version of the uncertain set of linear inequalities
 % s.t A(w)*x <= b(w) for all norm(w,p)<r
 
@@ -22,7 +24,7 @@ x = recover(vars);
 %extended_in_w = intersect(VariableType.w_variables,yalmip('extvariables'));
 %extended_in_F = intersect(vars,yalmip('extvariables'));
 if ~(strcmp(ops.robust.auxreduce,'none') | strcmp(ops.robust.auxreduce,'affine'))
-    if ~isempty(intersect(vars,intersect(VariableType.w_variables,yalmip('extvariables'))))
+    if ~isempty(intersect(vars,intersect(VariableType.w_variables,S.getExtvariables())))
         F = F_xw;
         return
     end

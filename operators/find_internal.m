@@ -1,14 +1,15 @@
 function Model = find_internal(pos,x)
 
+S = x.sess;
 n = length(x);
 
 % Binary to model if element is non-zero
-dp = binvar(1,n); % Positve
-dn = binvar(1,n); % Negative
-d = binvar(1,n);
+dp = S.binvar(1,n); % Positve
+dn = S.binvar(1,n); % Negative
+d = S.binvar(1,n);
 
 % Binary to model if element is first non-zero
-e = binvar(1,n);
+e = S.binvar(1,n);
 
 [M,m] = derivebounds(x);
 M = max(max(abs(M),max(abs(m))));

@@ -25,6 +25,7 @@ end
 varargin{3}.pureexport = 1;
 yalmiptime = clock;
 model = solvesdp(varargin{:});
+S = session(varargin{1});
 diagnostic.yalmiptime = etime(clock,yalmiptime);
 yalmiptime = clock;
 
@@ -138,7 +139,7 @@ for i = 1:length(h)
     
     % And we are done! Save the result
     if ~isempty(output.Primal)
-        yalmip('setsolution',solution_internal,i);
+        S.setsolution(solution_internal,i);
     end
     if model.options.saveduals & model.solver.dual
         if isempty(model.Fremoved) | (nnz(model.Q)>0)

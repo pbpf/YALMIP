@@ -62,7 +62,8 @@ err = 0;
 p1 = ~isreal(obj);%~(isreal(F) & isreal(obj));
 p2 = ~(islinear(F) & islinear(obj));
 p3 = any(is(F,'integer')) | any(is(F,'binary'));
-bad = union(yalmip('binvariables'),yalmip('intvariables'));
+S = session(F);
+bad = union(S.getBinvariables(),S.getIntvariables());
 usd = union(depends(F),depends(obj));
 p4 = any(ismember(usd,bad));
 if p1 | p2 | p3 | p4
@@ -930,10 +931,10 @@ end
 objdual = b'*y + obj_offset;
 if auto
     for i = 1:length(X)
-        yalmip('associatedual',getlmiid(Fdual(i)),X{i});
+        S.associatedual(getlmiid(Fdual(i)),X{i});
     end
     if n_free>0
-        yalmip('associatedual',getlmiid(Fdual(end)),t);
+        S.associatedual(getlmiid(Fdual(end)),t);
     end
 end
 

@@ -1,6 +1,7 @@
 function [VariableType,F_x,F_w,F_xw,h] = robust_classify_variables_newest(F,h,ops,w);
 
-Dependency = iterateDependance( yalmip('monomtable') | yalmip('getdependence') |  yalmip('getdependenceUser'));
+S = session(F);
+Dependency = iterateDependance( S.getMonomtable() | S.getdependence() |  S.getdependenceUser());
 DependsOnw = find(any((Dependency(:,getvariables(w))),2));
 
 h_variables = getvariables(h);
@@ -14,17 +15,17 @@ if ~isempty(h_w)
         base = getbase(h);
         h0 = base(1);
         base = base(2:end);base = base(:);
-        sdpvar t
+        t = S.sdpvar(1,1);
     
         F = [F,base(h_w(:))'*recover(h_variables(h_w)) <= t];
         base(h_w) = 0;
         h = h0 + base(:)'*recover(h_variables) + t;          
     else
-        sdpvar t
+        t = S.sdpvar(1,1);
         F = [F, h <= t];
         h = t;
     end
-    Dependency = iterateDependance(yalmip('monomtable') | yalmip('getdependence') | yalmip('getdependenceUser'));
+    Dependency = iterateDependance(S.getMonomtable() | S.getdependence() | S.getdependenceUser());
     DependsOnw = find(any((Dependency(:,getvariables(w))),2));    
 end
 
@@ -57,9 +58,9 @@ x_variables = unique([depends(F_x) depends(F_xw) depends(h)]);
 x_variables = setdiff(x_variables,w_variables);
 
 % After exanding the conic represntable, we have introduced new variables
-Dependency = iterateDependance(yalmip('monomtable') | yalmip('getdependence') | yalmip('getdependenceUser'));
+Dependency = iterateDependance(S.getMonomtable() | S.getdependence() | S.getdependenceUser());
 
-auxiliary = unique([yalmip('extvariables') yalmip('auxvariables')]);
+auxiliary = unique([S.getExtvariables() S.getAuxvariables()]);
 if 1%~isempty(auxiliary)
     DependsOnw = find(any((Dependency(:,getvariables(w))),2));
     DoesNotDependOnw = find(~any((Dependency(:,getvariables(w))),2));
@@ -99,9 +100,9 @@ else
     F_xw_multi = F_xw;
 end
 
-[MonomTable,Nonlinear] = yalmip('monomtable');
-Dependency = yalmip('getdependenceUser');
-evar = yalmip('extvariables');
+[MonomTable,Nonlinear] = S.getMonomtable();
+Dependency = S.getdependenceUser();
+evar = S.getExtvariables();
 if length(F_xw_scalar)>0
     % Optimize dependency graph
     X = sdpvar(F_xw_scalar);
@@ -141,7 +142,7 @@ if length(F_xw_multi) > 0
         end
     end
 end
-UserDependency = yalmip('getdependenceUser');
+UserDependency = S.getdependenceUser();
 fixed = find(any(UserDependency,2));
 Dependency(fixed,:) = UserDependency(fixed,:);
 Dependency = iterateDependance(Dependency);

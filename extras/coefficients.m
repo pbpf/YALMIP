@@ -209,7 +209,8 @@ if all(s == 1) & all(sum(parametric_basis,2)<=1)%all(sum(parametric_basis,2)<=1)
     end
 else
     % Bummer, nonlinear parameterization sucks...
-    [mt,variabletype,hashedmonoms,hashkey] = yalmip('monomtable');
+    S = sdpvarargumentsession(p,x,vin);
+    [mt,variabletype,hashedmonoms,hashkey] = S.getMonomtable();
     exponent_p_ParametricIndicies = exponent_p(:,ParametricIndicies);
     LocalHash = exponent_p_ParametricIndicies*hashkey(allvar(ParametricIndicies));
     [yn,loc] = ismember(LocalHash,hashedmonoms);

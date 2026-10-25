@@ -17,7 +17,8 @@ switch class(varargin{1})
         if ~(all(is(P,'linear')) & all(is(P,'elementwise')))
             error('ISOUTSIDE only applicable to linear inequalities')
         end
-        varargout{1} = (yalmip('define',mfilename,varargin{:}) == 1);
+        S = sdpvarargumentsession(varargin{:});
+        varargout{1} = (S.define('define',mfilename,varargin{:}) == 1);
         varargout{1} = setupMeta(lmi([]), mfilename,varargin{:});
         
     case 'char'

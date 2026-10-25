@@ -1,12 +1,22 @@
-function varargout = recover(lmi_variables)
+function varargout = recover(lmi_variables, S)
+%RECOVER Create SDPVAR object using variable indicies
+%
+%   recover(ids, S) builds the object in session S (full behavior,
+%   including non-commuting variable detection). recover(ids) without a
+%   session returns an object with an empty session: it can be used in
+%   algebra with session-carrying operands but not for direct constraint
+%   creation or evaluation.
 %RECOVER Create SDPVAR object using variable indicies
 
 if isempty(lmi_variables)
     varargout{1} = [];
 else
     if isa(lmi_variables,'ndsdpvar') || isa(lmi_variables,'sdpvar') || isa(lmi_variables,'lmi') || isa(lmi_variables,'constraint')
-        varargout{1} = recover(depends(lmi_variables));
+        varargout{1} = recover(depends(lmi_variables), S);
     else
+        if nargin < 2
+            S = [];
+        end
         n = length(lmi_variables);
         i=1:n;
         if nargout <= 1
@@ -28,16 +38,16 @@ else
                 end
             end
                
-            if any(ismember(lmi_variables,yalmip('nonCommutingVariables')))
-                varargout{1} = ncvar(n,1,[],lmi_variables(:)',basis,0);
+            if ~isempty(S) && any(ismember(lmi_variables,S.nonCommutingVariables()))
+                varargout{1} = ncvar(n,1,[],lmi_variables(:)',basis,0,[],S);
             else
-                varargout{1} = sdpvar(n,1,[],lmi_variables(:)',basis,0);
+                varargout{1} = sdpvar(n,1,[],lmi_variables(:)',basis,0,[],S);
             end
         else
-            if any(ismember(lmi_variables,yalmip('nonCommutingVariables')))
-                x = ncvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0);
+            if ~isempty(S) && any(ismember(lmi_variables,S.nonCommutingVariables()))
+                x = ncvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,[],S);
             else
-                x = sdpvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0);
+                x = sdpvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,[],S);
             end
             for i = 1:length(lmi_variables)
                 varargout{i} = x(i);

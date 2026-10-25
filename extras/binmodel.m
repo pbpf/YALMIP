@@ -1,4 +1,5 @@
 function varargout = binmodel(varargin)
+S = sdpvarargumentsession(varargin{:});
 %BINMODEL  Converts nonlinear mixed binary expression to linear model
 %
 % Applied to individual terms p defined on domain D
@@ -59,11 +60,11 @@ for i = 1:nargin
 end
 
 if length(Foriginal)>0
-    nv = yalmip('nvars');
-    yalmip('setbounds',1:nv,repmat(-inf,nv,1),repmat(inf,nv,1));    
+    nv = S.nvars();
+    S.setbounds(1:nv,repmat(-inf,nv,1),repmat(inf,nv,1));    
     LU = getbounds(Foriginal);
-    extstruct = yalmip('extstruct');
-    extendedvariables = yalmip('extvariables');
+    extstruct = S.extstruct();
+    extendedvariables = S.getExtvariables();
     for i = 1:length(extstruct)
         switch extstruct(i).fcn
             case 'abs'
@@ -77,7 +78,7 @@ if length(Foriginal)>0
             otherwise
         end
     end
-    yalmip('setbounds',1:nv,LU(:,1),LU(:,2));
+    S.setbounds(1:nv,LU(:,1),LU(:,2));
 end
 
 if all_linear
@@ -91,9 +92,9 @@ F = Foriginal;
 % Get stuff
 vars  = getvariables(p);
 basis = getbase(p);
-[mt,vt] = yalmip('monomtable');
-allbinary = yalmip('binvariables');
-allinteger = yalmip('intvariables');
+[mt,vt] = S.getMonomtable();
+allbinary = S.getBinvariables();
+allinteger = S.getIntvariables();
 
 % Fix data (monom table not guaranteed to be square)
 if size(mt,1) > size(mt,2)

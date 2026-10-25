@@ -60,7 +60,7 @@ switch class(varargin{1})
         if (min(n,m) > 1 & ~issymmetric(X))
             error('sumk can only be applied on vectors and symmetric matrices');
         else
-            varargout{1} = yalmip('define',mfilename,varargin{:});
+            varargout{1} = varargin{1}.sess.define(mfilename,varargin{:});
         end
         
     case 'char' % YALMIP send 'model' when it wants the epigraph or hypograph

@@ -173,6 +173,10 @@ classdef Session < handle
             X = semivarCore(obj, varargin{:});
         end
 
+        function X = parvar(obj, varargin)
+            X = parvarCore(obj, varargin{:});
+        end
+
         % ----- state snapshots -------------------------------------------
         function s = snapshotState(obj)
             %SNAPSHOTSTATE Copy of all registry fields (former getinternalsdpvarstate)

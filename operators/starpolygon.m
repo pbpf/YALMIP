@@ -25,7 +25,7 @@ else
     xc = mean(xi);xi = xi-xc;
     yc = mean(yi);yi = yi-yc;
 end
-lambda = sdpvar(length(xi),1);
+lambda = z.sess.sdpvar(length(xi),1);
 F = [sos2(lambda),lambda>=0
     z == c + p + (lambda'*[xi(:)-p(1) yi(:)-p(2)])'];
 F = [F, sum(lambda)<=t];

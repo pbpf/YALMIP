@@ -3,12 +3,12 @@ function y = InstantiateElementWise(funName,varargin);
 % session is recovered from the sdpvar arguments via the public session()
 % accessor (no global registry).
 
-if length(varargin{1}) == 1
-    S = sdpvarargumentsession(varargin{:});
+S = sdpvarargumentsession(varargin{:});
 if isempty(S)
     error('YALMIP:sessionRequired','No session found on the arguments. Create variables via S = yalmip.Session().')
 end
-y = S.define('define',funName,varargin{:});
+if length(varargin{1}) == 1
+    y = S.define('define',funName,varargin{:});
 else
     y = [];
     args = varargin{1};

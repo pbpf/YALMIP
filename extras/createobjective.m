@@ -2,7 +2,7 @@ function [c,Q,f,onlyfeasible] = createobjective(h,G,options,quad_info)
 %CREATEOBJECTIVE Internal function to extract data related to objective function
 
 onlyfeasible = 0;
-nvars = yalmip('nvars'); 
+nvars = session(h).nvars(); 
 if isempty(h)
     c=zeros(nvars,1);
     Q = spalloc(nvars,nvars,0);

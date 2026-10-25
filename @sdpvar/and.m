@@ -14,7 +14,7 @@ switch class(varargin{1})
         
         z = varargin{2};        
         xy = [];        
-        for i = 3:nargin            
+        for i = 3:nargin-1            
             xy = [xy varargin{i}];
         end
 

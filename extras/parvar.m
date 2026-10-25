@@ -1,23 +1,9 @@
 function sys = parvar(varargin)
-%PARVAR Create symbolic parametric variable 
-%   
-%   PAPRVAR works exactly as SDPVAR, with the only difference that
-%   the elements in the variable automatically will be defined
-%   as parametric variables (for a multi-parametric program)
+%PARVAR Create symbolic parametric variable (session-based)
 %
-%   See also PARAMETRIC, INTVAR, BINVAR, SDPVAR, BINARY, INTEGER
+%   Since the stateless refactoring, variables are created through a
+%   session object: P = S.parvar(2,3);
+%
+%   See also yalmip.Session, SDPVAR, UNCVAR
 
-switch nargin
-    case 1
-        sys = sdpvar(varargin{1});
-    case 2
-        sys = sdpvar(varargin{1},varargin{2});
-    case 3
-        sys = sdpvar(varargin{1},varargin{2},varargin{3});
-    case 4
-        sys = sdpvar(varargin{1},varargin{2},varargin{3},varargin{4});
-    otherwise
-        error('Wrong number of input arguments. See help-text for sdpvar')
-end
-
-yalmip('setparvariables',[yalmip('parvariables') getvariables(sys)]);
+error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); P = S.parvar(2,3).')

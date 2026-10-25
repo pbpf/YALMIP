@@ -10,7 +10,8 @@ else
 
     base = getbase(p);
 
-    monom_table = yalmip('monomtable');
+    S = sdpvarargumentsession(p,x);
+    monom_table = S.getMonomtable();
     exponents = monom_table(p_vars,x_vars);
     if any(base(:,1))%base(1)~=0
         exponents = [spalloc(1,size(exponents,2),0);exponents];
