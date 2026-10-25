@@ -7,32 +7,34 @@ varargin = {varargin{find(~cellfun('isempty',varargin))}};
 switch class(varargin{1})
     case 'char'
         z = varargin{2};
+        S = z.sess;
         X = varargin{3};
-        Y = varargin{4};        
-      
-        F = ([]); 
+        Y = varargin{4};
+
+
+        F = ([]);
         x = [];
         q = [];
-        for j = 3:nargin
+        for j = 3:nargin-1
             X = varargin{j};
             switch class(X)
                 case 'sdpvar'
                     xi = X;
                     q = [q;X(:)];
-                    xvars = getvariables(x);               
-                    allextvars = yalmip('extvariables');
+                    xvars = getvariables(x);
+                    allextvars = S.getExtvariables();
                     if (length(xvars)==1) & ismembcYALMIP(xvars,allextvars)
-                        [xi,F] = expandor(xi,allextvars,F);
+                        [xi,F] = expandor(xi,allextvars,F,S);
                     end
                     x = [x xi];
 
                     case 'constraint'
-                        xi = binvar(1,1); 
+                        xi = S.binvar(1,1);
                         F = F + (implies_internal(xi,X));
                         x = [x xi];
                         q = [q;reshape(sdpvar(X),[],1)];
                 otherwise
-            end       
+            end
         end
         
         [M,m] = derivebounds(z);
@@ -44,16 +46,16 @@ switch class(varargin{1})
         varargout{2} = struct('convexity','none','monotonicity','none','definiteness','none','model','integer');
         varargout{3} = [x(:);q];
 
-    case {'sdpvar','constraint'}             
-        varargout{1} = yalmip('define','or',varargin{:});       
+    case {'sdpvar','constraint'}
+        varargout{1} = varargin{1}.sess.define('or',varargin{:});
  
     otherwise
 end
 
 
-function [x,F] = expandor(x,allextvars,F)
+function [x,F] = expandor(x,allextvars,F,S)
 
-xmodel = yalmip('extstruct',getvariables(x));
+xmodel = S.extstruct(getvariables(x));
 
 if isequal(xmodel.fcn,'or')
     X1 = xmodel.arg{1};
@@ -64,11 +66,11 @@ if isequal(xmodel.fcn,'or')
             x1 = X1;
             xvars = getvariables(x1);
             if ismembcYALMIP(xvars,allextvars)
-                [x1,F] = expandor(x1,allextvars,F);
+                [x1,F] = expandor(x1,allextvars,F,S);
             end
 
         case 'constraint'
-            x1 = binvar(1,1);
+            x1 = S.binvar(1,1);
             F = F + (iff_internal(X1,x1));
         otherwise
     end
@@ -77,10 +79,10 @@ if isequal(xmodel.fcn,'or')
             x2 = X2;
             yvars = getvariables(x2);
             if ismembcYALMIP(yvars,allextvars)
-                [x2,F] = expandor(x2,allextvars,F);
+                [x2,F] = expandor(x2,allextvars,F,S);
             end
         case 'constraint'
-            x2 = binvar(1,1);
+            x2 = S.binvar(1,1);
             F = F + (iff_internal(X2,x2));
         otherwise
     end

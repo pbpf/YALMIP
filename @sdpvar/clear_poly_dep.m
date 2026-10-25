@@ -1,6 +1,7 @@
 function P = clear_poly_dep(P,x,order)
 
-mt = yalmip('monomtable');
+S = P.sess;
+mt = S.getMonomtable();
 xv = getvariables(x);
 pv = getvariables(P);
 

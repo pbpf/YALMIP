@@ -34,6 +34,9 @@ elseif isempty(Y)
     return
 end
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 % Optimized calls in different order?
 if X_is_spdvar && Y_is_spdvar
     manytimesfew = length(X.lmi_variables) > 5*length(Y.lmi_variables);
@@ -87,7 +90,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
             x_isscalar =  nx*mx==1;
             y_isscalar =  ny*my==1;
 
-            [mt,oldvariabletype,mt_hash,hash] = yalmip('monomtable');
+            [mt,oldvariabletype,mt_hash,hash] = S.getMonomtable();
 
             % Super-special hack to speed up QP formulations
             % Requires that the involved variables never have been used
@@ -506,7 +509,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
                     newvariabletype(signomial) = 4;
                 end
                 %                yalmip('setmonomtable',mt,[oldvariabletype newvariabletype],[mt_hash;new_mt_hash],oldhash);
-                yalmip('setmonomtable',mt,[oldvariabletype newvariabletype],[mt_hash;new_mt_hash_aux(1:new_mt_hash_counter)],oldhash);
+                S.setmonomtable(mt,[oldvariabletype newvariabletype],[mt_hash;new_mt_hash_aux(1:new_mt_hash_counter)],oldhash);
             end
 
             if ~(x_isscalar || y_isscalar)
@@ -757,6 +760,7 @@ if length(un_Z_vars2) < length(Z.lmi_variables)
 end
 
 function Z = super_fast_quadratic_multiplication(X,Y,mt,oldvariabletype,mt_hash,hash);
+S = X.sess;
 
 Q = X.basis(:,2:end);
 R = Y.basis(:,2:end);
@@ -798,7 +802,7 @@ else
     newvariabletype = max((new_mt),[],2);
 end
 
-yalmip('setmonomtable',[mt;new_mt],[oldvariabletype newvariabletype'],[mt_hash;new_mt*hash],hash);
+S.setmonomtable([mt;new_mt],[oldvariabletype newvariabletype'],[mt_hash;new_mt*hash],hash);
 Z = X;
 varbase = [(X.basis(:,1).')*Y.basis(:,2:end)+(Y.basis(:,1).')*X.basis(:,2:end) Q];
 Z.basis = [(X.basis(:,1).')*Y.basis(:,1) varbase(find(varbase))];
@@ -813,7 +817,7 @@ Z.extra.opname='';
 function Z = check_for_special_case(Y,X)
 % Detecting variants of
 % k*LOG(?)*X or k*EXP(?)*X 
-args = yalmip('getarguments',Y);
+args = Y.sess.getarguments(Y);
 args = args.arg{1};
 % Temporarily recast slog as log (slog is log(1+x))
 if isequal(Y.extra.opname,'slog')
@@ -856,7 +860,7 @@ if issamevariable(X,args)
 end
 % Check for simple perspective stuff
 if isequal(getbase(args),[0 1]) &&  isequal(getbase(X),[0 1])
-    mt = yalmip('monomtable');
+    mt = Y.sess.getMonomtable();
     v = mt(getvariables(args),:);
     vb = v(find(v));
     if v(getvariables(X))==1 && min(vb)==-1 && max(vb)==1

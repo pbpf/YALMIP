@@ -11,7 +11,8 @@ end
 if (n*m==1)
     Fconv = [];
     % Involved in polynomial constraints
-    sqrList = yalmip('nonlinearvariables');
+    S = F.sess;
+    sqrList = S.nonlinearvariables();
     h = sort(unique(sqrList));
     % % SDP relaxation
     for i = 1:size(sqrList,1)

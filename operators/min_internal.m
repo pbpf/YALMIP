@@ -5,15 +5,15 @@ switch class(varargin{1})
         varargout{1} = min(varargin{:});
     case 'char'
         extstruct.var = varargin{2};
-        extstruct.arg = {varargin{3:end}};
-        [F,properties,arguments]=min_model([],varargin{1},[],extstruct);
+        extstruct.arg = {varargin{3:end-1}};
+        [F,properties,arguments]=min_model([],varargin{1},[],extstruct,varargin{end});
         varargout{1} = F;
         varargout{2} = properties;
         varargout{3} = arguments;
     otherwise
 end
 
-function [F,properties,arguments] = min_model(X,method,options,extstruct)
+function [F,properties,arguments] = min_model(X,method,options,extstruct,S)
 switch method
     case 'graph'
         arguments=[];
@@ -42,7 +42,7 @@ switch method
                         
         if prod(size(X)) == 1
             F = [X == t];
-        elseif all(ismember(getvariables(X),yalmip('binvariables'))) & (is(X,'lpcone') | is(X,'sdpcone'))
+        elseif all(ismember(getvariables(X),S.getBinvariables())) & (is(X,'lpcone') | is(X,'sdpcone'))
             % Special case min(x) where x is simple binary
             F = [X >= t, sum(X) <= t+length(X)-1];
         else

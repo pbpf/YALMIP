@@ -65,6 +65,8 @@ classdef Session < handle
         duals_associated_data = []
         preferedSolver = ''
         solverCache = []                % deduplicated solver-scan cache
+        variableNames = {}              % display name per variable id (from S.sdpvar("name",...))
+        variableNameIndex = []          % element position within its variable
     end
 
     properties (Access = private)
@@ -115,6 +117,38 @@ classdef Session < handle
             S.duals_associated_data = [];
             S.preferedSolver = '';
             S.solverCache = struct('CACHED_SOLVERS',[],'allsolvers',[],'EXISTTIME',[],'NCHECKS',[]);
+            S.variableNames = {};
+            S.variableNameIndex = [];
+        end
+
+        function registerVariablenames(obj, displayname, ids)
+            %REGISTERVARIABLENAMES Store the display name of a new variable
+            for k = 1:numel(ids)
+                obj.variableNames{ids(k)} = displayname;
+                obj.variableNameIndex(ids(k)) = k;
+            end
+        end
+
+        function n = getvariablenames(obj, ids)
+            %GETVARIABLENAMES Display names (with element indexing) for ids
+            n = cell(length(ids),1);
+            for k = 1:length(ids)
+                nm = '';
+                idx = 0;
+                if ids(k) >= 1 && ids(k) <= length(obj.variableNames)
+                    nm = obj.variableNames{ids(k)};
+                    if ids(k) <= length(obj.variableNameIndex)
+                        idx = obj.variableNameIndex(ids(k));
+                    end
+                end
+                if isempty(nm)
+                    n{k} = ['internal(' num2str(ids(k)) ')'];
+                elseif idx > 1
+                    n{k} = sprintf('%s(%d)', nm, idx);
+                else
+                    n{k} = nm;
+                end
+            end
         end
 
 

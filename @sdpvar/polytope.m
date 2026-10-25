@@ -25,5 +25,5 @@ try
 catch
 end
 x = reshape(x,[],1);
-s = sdpvar(size(v,2),1);
+s = sdpvarCore(x.sess,size(v,2),1);
 P = [x == v*s, sum(s) == 1, s >= 0];

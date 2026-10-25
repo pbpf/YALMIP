@@ -1,6 +1,9 @@
 function y = rdivide(X,Y)
 %RDIVIDE (overloaded)
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 % Check dimensions
 [nx,mx] = size(X);
 [ny,my] = size(Y);

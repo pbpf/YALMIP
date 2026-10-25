@@ -38,12 +38,13 @@ function varargout = norm(varargin)
 switch class(varargin{1})
     
     case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save them.
+        S = varargin{1}.sess;
         if nargin == 1
-            varargout{1} = yalmip('define',mfilename,varargin{1},2);
+            varargout{1} = S.define('define',mfilename,varargin{1},2);
         else
             switch varargin{2}
                 case {1,2,inf,'inf','fro'}
-                    varargout{1} = yalmip('define',mfilename,varargin{:});
+                    varargout{1} = S.define('define',mfilename,varargin{:});
                 case 'tv'
                     if ~isreal(varargin{1})
                         error('Total variation norm not yet implemented for complex arguments');
@@ -52,12 +53,12 @@ switch class(varargin{1})
                         varargout{1} = norm(diff(varargin{1}),1);
                         return
                     end
-                    varargout{1} = yalmip('define','norm_tv',varargin{:});
+                    varargout{1} = S.define('define','norm_tv',varargin{:});
                 case {'nuclear','*'}
                     if min(size(varargin{1}))==1
                         varargout{1} = norm(varargin{1},1);
                     else
-                        varargout{1} = yalmip('define','norm_nuclear',varargin{:});
+                        varargout{1} = S.define('define','norm_nuclear',varargin{:});
                     end
                 otherwise
                     if isreal(varargin{1}) & min(size(varargin{1}))==1 & isnumeric(varargin{2})
@@ -73,6 +74,7 @@ switch class(varargin{1})
             case 'graph'
                 t = varargin{2};
                 X = varargin{3};
+                S = X.sess;
                 p = varargin{4};
                 
                 % Code below complicated by two things
@@ -83,9 +85,9 @@ switch class(varargin{1})
                 switch p
                     case 1
                         if issymmetric(X)
-                            Z = sdpvar(size(X,1),size(X,2));
+                            Z = sdpvarCore(S,size(X,1),size(X,2));
                         else
-                            Z = sdpvar(size(X,1),size(X,2),'full');
+                            Z = sdpvarCore(S,size(X,1),size(X,2),'full');
                         end
                         if min(size(X))>1
                             if isreal(X)
@@ -131,7 +133,7 @@ switch class(varargin{1})
                         end
                     case {inf,'inf'}
                         if min(size(X))>1
-                            Z = sdpvar(size(X,1),size(X,2),'full');
+                            Z = sdpvarCore(S,size(X,1),size(X,2),'full');
                             if isreal(X)
                                 F = (-Z <= X <= Z);
                             else
@@ -165,13 +167,13 @@ switch class(varargin{1})
                         X.dim(2)=1;
                         F = (cone(X,t));
                     case 'nuclear'
-                        U = sdpvar(X.dim(2));
-                        V = sdpvar(X.dim(1));
+                        U = sdpvarCore(S,X.dim(2));
+                        V = sdpvarCore(S,X.dim(1));
                         F = [trace(U)+trace(V) <= 2*t, [U X';X V]>=0];
                     case 'tv'                        
                         Dx = [diff(X,1,1);zeros(1,X.dim(2))];
                         Dy = [diff(X,1,2) zeros(X.dim(1),1)];
-                        T = sdpvar(X.dim(1),X.dim(2),'full');
+                        T = sdpvarCore(S,X.dim(1),X.dim(2),'full');
                         F = cone([reshape(T,1,[]);reshape(Dx,1,[]);reshape(Dy,1,[])]);
                         F = [F, sum(sum(T)) <= t];
                     otherwise
@@ -184,6 +186,7 @@ switch class(varargin{1})
                 
                 t = varargin{2};
                 X = varargin{3};
+                S = X.sess;
                 p = varargin{4};
                 if ~isreal(X) | isequal(p,2) | isequal(p,'fro') | min(size(X))>1 % Complex valued data, matrices and 2-norm not supported
                     varargout{1} = [];
@@ -192,8 +195,8 @@ switch class(varargin{1})
                 else
                     if p==1
                         X     = reshape(X,length(X),1);
-                        absX  = sdpvar(length(X),1);
-                        d     = binvar(length(X),1);
+                        absX  = sdpvarCore(S,length(X),1);
+                        d     = binvarCore(S,length(X),1);
                         [M,m] = derivebounds(X);
                         
                         if all(abs(sign(m)-sign(M))<=1)
@@ -261,7 +264,8 @@ end
 function F = findmax(F,M,m,X,t)
 
 n = length(X);
-d = binvar(n,1);
+S = X.sess;
+d = binvarCore(S,n,1);
 F = F + (sum(d)==1);
 F = F + (-(max(M)-min(m))*(1-d) <= t-X <= (max(M)-min(m))*(1-d));
 kk = [];

@@ -41,154 +41,16 @@ if ~isa(pvec,'sdpvar')
     return;
 end
 
-% First, some boooring stuff. we need to
-% figure out the symbolic names and connect
-% these names to YALMIPs variable indicies
-W = evalin('caller','whos');
-
-% First, sort the variables available in the work-space based
-% on the creation. Early creation means it is more likely the
-% relevant variable to display
-createTime = [];
-for i = 1:size(W,1)
-    if strcmp(W(i).class,'sdpvar') || strcmp(W(i).class,'ncvar')
-        keep(i) = 1;
-        z = evalin('caller',['struct(' W(i).name ').extra.createTime;']);
-        createTime = [createTime z];
-    else
-        keep(i) = 0;
-    end
-end
-W = W(find(keep));
-[sorted,index] = sort(createTime);
-W = W(index);
+% Figure out the symbolic names. Variables created with a display name
+% (S.sdpvar("x",[3 1])) carry their name in the session registry; unnamed
+% variables are shown as internal(id).
+S = session(pvec);
 
 global_LinearVariables = depends(pvec);
 global_x = recover(global_LinearVariables);
 [global_exponent_p,global_ordered_list] = exponents(pvec,global_x);
 global_exponent_p = full(global_exponent_p);
-global_names = cell(length(global_x),1);
-
-for i = 1:size(W,1)
-    if strcmp(W(i).class,'sdpvar') || strcmp(W(i).class,'ncvar')
-        % Get the SDPVAR variable
-        thevars = evalin('caller',W(i).name);
-        
-        % Distinguish 4 cases
-        % 1: Sclalar varible x
-        % 2: Vector variable x(i)
-        % 3: Matrix variable x(i,j)
-        % 4: Variable not really defined
-        if is(thevars,'scalar') && is(thevars,'linear') && length(getvariables(thevars))==1 & isequal(getbase(thevars),[0 1])
-            index_in_p = find(ismember(global_LinearVariables,getvariables(thevars)));
-            
-            if ~isempty(index_in_p)
-                already = ~isempty(global_names{index_in_p});
-                if already
-                    already = (isempty(strfind(global_names{index_in_p},'internal')) | isempty(strfind(global_names{index_in_p},'ans')));
-                end
-            else
-                already = 0;
-            end
-            
-            if ~isempty(index_in_p) & ~already
-                % Case 1
-                global_names{index_in_p}=W(i).name;
-            end
-        elseif is(thevars,'lpcone')
-            
-            if size(thevars,1)==size(thevars,2)
-                % Case 2
-                vars = getvariables(thevars);
-                indicies = find(ismember(vars,global_LinearVariables));
-                for ii = indicies
-                    index_in_p = find(ismember(global_LinearVariables,vars(ii)));
-                    
-                    if ~isempty(index_in_p)
-                        already = ~isempty(global_names{index_in_p});
-                        if already
-                            already = (isempty(strfind(global_names{index_in_p},'internal')) | isempty(strfind(global_names{index_in_p},'ans')));
-                        end
-                    else
-                        already = 0;
-                    end
-                    
-                    if ~isempty(index_in_p) & ~already
-                        B = reshape(getbasematrix(thevars,vars(ii)),size(thevars,1),size(thevars,2));
-                        [ix,jx,kx] = find(B);
-                        ix=ix(1);
-                        jx=jx(1);
-                        global_names{index_in_p}=[W(i).name '(' num2str(ix) ',' num2str(jx) ')'];
-                    end
-                end
-                
-            else
-                % Case 3
-                vars = getvariables(thevars);
-                indicies = find(ismember(vars,global_LinearVariables));
-                for ii = indicies
-                    index_in_p = find(ismember(global_LinearVariables,vars(ii)));
-                    
-                    if ~isempty(index_in_p)
-                        already = ~isempty(global_names{index_in_p});
-                        if already
-                            already = (isempty(strfind(global_names{index_in_p},'internal')) | isempty(strfind(global_names{index_in_p},'ans')));
-                        end
-                    else
-                        already = 0;
-                    end
-                    
-                    if ~isempty(index_in_p) & ~already
-                        global_names{index_in_p}=[W(i).name '(' num2str(ii) ')'];
-                    end
-                end
-            end
-            
-        elseif is(thevars,'sdpcone')
-            % Case 3
-            vars = getvariables(thevars);
-            indicies = find(ismember(vars,global_LinearVariables));
-            for ii = indicies
-                index_in_p = find(ismember(global_LinearVariables,vars(ii)));
-                if ~isempty(index_in_p)
-                    already = ~isempty(global_names{index_in_p});
-                    if already
-                        already = ~strfind(global_names{index_in_p},'internal');
-                    end
-                else
-                    already = 0;
-                end
-                
-                if ~isempty(index_in_p) & ~already
-                    B = reshape(getbasematrix(thevars,vars(ii)),size(thevars,1),size(thevars,2));
-                    [ix,jx,kx] = find(B);
-                    ix=ix(1);
-                    jx=jx(1);
-                    global_names{index_in_p}=[W(i).name '(' num2str(ix) ',' num2str(jx) ')'];
-                end
-            end
-            
-        else
-%             % Case 4
-%             vars = getvariables(thevars);
-%             indicies = find(ismember(vars,global_LinearVariables));
-%             
-%             for i = indicies
-%                 index_in_p = find(ismember(global_LinearVariables,vars(i)));
-%                 if ~isempty(index_in_p) & isempty(global_names{index_in_p})
-%                     global_names{index_in_p}=['internal(' num2str(vars(i)) ')'];
-%                 end
-%             end
-            
-        end
-    end
-end
-
-for i = 1:length(global_names)
-    if length(global_names{i}) == 0
-        global_names{i} = ['internal(' num2str(global_LinearVariables(i)) ')'];
-    end
-end
+global_names = S.getvariablenames(global_LinearVariables);
 
 for pi = 1:size(pvec,1)
     for pj = 1:size(pvec,2)
@@ -196,7 +58,7 @@ for pi = 1:size(pvec,1)
         if isa(p,'double')
             symb_p = num2str2(p,precision);
         else            
-            symb_p = createSymbolicExpression(p,global_LinearVariables,global_names,precision);           
+            symb_p = createSymbolicExpression(p,global_LinearVariables,global_names,precision,S);           
         end        
         symb_pvec{pi,pj} = symb_p;
     end
@@ -207,7 +69,7 @@ if prod(size(symb_pvec))==1 & nargout==0
     clear symb_pvec
 end
 
-function symb_p =  createSymbolicExpression(p,global_LinearVariables,global_names,precision)
+function symb_p =  createSymbolicExpression(p,global_LinearVariables,global_names,precision,S)
 LinearVariables = depends(p);
 x = recover(LinearVariables);
 [exponent_p,ordered_list] = exponents(p,x);
@@ -222,7 +84,7 @@ end
 names = {global_names{map}};
 for i = 1:length(x)
     if is(x(i),'compound')
-        E = yalmip('extstruct',LinearVariables(i));
+        E = S.extstruct(LinearVariables(i));
         if length(E.arg)==2
            arg = E.arg{1};
            symb_arg = createSymbolicExpression(arg,global_LinearVariables,global_names,precision);

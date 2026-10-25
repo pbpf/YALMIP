@@ -9,7 +9,7 @@ function [h,parvar,Q,v] = sosd(X,ops)
 
 if isfield(X.extra,'sosid')
     % This is used internally when calling sosd on SOS constraint
-    [h,parvar,Q,v] = yalmip('getsos',X.extra.sosid);
+    [h,parvar,Q,v] = X.sess.getsos(X.extra.sosid);
 else
     F = sos(X);
     if nargin == 1

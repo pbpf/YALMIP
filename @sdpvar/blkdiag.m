@@ -28,8 +28,20 @@ for i = 1:length(varargin)
 end
 all_lmi_variables = unique(all_lmi_variables);
 
+% Verify all symbolic operands share one session
+S = [];
+for i = 1:length(varargin)
+    if isa(varargin{i},'sdpvar') && isfield(varargin{i},'sess') && ~isempty(varargin{i}.sess)
+        if isempty(S)
+            S = varargin{i}.sess;
+        elseif S ~= varargin{i}.sess
+            error('YALMIP:sessionMismatch','Operands belong to different yalmip.Session objects. Create all variables in one expression from the same session.');
+        end
+    end
+end
+
 % Create an SDPVAR
-y=sdpvar(1,1,'rect',all_lmi_variables,[]);
+y=sdpvar(1,1,'rect',all_lmi_variables,[],S);
 
 
 % Some indexation tricks

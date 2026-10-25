@@ -7,7 +7,8 @@ if nargin == 1
     if isa(varargin{1},'sdpvar')
         if length(X) == 1
             if length(getvariables(X))==1
-                extstruct = yalmip('extstruct',getvariables(X));
+                S = X.sess;
+                extstruct = S.extstruct(getvariables(X));
                 if ~isempty(extstruct)
                     if isequal(extstruct.fcn,'pwa_yalmip') | isequal(extstruct.fcn,'pwq_yalmip')
                         Y = [];

@@ -11,6 +11,7 @@ switch nargin
         F.LMIid    = [];
         F.savedata = [];
         F.dualized = 0;
+        F.sess     = [];
         F = class(F,'lmi');
         return
     case 1
@@ -36,6 +37,7 @@ F.clauses  = {};
 F.LMIid    = [];
 F.savedata = [];
 F.dualized = 0;
+F.sess     = [];
 try
     F = class(F,'lmi');
 catch
@@ -114,10 +116,11 @@ switch class(X)
                     [Fi,strict] = getlist(Fi);
                 case 'lmi'
                     F = Fi;
-                    return;                    
+                    return;
                 otherwise
                     error('The string does not define an SDPVAR object')
             end
+            F.sess = Fi{1}.sess;
 
         catch
             error(lasterr)
@@ -126,6 +129,7 @@ switch class(X)
     case 'sdpvar'
         Fi = {X};
         strict = 0;
+        F.sess = X.sess;
         X='Numeric value';
 
     case 'logic'
@@ -133,8 +137,9 @@ switch class(X)
         strict = 0;
         X = 'Numeric value';
 
-    case {'struct','constraint'}      
-        [Fi,strict,LMIIdentifiers,tags] = getlist(X); 
+    case {'struct','constraint'}
+        [Fi,strict,LMIIdentifiers,tags] = getlist(X);
+        F.sess = X.sess;
         if isempty(handlestring) || length(handlestring)==0
             handlestring = tags{1};
         end
@@ -218,7 +223,10 @@ end
 % Special case for x<y<z<...
 % Merge into one constraint, gives nicer displays
 if ~exist('LMIIdentifiers','var')
-   LMIIdentifiers = yalmip('lmiid');
+   if isempty(F.sess)
+       error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
+   end
+   LMIIdentifiers = F.sess.lmiid();
 end
 
 if all(TypeofConstraint == 2) && all(strict==strict(1))

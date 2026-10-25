@@ -78,10 +78,11 @@ problem.exponentialcone = exponential_cone;
 % ********************************************************
 % Make a list of all globally available discrete variables
 % ********************************************************
-integer_variables   = yalmip('intvariables');
-binary_variables    = yalmip('binvariables');
-semicont_variables = yalmip('semicontvariables');
-uncertain_variables = yalmip('uncvariables');
+S = F.sess;
+integer_variables   = S.getIntvariables();
+binary_variables    = S.getBinvariables();
+semicont_variables = S.getSemicontvariables();
+uncertain_variables = S.getUncvariables();
 for i = 1:Counter
     switch F.clauses{i}.type
         case 7
@@ -110,13 +111,13 @@ end
 % ********************************************************
 % Rank variables
 % ********************************************************
-rank_variables = yalmip('rankvariables');
+rank_variables = S.rankvariables();
 any_rank_variables = ~isempty(rank_variables);
 
 % ********************************************************
 % Make a list of all globally available nonlinear variables
 % ********************************************************
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 
 linear_variables = find(variabletype==0);
 nonlinear_variables = find(variabletype~=0);

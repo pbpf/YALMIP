@@ -10,6 +10,7 @@ switch class(varargin{1})
         end
         
         x = varargin{1};
+        S = x.sess;
         y = varargin{2};
         % Some boring code for scalarization
         if prod(size(x))==1 & prod(size(y))>1
@@ -29,7 +30,7 @@ switch class(varargin{1})
             xi = extsubsref(x,i);
             yi = extsubsref(y,i);
             inarg = {xi,yi};
-            z = [z;yalmip('define',mfilename,inarg{:})];
+            z = [z;S.define('define',mfilename,inarg{:})];
         end
         z = reshape(z,dim);
         varargout{1} = z;
@@ -42,7 +43,8 @@ switch class(varargin{1})
         y = varargin{4};
 
         % t = mod(x,y), i.e. t = x - n*y, n = floor(x/y)
-        n = intvar(1,1);
+        S = x.sess;
+        n = intvarCore(S,1,1);
         [M,m] = derivebounds(x);        
         F_floor = [(x/y) - 1 <= n <= (x/y)];
         if ~isinf(m) && isa(y,'double')

@@ -25,8 +25,9 @@ switch class(varargin{4})
         % Use internal version of interp2 to deal with this
         % Arguments xi yi zi xv yv method -> [xv;yv] xi yi zi method
         decisionVariable = [varargin{4};varargin{5}];
+        S = sessCheck(varargin{4},varargin{5});
         reordered = {decisionVariable,varargin{1:3},varargin{6}};
-        varargout{1} = yalmip('define','interp2_internal',reordered{:});
+        varargout{1} = S.define('define','interp2_internal',reordered{:});
         
     otherwise
         error(['SDPVAR/' upper(mfilename) ' called with weird argument']);

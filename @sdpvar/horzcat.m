@@ -31,6 +31,18 @@ if length(keep_these)<length(n)
     m = m(keep_these);
 end;
 
+% Verify all symbolic operands belong to the same session
+S = [];
+for i = 1:length(varargin)
+    if isa(varargin{i},'sdpvar') && isfield(varargin{i},'sess') && ~isempty(varargin{i}.sess)
+        if isempty(S)
+            S = varargin{i}.sess;
+        elseif S ~= varargin{i}.sess
+            error('YALMIP:sessionMismatch','Operands belong to different yalmip.Session objects. Create all variables in one expression from the same session.');
+        end
+    end
+end
+
 % All heights should be equal
 if any(n~=n(1))
     error('All matrices on a row in the bracketed expression must have the same number of rows.');

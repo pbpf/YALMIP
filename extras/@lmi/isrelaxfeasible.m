@@ -1,10 +1,14 @@
-function res = isrelaxfeasible(F)
+function res = isrelaxfeasible(F,sol)
 
-% Check if solution avaliable
-currsol = evalin('caller','sdpvar(''getSolution'')');
-if isempty(currsol)
-    disp('No solution available.')
-    return
+% The stateless refactoring removed the global "last solution": the
+% solution struct returned by OPTIMIZE must be passed explicitly.
+if nargin < 2
+    error('YALMIP:sessionRequired','Since the stateless refactoring, pass the solution: res = isrelaxfeasible(F, sol), where sol = optimize(Fc,obj).')
+end
+
+% Unwrap the evaluation payload if the full optimize output is passed
+if isstruct(sol) && isfield(sol,'eval')
+    sol = sol.eval;
 end
 
 F = flatten(F);
@@ -26,7 +30,7 @@ header = {'ID','Constraint','Type','Residual (should be > 0)','Tag'};
 
 if nlmi>0
     for j = 1:nlmi
-        F0 = relaxdouble(F.clauses{j}.data);
+        F0 = relaxdouble(F.clauses{j}.data,sol);
         if any(isnan(F0(:)))
             res = NaN;
         else

@@ -28,15 +28,16 @@ switch class(varargin{1})
 
         if min(size(varargin{1}))>1
             x = varargin{1};
+            S = x.sess;
             y = [];
             for i = 1:size(x,2)
-                y = [y yalmip('define',mfilename,x(:,i))];
+                y = [y S.define(mfilename,x(:,i))];
             end
             varargout{1} = y;   
         elseif max(size(varargin{1}))==1
             varargout{1} = varargin{1};
         else
-            varargout{1} = yalmip('define',mfilename,varargin{1});
+            varargout{1} = varargin{1}.sess.define(mfilename,varargin{1});
         end
 
     case 'char'

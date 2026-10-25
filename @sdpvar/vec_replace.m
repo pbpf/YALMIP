@@ -51,6 +51,9 @@ function Z = replace(X,Y,W,expand)
 % Replace with NaN   destroys everything, assume it should be cleared
 W(isnan(W)) = 0;
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 y_lmi_variables = Y.lmi_variables;
 % b = W(:)-Y.basis(:,1);
 % A = Y.basis(:,2:end);
@@ -63,7 +66,7 @@ x_lmi_variables = X.lmi_variables;
 n = X.dim(1);
 m = X.dim(2);
 
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 if all(variabletype(x_lmi_variables)==0) % is(X,'linear')
     Z = X.basis(:,1);
     for i = 1:length(x_lmi_variables)

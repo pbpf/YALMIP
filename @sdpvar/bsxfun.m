@@ -1,6 +1,8 @@
 function out=bsxfun(f,x,y)
 %BSXFUN
 
+S = sessCheck(x,y);
+
 dim1 = size(x);
 dim2 = size(y);
 

@@ -55,7 +55,7 @@ end
 p = 0;
 c = [];
 for i = 1:length(v)
-    Ci = sdpvar(n(1),n(2));
+    Ci = sdpvarCore(x.sess,n(1),n(2));
     c = [c reshape(Ci,[],1)];
 end
 p = reshape(c*v,n(1),n(2));

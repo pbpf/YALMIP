@@ -6,11 +6,12 @@ switch class(varargin{1})
     case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save them.
         
         x = varargin{1};
+        S = x.sess;
         dim = size(x);
         x = reshape(x,prod(dim),1);
         y = [];
         for i = 1:prod(dim)
-            y = [y;yalmip('define',mfilename,extsubsref(x,i))];
+            y = [y;S.define('define',mfilename,extsubsref(x,i))];
         end
         y = reshape(y,dim);
         varargout{1} = y;
@@ -21,12 +22,13 @@ switch class(varargin{1})
                 % Description using epigraphs
                 t = varargin{2};
                 X = varargin{3};
+                S = X.sess;
                 
                 % I cannot come up with a simple model for FIX that doesn't
                 % introduce a binary to model negative and positivity of
                 % the argument.
-                d1 = binvar(1,1);
-                d2 = binvar(1,1);
+                d1 = binvarCore(S,1,1);
+                d2 = binvarCore(S,1,1);
                 [M,m] = derivebounds(X);
                 F = [X>=m*(1-d1), X<=M*(1-d2),X-d1+0.00001 <=  t <= X+d2-0.0001,integer(t), d1+d2 == 1];
                 if ~isinf(m)

@@ -68,12 +68,13 @@ switch class(varargin{1})
             t = varargin{2}; % Second arg is the extended operator variable
             X = varargin{3}; % Third arg and above are the args user used when defining t.
             k = min(varargin{4},length(X));
-            if nargin == 5
+            S = X.sess;
+            if nargin > 5 || (nargin == 5 && ~isa(varargin{5},'yalmip.Session'))
                 w = varargin{5};
             else
                 w = 1;
             end                
-            [Model,Properties] = sumabsk_generator(X,k,t,w);
+            [Model,Properties] = sumabsk_generator(X,k,t,w,S);
             varargout{1} = Model;
             varargout{2} = Properties;
             varargout{3} = X;

@@ -5,15 +5,17 @@ function YESNO = is(X,property,additional)
 %   Properties possible to test are: 'real', 'symmetric', 'hermitian',
 %   'scalar', 'linear', 'bilinear','quadratic','signomial', 'homogeneous', 'integer', 'binary'
 
+S = X.sess;
+
 switch property
     case 'logic'
         YESNO = X.typeflag==12;
     case 'binary'
-        YESNO = any(ismember(depends(X),yalmip('binvariables')));
+        YESNO = any(ismember(depends(X),S.getBinvariables()));
     case 'integer'
-        YESNO = any(ismember(depends(X),yalmip('intvariables')));
+        YESNO = any(ismember(depends(X),S.getIntvariables()));
     case 'quantized'              
-        YESNO = all(ismember(depends(X),yalmip('quantvariables')));
+        YESNO = all(ismember(depends(X),S.quantvariables()));
     case 'real'
         YESNO = isreal(X);
     case 'complex'
@@ -27,17 +29,17 @@ switch property
     case 'scalar'
         YESNO = prod(X.dim)==1;
     case 'compound'
-        YESNO = any(ismember(getvariables(X),yalmip('extvariables')));       
+        YESNO = any(ismember(getvariables(X),S.getExtvariables()));       
     case 'linear'
-        variabletype = yalmip('variabletype');
+        variabletype = S.getVariabletype();
         variabletype = variabletype(X.lmi_variables);       
         YESNO = ~any(variabletype);              
     case 'bilinear'
-        variabletype = yalmip('variabletype');
+        variabletype = S.getVariabletype();
         variabletype = variabletype(X.lmi_variables);                
         YESNO  = all(variabletype<=1);
      case 'quadratic'
-         variabletype = yalmip('variabletype');
+         variabletype = S.getVariabletype();
          variabletype = variabletype(X.lmi_variables);
          YESNO = all(variabletype<=2);
          
@@ -49,7 +51,7 @@ switch property
         linear    = 0;
         signomial = 0;
               
-        variabletype = yalmip('variabletype');
+        variabletype = S.getVariabletype();
         variabletype = variabletype(X.lmi_variables);
         
         linear    = all(variabletype==0);        
@@ -208,19 +210,19 @@ switch property
         end   
         
     case 'signomial'
-          monomtable = yalmip('monomtable');
+          monomtable = S.getMonomtable();
           monomtable = monomtable(getvariables(X),:);
           YESNO = any(find(any(0>monomtable,2) | any(monomtable-fix(monomtable),2)));   
           
     case 'general'
-        evalvariables = yalmip('extvariables');
+        evalvariables = S.getExtvariables();
         YESNO = ~isempty(intersect(getvariables(X),evalvariables));
         
     case 'nonlinear'
         YESNO = ~islinear(X);   
         
     case 'homogeneous'    
-        [sqrList,CompressedList] = yalmip('nonlinearvariables');
+        [sqrList,CompressedList] = S.nonlinearvariables();
         [LinearTerms,NonlinearVariables] = getvariables(X,'both');
         if isempty(NonlinearVariables)
             YESNO = nnz(getbasematrix(X,0))==0;

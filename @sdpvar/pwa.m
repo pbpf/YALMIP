@@ -28,7 +28,8 @@ function [p,Bi,Ci,Pn,Pfinal] = PWA(h,Xdomain)
 % The function is mainly inteded to be used for easy 
 % plotting of convex PWA functions
 
-t = sdpvar(1,1);
+S = h.sess;
+t = sdpvarCore(S,1,1);
 [F,failure,cause] = expandmodel(lmi(h<=t),[],sdpsettings('allowmilp',0));
 if failure
     error(['Could not expand model (' cause ')']);
@@ -38,7 +39,7 @@ end
 % Figure out what the actual original variables are
 % note, by construction, they 
 all_initial = getvariables(h);
-all_extended = yalmip('extvariables');
+all_extended = S.getExtvariables();
 all_variables = getvariables(F);
 gen_here = getvariables(t);
 non_ext_in = setdiff(all_initial,all_extended);

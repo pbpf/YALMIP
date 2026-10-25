@@ -15,7 +15,7 @@ try
         F.List{end+1} = '>=';
         F.List{end+1} = Y;
         F.Evaluated{end+1} = Z;
-        F.ConstraintID(end+1) = yalmip('ConstraintID');
+        F.ConstraintID(end+1) = X.sess.lmiid();
         F.strict(end+1) = 0;
     else
         % z > (w > y)
@@ -28,7 +28,7 @@ try
         F = Y;
         F.List = {X,'>=',F.List{:}};
         F.Evaluated = {Z,F.Evaluated{:}};
-        F.ConstraintID = [yalmip('ConstraintID') F.ConstraintID];        
+        F.ConstraintID = [Y.sess.lmiid() F.ConstraintID];
         F.strict = [1 F.strict];               
     end
 catch

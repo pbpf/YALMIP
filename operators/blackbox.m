@@ -26,13 +26,10 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
     try
         output = feval(varargin{2},dataExample);
     catch
-        dataExample = value(varargin{1});    
-        try
-            output = feval(varargin{2},dataExample);
-        catch
-            warning('Cannot figure out output dimension. Assuming 1x1. Assign a reasonable value to the decision variable to avoid this warning');
-            output = 0;
-        end
+        % Stateless cutover: there is no global last-solution to draw a
+        % representative numerical example from anymore.
+        warning('Cannot figure out output dimension. Assuming 1x1. Assign a reasonable value to the decision variable to avoid this warning');
+        output = 0;
     end
     
     % And now see what we got
@@ -75,6 +72,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
     end
     % Populate completely to save for later 
     operator = assertOperatorProperties(operator);
+    S = varargin{1}.sess;
     if numel(output) == 1
         if numel(dataExample)>1
             f = varargin{2};
@@ -83,7 +81,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
             varargin{2} = g;
         end        
         varargin = {varargin{1:2},operator};
-        varargout{1} = yalmip('define',mfilename,varargin{:});
+        varargout{1} = S.define(mfilename,varargin{:});
     else
         % MANY -> MANY
         y = [];
@@ -93,7 +91,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
             varargin_copy = varargin;
             varargin_copy{1} = varargin_copy{1}(i);
             varargin_copy = {varargin_copy{1:2},operator};
-            y = [y;yalmip('define',mfilename,varargin_copy{:})];
+            y = [y;S.define(mfilename,varargin_copy{:})];
         end
         varargout{1} = reshape(y,n,m);
     end
@@ -107,7 +105,7 @@ switch class(varargin{1})
         
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
         
-        operator = varargin{end};        
+        operator = varargin{end-1};        
         if isempty(operator.bounds)
             canDeriveBoundsFromMonotone = strcmpi(operator.monotonicity,'increasing') || strcmpi(operator.monotonicity,'decreasing');            
             canDeriveBoundsFromConvex = strcmpi(operator.convexity,'convex') || strcmpi(operator.convexity,'concave');

@@ -6,13 +6,14 @@ switch class(varargin{1})
         error('Overloaded SDPVAR/ABS CALLED WITH DOUBLE. Report error')
 
     case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save them.
+        S = varargin{1}.sess;
         if isreal(varargin{1})
-            varargout{1} = yalmip('define',mfilename,varargin{1});
+            varargout{1} = S.define('define',mfilename,varargin{1});
             B = getbase(varargin{1});
             if all(all(fix(B)==B))
-                CurrInt = yalmip('quantvariables');
+                CurrInt = S.quantvariables();
                 if all(ismember(getvariables(varargin{1}),CurrInt))
-                    yalmip('setintvariables',[CurrInt getvariables(varargout{1})]);
+                    S.setintvariables([CurrInt getvariables(varargout{1})]);
                 end
             end
         else

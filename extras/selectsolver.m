@@ -1,11 +1,18 @@
-function [solver,problem,forced_choice,failureMode] = selectsolver(options,ProblemClass,solvers,socp_are_really_qc,allsolvers);
+function [solver,problem,forced_choice,failureMode] = selectsolver(options,ProblemClass,solvers,socp_are_really_qc,allsolvers,S);
 %SELECTSOLVER Internal function to select solver based on problem category
 
 problem = 0;
 failureMode = '';
 
-% UNDOCUMENTED
-force_solver = yalmip('solver');
+% UNDOCUMENTED (preferred solver stored on the session since the
+% stateless refactor)
+if nargin < 6
+    S = [];
+end
+force_solver = '';
+if ~isempty(S)
+    force_solver = S.preferedSolver;
+end
 if length(force_solver)>0
     options.solver = force_solver;
 end

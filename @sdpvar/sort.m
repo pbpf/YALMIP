@@ -53,7 +53,8 @@ switch class(varargin{1})
         end
         
         x = varargin{1};
-        if nargin > 1 
+        S = x.sess;
+        if nargin > 1
             % trivial case
             dim = varargin{2};
             if size(x,2) == 1 && dim == 2
@@ -66,21 +67,21 @@ switch class(varargin{1})
                 return
             end
         end
-      
-        data.D = binvar(length(x),length(x),'full');
-        data.V = sdpvar(length(x),length(x),'full');
+
+        data.D = binvarCore(S,length(x),length(x),'full');
+        data.V = sdpvarCore(S,length(x),length(x),'full');
         y = [];
 
         for i = 1:length(x)
             data.i = i;
             data.isthisloc = 0;
-            y = [y;yalmip('define',mfilename,x,data)];%i,P,V)];
+            y = [y;S.define('define',mfilename,x,data)];%i,P,V)];
         end
         loc = [];
         for i = 1:length(x)
             data.i = i;
             data.isthisloc = 1;
-            loc = [loc;yalmip('define',mfilename,x,data)];
+            loc = [loc;S.define('define',mfilename,x,data)];
         end
         [n,m] = size(x);
         varargout{1} = reshape(y,n,m);

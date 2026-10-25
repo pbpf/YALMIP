@@ -31,7 +31,7 @@ switch class(varargin{1})
     case {'sdpvar','ndsdpvar'}
  
         varargin{1} = reshape(varargin{1},[],1);
-        varargout{1} = yalmip('define',mfilename,varargin{1});        
+        varargout{1} = varargin{1}.sess.define(mfilename,varargin{1});        
 
     case 'char'
 

@@ -69,7 +69,7 @@ switch class(X)
         varargout{1} = setupMeta(lmi([]), mfilename,varargin{:});
         
     case 'char'        
-        varargout{1} = implies_internal(varargin{3:end});
+        varargout{1} = implies_internal(varargin{3:end-1});
         
     case 'logical'
         if length(X)==1

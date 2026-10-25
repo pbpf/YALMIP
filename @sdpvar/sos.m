@@ -52,7 +52,8 @@ if ~is(X,'symmetric')
     X = Z;
 else
     X.typeflag = 11;
-    X.extra.sosid = yalmip('sosid');
+    S = X.sess;
+    X.extra.sosid = S.nextSosId();
     X.extra.rank = r;
     X = lmi(X);
 end

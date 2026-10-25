@@ -12,6 +12,7 @@ switch class(varargin{1})
 
     case 'char'
         x = varargin{3};
+        S = x.sess;
         [nx,mx] = size(x);
         x = reshape(x,nx*mx,1);
 
@@ -19,12 +20,12 @@ switch class(varargin{1})
         if is(x,'lpcone') & is(x,'integer') & 1+(max(M)-min(m)) == length(x)
             % Simple permutation of x from given numbers
             n = nx*mx;
-            B = binvar(n,n,'full');
+            B = S.binvar(n,n,'full');
             F = [x == B*(min(m):max(M))', sum(B,1)==1,sum(B,2)==1];            
         else
             % Add constraint |x(i)-x(j)| > 1
             pairs = nchoosek(1:nx*mx,2);
-            d = binvar(length(pairs),1);
+            d = S.binvar(length(pairs),1);
             x1 = x(pairs(:,1));
             x2 = x(pairs(:,2));
             

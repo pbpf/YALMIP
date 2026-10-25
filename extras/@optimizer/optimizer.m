@@ -367,6 +367,7 @@ end
 sys.model.F_struc(1:prod(sys.dimin),:)=[];
 sys.model.K.f = sys.model.K.f-prod(sys.dimin);
 
+sys.sess = session(Constraints);
 sys = class(sys,'optimizer');
 sys = optimizer_precalc(sys);
 

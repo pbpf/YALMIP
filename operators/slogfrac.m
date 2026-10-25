@@ -28,7 +28,7 @@ switch class(varargin{1})
         if min(size(varargin{1}))>1
             error('SLOGFRAC only defined for vector arguments');
         else
-            varargout{1} = yalmip('define',mfilename,varargin{1});
+            varargout{1} = varargin{1}.sess.define(mfilename,varargin{1});
         end
 
     case 'char'            

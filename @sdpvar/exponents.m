@@ -1,7 +1,8 @@
 function [ML,dummy] = exponents(poly,x)
 %EXPONENTS Internal function to extract powers of nonlinear expression
 
-mt = yalmip('monomtable');
+S = poly.sess;
+mt = S.getMonomtable();
 x_lin = getvariables(poly);
 
 x_var = [];

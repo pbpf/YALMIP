@@ -6,7 +6,7 @@ function itssignomial=issignomial(F)
 % F : SET object
 % p : boolean 0/1
 
-monomtable = yalmip('monomtable');
+monomtable = F.sess.getMonomtable();
 xvars = [];
 
 itssignomial = 1;

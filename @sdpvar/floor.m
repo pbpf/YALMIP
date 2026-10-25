@@ -6,11 +6,12 @@ switch class(varargin{1})
     case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save them.
         
         x = varargin{1};
+        S = x.sess;
         dim = size(x);
         x = reshape(x,prod(dim),1);
         y = [];
         for i = 1:prod(dim)
-            y = [y;yalmip('define',mfilename,extsubsref(x,i))];
+            y = [y;S.define('define',mfilename,extsubsref(x,i))];
         end
         y = reshape(y,dim);
         varargout{1} = y;

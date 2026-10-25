@@ -33,6 +33,7 @@ if isa(d,'sdpvar')
 end
     
 % Trivial cases
+S = x.sess;
 if d==0
     y = eye(x.dim(1),x.dim(2))^0;
     return
@@ -53,7 +54,7 @@ if d==2
         base = getbase(x);
         if isequal(base,[0 1])
             if strcmp(x.extra.opname,'norm')
-                model = yalmip('extstruct',getvariables(x));
+                model = S.extstruct(getvariables(x));
                 z = model.arg{1};
                 if (isequal(model.arg{2},2) & min(size(z))==1) | isequal(model.arg{2},'fro')
                     z = reshape(model.arg{1},[],1);
@@ -66,7 +67,7 @@ if d==2
                     return
                 end
             elseif strcmp(x.extra.opname,'abs')
-                model = yalmip('extstruct',getvariables(x));
+                model = S.extstruct(getvariables(x));
                 z = model.arg{1};
                 y = (z.*conj(z));
                 y.extra.createTime = definecreationtime;
@@ -85,7 +86,7 @@ if (ceil(d)-d>0) | (d<0)
     else
         base = getbase(x);
         if isequal(base,sparse([0 1])) % Simple unit scalar
-            [mt,variabletype,hashM,hash] = yalmip('monomtable');
+            [mt,variabletype,hashM,hash] = S.getMonomtable();
             var = getvariables(x);
           %  hash = randn(size(mt,2),1);
           %  hashM = mt*hash;
@@ -94,7 +95,7 @@ if (ceil(d)-d>0) | (d<0)
             if isempty(previous_var)
                 newmt =  mt(getvariables(x),:)*d;
                 mt(end+1,:) = newmt;
-                yalmip('setmonomtable',mt,[variabletype newvariabletypegen(newmt)]);
+                S.setmonomtable(mt,[variabletype newvariabletypegen(newmt)]);
                 y = recover(size(mt,1));
             else
                 y = recover(previous_var);
@@ -104,7 +105,7 @@ if (ceil(d)-d>0) | (d<0)
             y = base(2)^d*recover(getvariables(x))^d;
         else
             % Bummer, something more complex, add an internal equality constraint 
-            y = (yalmip('define','mpower_internal',x))^d;           
+            y = (S.define('define','mpower_internal',x))^d;
         end
     end
     y.extra.createTime = definecreationtime;
@@ -126,14 +127,14 @@ else %Integer power of scalar
     
     base = x.basis;
     if isequal(base,[0 1]) % Unit scalar can be done fast
-        [mt,variabletype,hashes,hash] = yalmip('monomtable');     
+        [mt,variabletype,hashes,hash] = S.getMonomtable();
         var = x.lmi_variables;
         newmt = mt(var,:)*d;
         newhash = newmt*hash;
         previous_var = findhash(hashes , newhash,length(hashes));
         if isempty(previous_var)
             mt = [mt;newmt];
-            yalmip('setmonomtable',mt,[variabletype newvariabletypegen(newmt)]);
+            S.setmonomtable(mt,[variabletype newvariabletypegen(newmt)]);
             y = x;
             y.lmi_variables = size(mt,1);
         else

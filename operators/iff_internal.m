@@ -21,6 +21,9 @@ if isa(X,'lmi') & isa(Y,'sdpvar')
     Y = temp;
 end
 
+% Session travels with the symbolic operands
+S = X.sess;
+
 if isa(X,'sdpvar') & isa(Y,'sdpvar')
     % user presumably works with binary variables
     varargout{1} = [Y == X];
@@ -29,16 +32,17 @@ elseif (isa(X,'sdpvar') & isa(Y,'lmi'))
     % Binary variable iff a constraint holds
     switch settype(Y)
         case 'elementwise'  % binary X <--> Y(:)>=0
-            varargout{1} = binary_iff_lp(X,-sdpvar(Y),zero_tolerance);
+            varargout{1} = binary_iff_lp(X,-sdpvar(Y),zero_tolerance,S);
         case 'equality'
-            varargout{1} = binary_iff_equality(X,sdpvar(Y),zero_tolerance);
+            varargout{1} = binary_iff_equality(X,sdpvar(Y),zero_tolerance,S);
         case 'multiple'
             Y1 = Y(find(is(Y,'equality')));
             Y2 = Y(find(is(Y,'elementwise')));
             % Glue using intermediate variables holding truth of each set
             % of constraints. X is true iff both di are true and v.v.
             % Hence, we make a recursive call with two new models
-            binvar d1 d2
+            d1 = S.binvar(1,1);
+            d2 = S.binvar(1,1);
             C1 = iff_internal(d1,Y1,zero_tolerance);
             C2 = iff_internal(d2,Y2,zero_tolerance);
             C3 = [X <= d1,X <= d2,X >= d1+d2-1];
@@ -50,13 +54,13 @@ elseif (isa(X,'sdpvar') & isa(Y,'lmi'))
 elseif isa(X,'lmi') & isa(Y,'lmi')
     % Constraint holds iff constraint holds. 
     % Glue using an intermediate variable
-    binvar d    
+    d = S.binvar(1,1);
     C1 =  iff_internal(d,X,zero_tolerance);
     C2 =  iff_internal(d,Y,zero_tolerance);
     varargout{1} = [C1,C2];
 end
 
-function F = binary_iff_lp(X,f,zero_tolerance)
+function F = binary_iff_lp(X,f,zero_tolerance,S)
 % X == 1    <=>   f<=0
 [M,m,infbound] = derivebounds(f);
 if infbound
@@ -68,7 +72,7 @@ if nf*mf==1
     F = linearnegativeconstraint_iff_binary(f,X,M,m,zero_tolerance);
 else
     f = reshape(f,nf*mf,1);
-    di = binvar(nf*mf,1);
+    di = S.binvar(nf*mf,1);
     F = linearnegativeconstraint_iff_binary(f,di,M,m,zero_tolerance);
     if length(X)==1
         % X is true if any di
@@ -101,10 +105,10 @@ else
     end
 end
 
-function F = binary_iff_equality(X,Y,zero_tolerance)
+function F = binary_iff_equality(X,Y,zero_tolerance,S)
 
 % Things like iff(x,y==1) is sent as X, 1-Y
-if isLogicalVector(X) && isLogicalVector(Y)
+if isLogicalVector(X,S) && isLogicalVector(Y,S)
     if isequal(getbase(Y),[0 -1]) | isequal(getbase(Y),[-1 1])
         Y = -Y;
     end
@@ -120,7 +124,7 @@ d = binvar(length(Y),3);
 C = sum(d,2)==1;
 [M,m,infbounds] = derivebounds(Y);
 for i = 1:length(Y)
-    if all(ismember(depends(Y(i)),yalmip('binvariables'))) & all(getbase(Y(i))==fix(getbase(Y(i))))
+    if all(ismember(depends(Y(i)),S.getBinvariables())) & all(getbase(Y(i))==fix(getbase(Y(i))))
         eps = 0.5;
     else
         eps = 0;
@@ -139,11 +143,11 @@ end
 % X is true if all di2 are true and v.v
 F = [C,X <= d(:,2), X >= sum(d(:,2))-length(Y)+1];
 
-function yes = isLogicalVector(X)
+function yes = isLogicalVector(X,S)
 yes = 0;
 X = sdpvar(X);
 B = getbase(X);
-if all(ismember(depends(X),yalmip('binvariables')))
+if all(ismember(depends(X),S.getBinvariables()))
     b = B(:,1);
     if all(b==0 | b==1)
         A = B(:,2:end);

@@ -8,8 +8,9 @@ function varargout = bounds(x,lower,upper,aux)
 %                         big M formulations and similar things.
 
 variables = getvariables(x);
+S = x.sess;
 if nargin == 1
-    lb = yalmip('getbounds',variables);
+    lb = S.getbounds(variables);
     lower = lb(:,1);
     upper = lb(:,2);
 else
@@ -23,8 +24,8 @@ else
     end
     % 0 - No problems
     % 1 - Trying to bound nonlinear variable
-    % 2 - Trying to bound nonlinear operator     
-    fail = yalmip('setbounds',variables,lower,upper);
+    % 2 - Trying to bound nonlinear operator
+    fail = S.setbounds(variables,lower,upper);
     switch fail
         case {1,2}
             error('BOUNDS can only be applied to linear unitary SDPVAR variables.')

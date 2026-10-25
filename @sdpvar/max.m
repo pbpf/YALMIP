@@ -44,8 +44,8 @@ switch nargin
             elseif length(X) == 1
                 y = X;
             else
-                
-                y = yalmip('define','max_internal',X);
+                S = X.sess;
+                y = S.define('define','max_internal',X);
                 % Some special code to ensure max(x) when x is a simple
                 % binary vector yields a binary graph variable. This will
                 % simplify some models
@@ -61,6 +61,7 @@ switch nargin
         
         X = varargin{1};
         Y = varargin{2};
+        S = sessCheck(X,Y);
         [nx,mx] = size(X);
         [ny,my] = size(Y);
         if ~((nx*mx==1) | (ny*my==1))
@@ -83,7 +84,7 @@ switch nargin
         
         % Ok, done with error checks etc.
         Z = [reshape(X,1,[]);reshape(Y,1,[])];
-        y = yalmip('define','max_internal',Z);
+        y = S.define('define','max_internal',Z);
         reDeclareForBinaryMax(y,Z);
         y = reshape(y,nx,mx);
         
@@ -123,7 +124,8 @@ switch nargin
                     elseif length(inparg) == 1
                         y = [y max(inparg)];
                     else
-                        z = yalmip('define','max_internal',inparg);
+                        S = inparg.sess;
+                        z = S.define('define','max_internal',inparg);
                         y = [y z];
                         % Some special code to ensure max(x) when x is a simple
                         % binary vector yields a binary graph variable. This will

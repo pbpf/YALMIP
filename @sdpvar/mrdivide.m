@@ -1,5 +1,8 @@
 function y = mrdivide(X,Y)
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 if (isa(Y,'sdpvar'))
     if Y.dim(1)*Y.dim(2) == 1
         y = X*Y^-1;

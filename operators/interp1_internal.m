@@ -14,6 +14,7 @@ switch class(varargin{1})
         
         t = varargin{2};
         x = varargin{3};
+        S = x.sess;
         xi = varargin{4};
         yi = varargin{5};
         method = varargin{6};
@@ -52,7 +53,7 @@ switch class(varargin{1})
             end
         else
             if strcmpi(method,'sos2') || strcmpi(method,'milp') || strcmpi(method,'lp')
-                lambda = sdpvar(length(xi),1);
+                lambda = S.sdpvar(length(xi),1);
                 Model = [sos2(lambda), x == lambda'*xi(:), t == lambda'*yi(:),lambda>=0, sum(lambda)==1];
                 [mono,def] = classifyData(yi);
                 operator = struct('convexity','none','monotonicity',mono,'definiteness',def,'model','integer');

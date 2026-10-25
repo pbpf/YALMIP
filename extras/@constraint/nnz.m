@@ -13,10 +13,11 @@ function varargout = nnz(varargin)
 switch class(varargin{1})
 
     case 'constraint'
-        varargout{1} = yalmip('define','nnz',varargin{1});
+        varargout{1} = varargin{1}.sess.define('nnz',varargin{1});
 
     case 'char'
         t = varargin{2};
+        S = t.sess;
         x = varargin{3};
         switch varargin{1}
             case 'graph'
@@ -25,7 +26,7 @@ switch class(varargin{1})
                     x = sdpvar(x);
                     x = x(:);
                     [M,m] = derivebounds(x);
-                    delta = binvar(length(x),1);
+                    delta = S.binvar(length(x),1);
                     F = (x >= m.*(1-delta)) + (sum(delta) == t);
                 elseif is(x,'equality')
                     x = sdpvar(x);
@@ -34,7 +35,7 @@ switch class(varargin{1})
                     if infbound
                         warning('You have unbounded variables in IMPLIES leading to a lousy big-M relaxation.');
                     end
-                    delta = binvar(length(x),1);
+                    delta = S.binvar(length(x),1);
                     F = (M.*(1-delta) >= x >= m.*(1-delta)) + (sum(delta) == t);
                 else
                     error('Constraint type not supported in cardinality. Make a feature request');
@@ -53,9 +54,9 @@ switch class(varargin{1})
                             warning('You have unbounded variables in NNZ leading to a lousy big-M relaxation.');
                     end
                     n = length(x);
-                    deltaD = binvar(n,1);
-                    deltaU = binvar(n,1);
-                    if  all(ismember(getvariables(x),[yalmip('intvariables') yalmip('binvariables')]))
+                    deltaD = S.binvar(n,1);
+                    deltaU = S.binvar(n,1);
+                    if  all(ismember(getvariables(x),[S.getIntvariables() S.getBinvariables()]))
                         % If an integer constraint not holds, it has to  be
                         % epsilon violated
                         F = ((M+1e-4).*(1-deltaU)-1e-4 >= x >= m.*(1-deltaD));
@@ -71,9 +72,9 @@ switch class(varargin{1})
                     x = x(:);
                     n = length(x);
                     [M,m] = derivebounds(x);
-                    deltaZ   = binvar(n,1);
-                    deltaNZU = binvar(n,1);
-                    deltaNZD = binvar(n,1);
+                    deltaZ   = S.binvar(n,1);
+                    deltaNZU = S.binvar(n,1);
+                    deltaNZD = S.binvar(n,1);
                     eps = 1e-4;
                     % deltaZ forces x to be zero
                     % deltaZU 1 is x > eps

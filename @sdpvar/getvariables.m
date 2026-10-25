@@ -15,7 +15,8 @@ switch nargin
     case 1
         varargout{1} = X.lmi_variables;
     case 2
-        [sqrList,CompressedList] = yalmip('nonlinearvariables');
+        S = X.sess;
+        [sqrList,CompressedList] = S.nonlinearvariables();
         used_variables = getvariables(X);
         if isempty(sqrList)
             LinearVariables = used_variables;

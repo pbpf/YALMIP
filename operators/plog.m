@@ -35,7 +35,7 @@ switch class(varargin{1})
                 error('PLOG only defined for 2x1 arguments');
             end
         end
-        varargout{1} = yalmip('define',mfilename,varargin{1});
+        varargout{1} = varargin{1}.sess.define(mfilename,varargin{1});
         
 
     case 'char'

@@ -22,8 +22,9 @@ switch class(varargin{1})
         y = [];
         
         update = varargin{1};
+        S = update.sess;
         for j = 1:length(update)
-           y = [y;yalmip('define',mfilename,varargin{:},j)];
+           y = [y;S.define('define',mfilename,varargin{:},j)];
         end
         varargout{1} = y;        
 

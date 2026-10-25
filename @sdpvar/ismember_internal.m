@@ -1,6 +1,8 @@
 function YESNO = ismember_internal(x,p)
 %ISMEMBER_INTERNAL Helper for ISMEMBER
 
+S = x.sess;
+
 if isa(x,'sdpvar') & (isa(p,'polytope') | isa(p,'Polyhedron'))
 
     if length(p) == 1
@@ -18,7 +20,7 @@ if isa(x,'sdpvar') & (isa(p,'polytope') | isa(p,'Polyhedron'))
         end
 
     else
-        d = binvar(length(p),1);
+        d = binvarCore(S,length(p),1);
         YESNO = (sum(d)==1);
         [L,U] = safe_bounding_box(p(1));
         for i = 1:length(p)
@@ -64,7 +66,7 @@ if isa(x,'sdpvar') & isa(p,'double')
         F = (x == p);
     else
         if size(p,1)==length(x) & size(p,2)>1
-            Delta = binvar(size(p,2),1);
+            Delta = binvarCore(S,size(p,2),1);
             F = [sum(Delta) == 1, x == p*Delta];
             if all(all(p == fix(p)))
                 % Check if x implicitly is constrained to be integer
@@ -77,7 +79,7 @@ if isa(x,'sdpvar') & isa(p,'double')
             end
         else
             p = p(:);
-            Delta = binvar(length(x),length(p),'full');
+            Delta = binvarCore(S,length(x),length(p),'full');
             F = [sum(Delta,2) == 1, x == Delta*p];
             if all(all(p == fix(p)))
                 % Check if x implicitly is constrained to be integer

@@ -24,7 +24,7 @@ switch class(varargin{1})
         if ~ishermitian(X)
             error('LAMBDA_MAX can only be Hermitian matrices');
         else
-            varargout{1} = yalmip('define',mfilename,varargin{:});
+            varargout{1} = varargin{1}.sess.define(mfilename,varargin{:});
         end
 
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph

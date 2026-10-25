@@ -7,14 +7,15 @@ if prod(size(h))>1
 end
 
 hvars = getvariables(h);
+S = h.sess;
 basis = getbase(h);
 coefficients = basis(2:end);
 
-Complicating = find(ismember(hvars,yalmip('extvariables')));
+Complicating = find(ismember(hvars,S.getExtvariables()));
 if length(Complicating)==length(hvars)
     LinearTerm = 0;
 else
-    NonComplicating = find(~ismember(hvars,yalmip('extvariables')));
+    NonComplicating = find(~ismember(hvars,S.getExtvariables()));
     LinearTerm = recover(hvars(NonComplicating))'*coefficients(NonComplicating)';
 end
 
@@ -32,10 +33,10 @@ allz = [];
 allargs = [];
 if ~isempty(Complicating)
     for i = 1:length(Complicating)
-        extstruct = yalmip('extstruct',hvars(Complicating(i)));
+        extstruct = S.extstruct(hvars(Complicating(i)));
         [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i))));
         RequiresEpi(i) = 1;
-        z = sdpvar(size(arguments{i},1),size(arguments{i},2));
+        z = sdpvarCore(S,size(arguments{i},1),size(arguments{i},2));
         allz = [allz;z];
         allargs = [allargs;arguments{i}];
         extstruct.arg{1} = z;
@@ -47,7 +48,7 @@ if ~isempty(Complicating)
         totalobjective=coefficients(Complicating(i))*t+totalobjective;
     end
 end
-sdpvar t
+t = sdpvarCore(S,'t',1,1);
 
 totalF = [totalF, totalobjective < t];
 P = projection([totalF,t<1234],[allz;t]);

@@ -19,6 +19,7 @@ switch class(varargin{1})
         yi = varargin{5};
         zi = varargin{6};
         method = varargin{7};
+        S = t.sess;
         
         % YALMIP requests a graph model
         if isequal(varargin{1},'graph')
@@ -53,7 +54,7 @@ switch class(varargin{1})
             varargout{3} = varargin{3};
             
         else
-            if isequal(varargin{end},'graph')
+            if strcmpi(method,'graph')
                 % We want graph, YALMIP asks for exact representation
                 varargout{1} = [];
                 varargout{2} = [];
@@ -70,12 +71,12 @@ switch class(varargin{1})
                 y = xy(2);
                 z = varargin{2};
                 
-                Lambda = sdpvar(N,M,'full');
+                Lambda = S.sdpvar(N,M,'full');
                 xinterp = sum(sum(xi.*Lambda));
                 yinterp = sum(sum(yi.*Lambda));
                 zinterp = sum(sum(zi.*Lambda));
-                colsos = sdpvar(M,1,'full');
-                rowsos = sdpvar(N,1,'full');
+                colsos = S.sdpvar(M,1,'full');
+                rowsos = S.sdpvar(N,1,'full');
                 F = [sum(sum(Lambda))==1, Lambda >= 0];
                 F = [F, colsos == sum(Lambda,1)'];
                 F = [F, rowsos == sum(Lambda,2)];

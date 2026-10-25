@@ -4,7 +4,8 @@ function pnew = degreduce(p,d)
 if islinear(p)
     pnew = p;
 else
-    [sqrList,CompressedList] = yalmip('nonlinearvariables');
+    S = p.sess;
+    [sqrList,CompressedList] = S.nonlinearvariables();
 
     base = getbase(p);
     vars = getvariables(p);
@@ -18,6 +19,6 @@ else
             end
         end
     end
-    pnew = clean(sdpvar(1,1,[],vars,base));
+    pnew = clean(sdpvar(1,1,[],vars,base,S));
 
 end

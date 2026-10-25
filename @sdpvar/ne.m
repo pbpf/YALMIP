@@ -5,6 +5,8 @@ function F = ne(X,Y)
 %
 %   See also SDPVAR/AND, SDPVAR/OR, BINVAR, BINARY
 
+S = sessCheck(X,Y);
+
 % Models NE using logic constraints
 
 % bin1 = isa(X,'sdpvar') | isa(X,'double');
@@ -33,8 +35,9 @@ elseif isa(X,'sdpvar') & is(X,'integer')% &  isa(Y,'double')
     if length(X)>1 & length(Y)==1
         Y = repmat(Y,length(X),1);
     end
-    less = binvar(length(X),1);
-    larger = binvar(length(X),1);
+    S = X.sess;
+    less = binvarCore(S,length(X),1);
+    larger = binvarCore(S,length(X),1);
     F = [implies(less,X<=Y-1), implies(larger,X>=Y+1), sum(less) + sum(larger) >= 1];
 else
     F = ((X<=Y-0.5) | (X>=Y+0.5));

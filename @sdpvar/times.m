@@ -41,6 +41,9 @@ elseif isempty(Y)
     return
 end
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 if (isa(X,'sdpvar') && isa(Y,'sdpvar'))
     if (X.typeflag==5) && (Y.typeflag==5)
         error('Product of norms not allowed');
@@ -60,7 +63,7 @@ if (isa(X,'sdpvar') && isa(Y,'sdpvar'))
         end
         
         % Check for the case x.*y where x and y are unit variables
-        [mt,variable_type,hashedMT,hash] = yalmip('monomtable');
+        [mt,variable_type,hashedMT,hash] = S.getMonomtable();
         if length(X.lmi_variables)==numel(X) 
             if length(Y.lmi_variables) == numel(Y) 
                 if numel(X)==numel(Y)
@@ -106,7 +109,7 @@ if (isa(X,'sdpvar') && isa(Y,'sdpvar'))
                                     if any(keep)
                                         keep = find(keep);
                                         mt = [mt;generated_monoms(keep,:)];
-                                        yalmip('setmonomtable',mt,[],[hashedMT;generated_hash(keep)],hash);
+                                        S.setmonomtable(mt,[],[hashedMT;generated_hash(keep)],hash);
                                     end
                                                                                                              
                                     if any(diff(Z.lmi_variables)<0)
@@ -267,7 +270,7 @@ if (isa(X,'sdpvar') && isa(Y,'sdpvar'))
             Z.lmi_variables = un_Z_vars;
         end
 
-        yalmip('setmonomtable',mt);
+        S.setmonomtable(mt);
 
         if ~(x_isscalar || y_isscalar)
             Z.dim(1) = X.dim(1);
@@ -326,7 +329,7 @@ end
 
 entropies = zeros(length(Y),1);
 if is(X,'linear')
-    argst = yalmip('getarguments',Y);
+    argst = Y.sess.getarguments(Y);
     if length(argst)~=length(X)
         return
     end

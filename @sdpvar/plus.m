@@ -49,6 +49,9 @@ if isnumeric(Y)
      end
 end
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 switch 2*X_is_spdvar+Y_is_spdvar
     case 1
         if isempty(X)

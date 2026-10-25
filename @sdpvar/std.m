@@ -10,7 +10,7 @@ switch class(varargin{1})
         if nargin > 1 || min(size(X))>1
             error('SDPVAR/STD only supports simple 1-D variance'),
         end
-        varargout{1} = yalmip('define',mfilename,varargin{1});
+        varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{1});
     case 'char'
         switch varargin{1}
             case 'graph'
@@ -24,7 +24,7 @@ switch class(varargin{1})
             case 'exact'
                 t = varargin{2};
                 X = varargin{3};
-                e = sdpvar(length(X),1);
+                e = sdpvarCore(X.sess,length(X),1);
                 F = [e'*e == t^2, e == X, t>=0];
                 varargout{1} = F;
                 varargout{2} = struct('convexity','convex','definiteness','positive','model','exact');

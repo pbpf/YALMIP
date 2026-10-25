@@ -25,6 +25,7 @@ switch class(varargin{1})
         t = varargin{2};
         n = varargin{3};
         k = varargin{4};
+        S = n.sess;
         
         [U,L] = derivebounds(n);
         if isinf(U) | isinf(L)
@@ -41,7 +42,7 @@ switch class(varargin{1})
             end
         end
         nchoosekVal = nchoosekVal(L:U);
-        z = binvar(length(range),1);
+        z = binvarCore(S,length(range),1);
         F = [n == range*z, t == nchoosekVal*z,sum(z)==1];
         
         varargout{1} = F;

@@ -6,7 +6,8 @@ if nargin <2
 end
 
 variables = getvariables(X);
-extstruct = yalmip('extstruct',variables(1));
+S = X.sess;
+extstruct = S.extstruct(variables(1));
 if ~isempty(extstruct)
     if isequal(extstruct.fcn,'pwa_yalmip')
         extstruct.arg{1}{1}.Fi = extstruct.arg{1}{1}.Bi;

@@ -17,6 +17,9 @@ if isa(Y,'constraint')
     Y = lmi(Y,[],[],1);
 end
 
+% Session travels with the symbolic operands
+S = X.sess;
+
 % % Special case x == 1 (or x = 0) implies something
 % Avoids introducing a glue binary for the equality
 % Fixes #690
@@ -42,8 +45,8 @@ elseif isa(X,'lmi') & isa(Y,'sdpvar')
     varargout{1} = constraint_implies_binary(X,Y,zero_tolerance);
 elseif isa(X,'lmi') & isa(Y,'lmi')
     % Glue them using a binary
-    binvar d
-    varargout{1} = [constraint_implies_binary(X,d,zero_tolerance), binary_implies_constraint(d,Y)];
+    d = S.binvar(1,1);
+    varargout{1} = [constraint_implies_binary(X,d,zero_tolerance,S), binary_implies_constraint(d,Y)];
 end
 
 function F = binary_implies_constraint(X,Y)
@@ -99,7 +102,7 @@ switch settype(Y)
         error('IMPLIES only implemented for linear (in)equalities and semidefinite constraints');
 end
 
-function F = constraint_implies_binary(X,Y,zero_tolerance)
+function F = constraint_implies_binary(X,Y,zero_tolerance,S)
 
 switch settype(X)
     case 'multiple'
@@ -108,10 +111,10 @@ switch settype(X)
         if length(X1)+length(X2) < length(X)
             disp('Binary variables can only be activated by linear (in)equalities in IMPLIES');
         end
-        d1 = binvar(length(Y),1);
-        d2 = binvar(length(Y),1);
-        F1 = constraint_implies_binary(X1,d1,zero_tolerance);
-        F2 = constraint_implies_binary(X2,d2,zero_tolerance);
+        d1 = S.binvar(length(Y),1);
+        d2 = S.binvar(length(Y),1);
+        F1 = constraint_implies_binary(X1,d1,zero_tolerance,S);
+        F2 = constraint_implies_binary(X2,d2,zero_tolerance,S);
         F = [F1, F2, Y >= d1+d2-1];
         
     case 'elementwise'
@@ -119,11 +122,11 @@ switch settype(X)
         
         if length(Y)==length(X)
             % Elementwise implies, either by user or internally
-            F = linearnegativeconstraint_implies_binary(X,Y,[],[],zero_tolerance);
+            F = linearnegativeconstraint_implies_binary(X,Y,[],[],zero_tolerance,S);
         elseif length(Y)== 1
             % Many rows should imply one. Create intermediate and use AND
-            d = binvar(length(X),1);
-            F = [linearnegativeconstraint_implies_binary(X,d,[],[],zero_tolerance), Y >= sum(d)+1-length(X)];
+            d = S.binvar(length(X),1);
+            F = [linearnegativeconstraint_implies_binary(X,d,[],[],zero_tolerance,S), Y >= sum(d)+1-length(X)];
         else
             error('Inconsistent sizes in implies_internal')
         end
@@ -131,13 +134,13 @@ switch settype(X)
     case 'equality'
         X = sdpvar(X);X = reshape(X,[],1);
         n = length(X);
-        if 0 % isequal(getbase(X),[-ones(n,1) eye(n)]) | isequal(getbase(X),[ones(n,1) -eye(n)]) & all(ismember(depends(X),yalmip('binvariables')));
+        if 0 % isequal(getbase(X),[-ones(n,1) eye(n)]) | isequal(getbase(X),[ones(n,1) -eye(n)]) & all(ismember(depends(X),S.getBinvariables()));
             % Smart code for X == 1 implies Y
             F = [Y(:) >= recover(getvariables(X))];
         else           
-            d = binvar(length(X),2,'full');
+            d = S.binvar(length(X),2,'full');
             %F = linearnegativeconstraint_implies_binary([-zero_tolerance-X;X-zero_tolerance],[d(:,1);d(:,2)],[],[],zero_tolerance);
-            F = linearnegativeconstraint_implies_binary([-zero_tolerance-X;X-zero_tolerance],[d(:,1);d(:,2)],[],[],zero_tolerance/100);
+            F = linearnegativeconstraint_implies_binary([-zero_tolerance-X;X-zero_tolerance],[d(:,1);d(:,2)],[],[],zero_tolerance/100,S);
             if length(X)==length(Y)
                 % elementwise version
                 F = [F, Y >= d(:,1)+d(:,2)-1];

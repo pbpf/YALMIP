@@ -1,6 +1,9 @@
 function y = kron(X,Y)
 %KRON (overloaded)
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 if isequal(X,1)
     y = Y;
     return;

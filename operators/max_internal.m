@@ -5,15 +5,15 @@ switch class(varargin{1})
         varargout{1} = max(varargin{:});
     case 'char'
         extstruct.var = varargin{2};
-        extstruct.arg = {varargin{3:end}};
-        [F,properties,arguments]=max_model([],varargin{1},[],extstruct);
+        extstruct.arg = {varargin{3:end-1}};
+        [F,properties,arguments]=max_model([],varargin{1},[],extstruct,varargin{end});
         varargout{1} = F;
         varargout{2} = properties;
         varargout{3} = arguments;
     otherwise
 end
 
-function [F,properties,arguments]=max_model(X,method,options,extstruct)
+function [F,properties,arguments]=max_model(X,method,options,extstruct,S)
 switch method
     case 'graph'
         
@@ -60,14 +60,14 @@ switch method
                 X = [0 1;1 0]*X;
             end
             [M,m] = derivebounds(X);
-            d = binvar(1,1);         
+            d = S.binvar(1,1);         
             F = [F, 0 <= t <= M(2)*d, X(2)<=M(2)*d];
             F = [F, -(1-d)*M(2) <= t-X(2) <= (-m(2))*(1-d),X(2)>=m(2)*(1-d)];
-         elseif all(ismember(getvariables(X),yalmip('binvariables'))) & (is(X,'lpcone') | is(X,'sdpcone'))
+         elseif all(ismember(getvariables(X),S.getBinvariables())) & (is(X,'lpcone') | is(X,'sdpcone'))
             % Special case max(x) where x is simple binary
             F = [F, X <= t, sum(X) >= t];
         else
-            F = max_integer_model(X,t);
+            F = max_integer_model(X,t,[],[],S);
         end
         arguments = [arguments;X(:)];
         properties = struct('convexity','convex','monotonicity','increasing','definiteness','none','model','integer');

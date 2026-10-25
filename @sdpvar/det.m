@@ -24,7 +24,8 @@ switch class(varargin{1})
             varargout{1} = X;
             return
         else
-            y = yalmip('define','det_internal',reshape(X,[],1));
+            S = X.sess;
+            y = S.define('define','det_internal',reshape(X,[],1));
         end
         varargout{1} = y;
 

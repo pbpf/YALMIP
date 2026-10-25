@@ -9,6 +9,9 @@ if isa(Y,'blkvar')
     Y = sdpvar(Y);
 end
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 try
     Z = X - Y;
     if ishermitian(Z)

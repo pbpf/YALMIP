@@ -11,15 +11,16 @@ function varargout = nnz(varargin)
 switch class(varargin{1})
 
     case 'sdpvar'
+        S = varargin{1}.sess;
         % Simple binary vector?
-        if all(ismember(getvariables(varargin{1}),yalmip('binvariables')))
+        if all(ismember(getvariables(varargin{1}),S.getBinvariables()))
             if is(varargin{1},'lpcone')
                 varargout{1} = sum(reshape(varargin{1},prod(size(varargin{1})),1));
                 return
             end
         end
         % Nope, more advanced variable.
-        varargout{1} = yalmip('define','nnz',varargin{:});
+        varargout{1} = S.define('define','nnz',varargin{:});
 
     case 'char'
         z = varargin{2};

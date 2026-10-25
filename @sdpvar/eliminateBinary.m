@@ -1,7 +1,8 @@
 function p = eliminateBinary(p,binaries)
 
 vars = p.lmi_variables;
-[mt,vt] = yalmip('monomtable');
+S = p.sess;
+[mt,vt] = S.getMonomtable();
 
 
 mt = mt(vars,:);

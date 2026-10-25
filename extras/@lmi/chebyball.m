@@ -22,7 +22,8 @@ A = -p.F_struc(:,2:end);
 b = p.F_struc(:,1);
 
 x = recover(p.used_variables);
-r = sdpvar(1);
+S = F.sess;
+r = S.sdpvar(1);
 
 if nargin < 2
     ops = sdpsettings('verbose',0);
@@ -30,8 +31,8 @@ end
 
 sol = optimize(A*x+r*sqrt(sum(A.^2,2))<=b,-r,ops);
 
-xc = double(x);
-R = double(r);
+xc = double(value(x,sol));
+R = double(value(r,sol));
 C = (x-xc)'*(x-xc) <= R^2;
 if sol.problem == 1
     R = -inf;

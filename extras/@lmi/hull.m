@@ -29,6 +29,7 @@ if isa(varargin{end},'sdpvar')
     varargin = {varargin{1:end-1}};     
 end
 N = length(varargin);
+S = varargin{1}.sess;
 
 if N==1
     Fhull = varargin{1};
@@ -42,7 +43,7 @@ end
 % variables and constraints
 for i = 1:N
     varargin{i} = convertquadratics(varargin{i});
-    varargin{i} = expandmodel(varargin{i},[]);
+    varargin{i} = expandmodel(varargin{i},[],[],[],[],S);
 end
 
 variables = [];
@@ -68,11 +69,11 @@ end
 % Define variables. To allow users to easily plot convex hulls, we mark the
 % internally defined variables as auxilliary. YALMIP will then not plot
 % w.r.t these variables
-nInitial = yalmip('nvars');
-y = sdpvar(repmat(length(variables),1,N),repmat(1,1,N));
-t = sdpvar(N,1);
-nNow = yalmip('nvars');
-yalmip('addauxvariables',nInitial+1:nNow);
+nInitial = S.nvars();
+y = S.sdpvar(repmat(length(variables),1,N),repmat(1,1,N));
+t = S.sdpvar(N,1);
+nNow = S.nvars();
+S.addauxvariables(nInitial+1:nNow);
 
 Fhull = lmi([]);
 for i = 1:N
@@ -100,7 +101,7 @@ end
 Fhull = Fhull + [(sum([y{:}],2) == recover(variables)):'sum y_i == x'];
 Fhull = Fhull + [(sum(t)==1):'Multipliers sum to 1'] + [(t>=0):'Positive multiplier'];
 Fhull = expanded(Fhull,1);
-yalmip('setdependence',[reshape([y{:}],[],1);t(:)],recover(variables));
-%yalmip('setdependence',recover([10 11]),recover(variables));
-yalmip('addauxvariables',getvariables([reshape([y{:}],[],1);t(:)]));
+S.setdependence([reshape([y{:}],[],1);t(:)],recover(variables));
+%S.setdependence(recover([10 11]),recover(variables));
+S.addauxvariables(getvariables([reshape([y{:}],[],1);t(:)]));
 y = [y{:}];

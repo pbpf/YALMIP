@@ -47,5 +47,5 @@ if dmin <= dmax & dmin>0
     s = nchoosek(length(x) + dmin-1,dmin-1);
     v = extsubsref(v,s+1:length(v));
 end
-c = sdpvar(length(v),1);
+c = sdpvarCore(x.sess,length(v),1);
 p = c'*v;

@@ -27,7 +27,7 @@ switch class(varargin{1})
         [n,m] = size(X);
         if isreal(X) & min(n,m)==1
             if varargin{2}>=1
-                varargout{1} = yalmip('define',mfilename,varargin{:});
+                varargout{1} = X.sess.define(mfilename,varargin{:});
             else
                 error('PNORM only applicable for p>=1');
             end
@@ -40,7 +40,8 @@ switch class(varargin{1})
             t = varargin{2}; % Second arg is the extended operator variable
             X = varargin{3}; % Third arg and above are the args user used when defining t.
             p = varargin{4};
-            if nargin > 4
+            S = X.sess;
+            if nargin > 5 || (nargin == 5 && ~isa(varargin{5},'yalmip.Session'))
                 method = varargin{5};
             else
                 method = 'socp';
@@ -50,7 +51,7 @@ switch class(varargin{1})
                 case 'power'
                     
                     n = length(X);
-                    r = sdpvar(1,n);
+                    r = S.sdpvar(1,n);
                     F = [sum(r) == t, 
                          pcone([r;
                                 repmat(t,1,n);
@@ -71,8 +72,8 @@ switch class(varargin{1})
                     % -x<(t^(l-m)*s^m)^1/l
                     % x < t t t s
                     if 2^fix(log2(l))==l &  m == 1
-                        s=sdpvar(length(X),1);
-                        absX = sdpvar(length(X),1);
+                        s=S.sdpvar(length(X),1);
+                        absX = S.sdpvar(length(X),1);
                         F = [-absX <= X <= absX];
                         F = [F,sum(s)<= t,s>=0];
                         for i = 1:length(X)
@@ -86,9 +87,9 @@ switch class(varargin{1})
                         % x^7 < (t t t t t s s)
                         % x^8 < (t t t t t  s s x)
                         % x <  (t t t t t  s s x)^(1/8
-                        s=sdpvar(length(X),1);
+                        s=S.sdpvar(length(X),1);
                         w = 2^(ceil(log2(l)));
-                        absX = sdpvar(length(X),1);
+                        absX = S.sdpvar(length(X),1);
                         F = [-absX <= X <= absX];
                         F = [F,sum(s)<= t,s>=0];
                         

@@ -7,7 +7,8 @@ info = 0;
 % Is it a scalar
 if (n*m==1)
     % Involved in polynomial expression
-    [mt,variabletype] = yalmip('monomtable');
+    S = p.sess;
+    [mt,variabletype] = S.getMonomtable();
     x_lin = getvariables(p);
     x_var = find(any(mt(x_lin,:),1));
     if nargin==2

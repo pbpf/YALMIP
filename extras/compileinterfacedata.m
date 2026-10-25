@@ -316,7 +316,7 @@ end
 % *************************************************************************
 %% SELECT SUITABLE SOLVER
 % *************************************************************************
-[solver,problem,~,failureMode] = selectsolver(options,ProblemClass,solvers,socp_are_really_qc,allsolvers);
+[solver,problem,~,failureMode] = selectsolver(options,ProblemClass,solvers,socp_are_really_qc,allsolvers,S);
 if isempty(solver)
     diagnostic.solvertime = 0;
     if problem == -4 
@@ -397,7 +397,7 @@ if strfind(lower(solver.tag),'sparsecolo')
     temp_options.options.forceglobal = 0;
     temp_options.solver = options.sparsecolo.SDPsolver;
     tempProblemClass = ProblemClass;   
-    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(localsolver) | strcmpi(localsolver.tag,'sparsecolo')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -412,7 +412,7 @@ if strfind(lower(solver.tag),'frlib')
     temp_options.forceglobal = 0;
     temp_options.solver = options.frlib.solver;
     tempProblemClass = ProblemClass;   
-    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(localsolver) | strcmpi(localsolver.tag,'frlib')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -435,7 +435,7 @@ if strcmpi(solver.tag,'mpcvx')
     tempProblemClass.objective.quadratic.convex = tempProblemClass.objective.quadratic.convex | tempProblemClass.objective.quadratic.nonconvex;
     tempProblemClass.objective.quadratic.nonconvex = 0;
     tempProblemClass.parametric = 0;
-    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(localsolver) | strcmpi(localsolver.tag,'bnb') | strcmpi(localsolver.tag,'kktqp')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -459,7 +459,7 @@ if strcmpi(solver.tag,'kktqp')
     tempProblemClass.constraint.binary = 1;
     tempProblemClass.objective.quadratic.convex = 0;
     tempProblemClass.objective.quadratic.nonconvex = 0;
-    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    localsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(localsolver) | strcmpi(localsolver.tag,'bnb') | strcmpi(localsolver.tag,'kktqp')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -481,7 +481,7 @@ if strcmpi(solver.tag,'lmirank')
     tempProblemClass.constraint.inequalities.rank = 0;
     tempProblemClass.constraint.inequalities.semidefinite.linear = 1;
     tempProblemClass.objective.linear = 1;
-    initialsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    initialsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(initialsolver) | strcmpi(initialsolver.tag,'lmirank')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -504,7 +504,7 @@ if strfind(solver.tag,'VSDP')
     tempProblemClass.constraint.inequalities.semidefinite.linear =  tempProblemClass.constraint.inequalities.semidefinite.linear | tempProblemClass.constraint.inequalities.secondordercone;
     tempProblemClass.constraint.inequalities.secondordercone = 0;
     tempProblemClass.objective.quadratic.convex = 0;
-    initialsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    initialsolver = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
     if isempty(initialsolver) | strcmpi(initialsolver.tag,'vsdp')
         diagnostic.solvertime = 0;
         diagnostic.info = yalmiperror(-2,'YALMIP');
@@ -546,7 +546,7 @@ if strcmpi(solver.tag,'cutsdp')
         error('BNB can not be used in CUTSDP. Please install and use a better MILP solver');
     end
     
-    [lowersolver,problem] = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers);
+    [lowersolver,problem] = selectsolver(temp_options,tempProblemClass,solvers,socp_are_really_qc,allsolvers,S);
 
     if ~isempty(lowersolver) & strcmpi(lowersolver.tag,'bnb')
         error('BNB can not be used in CUTSDP. Please install and use a better MILP solver');

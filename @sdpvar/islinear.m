@@ -10,11 +10,11 @@ try
     sys = is(x,'linear');
 catch
     disp('I have messed up something internally in YALMIP. Sorry...')
-    disp('Type yalmip(''clear'') and re-define the problem.');
+    disp('Re-define the problem with variables from a fresh session.');
     disp(' ')
     disp('This problem typically occurs if you have SDPVAR variables in');
     disp('work-space, and call a function where you are using ')
-    disp('the command yalmip(''clear''). When control is returned to');
+    disp('variables from an old session. When control is returned to');
     disp('the work-space, things are messed up...');
     error('Internal problems in YALMIP');
 end

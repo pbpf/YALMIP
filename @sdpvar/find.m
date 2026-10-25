@@ -40,7 +40,8 @@ switch class(varargin{1})
         which = 'first';
                             
         x_extended = [x 1];
-        ind = yalmip('define',mfilename,x_extended,k,which);
+        S = x.sess;
+        ind = S.define('define',mfilename,x_extended,k,which);
         varargout{1} = ind;
         
         if nargout == 2

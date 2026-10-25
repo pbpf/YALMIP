@@ -6,7 +6,7 @@ function itslinear=islinear(F)
 % F : SET object
 % p : boolean 0/1
 
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = F.sess.getMonomtable();
 itslinear = 1;
 i = 1;
 F = flatten(F);

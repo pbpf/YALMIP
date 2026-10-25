@@ -25,10 +25,11 @@ switch class(varargin{1})
         end
         
         dim = size(varargin{1});
+        S = varargin{1}.sess;
         allnot = [];
         for j = 1:prod(dim)
             temp = extsubsref(varargin{1},j);
-            allnot = [allnot; yalmip('define','not',temp)];
+            allnot = [allnot; S.define('define','not',temp)];
         end
         varargout{1} = reshape(allnot,dim);
                 

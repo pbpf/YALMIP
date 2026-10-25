@@ -45,5 +45,5 @@ switch class(varargin{1})
         varargout{1} = setupMeta(lmi([]), mfilename,varargin{:});
 
     case 'char'
-        varargout{1} = iff_internal(varargin{3:end});
+        varargout{1} = iff_internal(varargin{3:end-1});
 end

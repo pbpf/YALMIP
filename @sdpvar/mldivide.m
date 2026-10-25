@@ -1,6 +1,9 @@
 function y = mldivide(X,Y)
 %MLDIVIDE (overloaded)
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 if (isa(X,'sdpvar'))
   error('Division of matrix variables not possible.')
 end

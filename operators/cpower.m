@@ -28,9 +28,10 @@ switch class(varargin{1})
         if isreal(X)
             dim = size(X);
             X = reshape(X,prod(dim),1);
+            S = X.sess;
             y = [];
             for i = 1:prod(dim)
-                y = [y;yalmip('define',mfilename,extsubsref(X,i),varargin{2})];
+                y = [y;S.define(mfilename,extsubsref(X,i),varargin{2})];
             end
             y = reshape(y,dim);
             varargout{1} = y;

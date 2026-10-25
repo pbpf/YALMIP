@@ -83,7 +83,8 @@ switch class(varargin{3})
         % Reorder arguments to make sure sdpvar is first argument.
         % Use local version of interp to deal with this
         % Arguments xi yi x method -> x xi yi method
-        varargout{1} = yalmip('define','interp1_internal',varargin{[3 1 2 4 5]});   
+        S = varargin{3}.sess;
+        varargout{1} = S.define('define','interp1_internal',varargin{[3 1 2 4 5]});
      
     case 'double'
         if isa(varargin{1},'double') && isa(varargin{2},'sdpvar')             
@@ -91,8 +92,9 @@ switch class(varargin{3})
             % function values in an interpolant are free variables
             zi = varargin{3};
             [n,m] = size(zi);
+            S = varargin{2}.sess;
             if n*m == 1
-                varargout{1} = yalmip('define','interp1_nonlinear',varargin{1},varargin{2},varargin{3},varargin{4});
+                varargout{1} = S.define('define','interp1_nonlinear',varargin{1},varargin{2},varargin{3},varargin{4});
             else
                 out = [];
                 zi = reshape(zi,1,n*m);
@@ -101,7 +103,7 @@ switch class(varargin{3})
                     Y.subs{1} = 1;
                     Y.subs{2} = i;
                     zij = subsref(zi,Y);
-                    out = [out  yalmip('define','interp1_nonlinear',varargin{1},varargin{2},zij,varargin{4})];
+                    out = [out  S.define('define','interp1_nonlinear',varargin{1},varargin{2},zij,varargin{4})];
                 end
                 varargout{1} = reshape(out,n,m);
             end
@@ -113,8 +115,9 @@ switch class(varargin{3})
             
             zi = varargin{3};
             [n,m] = size(zi);
+            S = sessCheck(varargin{1},varargin{2});
             if n*m == 1
-                varargout{1} = yalmip('define','interp1_nonlinear',[varargin{1},varargin{2}],[],varargin{3},varargin{4});
+                varargout{1} = S.define('define','interp1_nonlinear',[varargin{1},varargin{2}],[],varargin{3},varargin{4});
             else
                 out = [];
                 zi = reshape(zi,1,n*m);
@@ -123,7 +126,7 @@ switch class(varargin{3})
                     Y.subs{1} = 1;
                     Y.subs{2} = i;
                     zij = subsref(zi,Y);
-                    out = [out   yalmip('define','interp1_nonlinear',[varargin{1},varargin{2}],[],zij,varargin{4})];
+                    out = [out   S.define('define','interp1_nonlinear',[varargin{1},varargin{2}],[],zij,varargin{4})];
                 end
                 varargout{1} = reshape(out,n,m);
             end            

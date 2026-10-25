@@ -71,6 +71,8 @@ switch class(varargin{1})
             pwaclass = 'general'
         end
 
+        S = varargin{2}.sess;
+
         if isa(varargin{1},'struct')
             varargin{1} = {varargin{1}};
         end
@@ -99,10 +101,10 @@ switch class(varargin{1})
                 varargin{end+1} = [];
             case 'convexoverlapping'
                 % One binary per overlap
-                varargin{end+1} = binvar(length(varargin{1}),1);
+                varargin{end+1} = S.binvar(length(varargin{1}),1);
             case 'general'
                 % one binary per region
-                varargin{end+1} = binvar(length(varargin{1}{1}.Pn),1);
+                varargin{end+1} = S.binvar(length(varargin{1}{1}.Pn),1);
             otherwise
         end
 
@@ -113,11 +115,12 @@ switch class(varargin{1})
 
         for i = 1:length(varargin{1}{1}.Ci{1})
             varargin{end} = i;
-            varargout{1} = [varargout{1};yalmip('define',mfilename,varargin{:})];
+            varargout{1} = [varargout{1};S.define(mfilename,varargin{:})];
         end
 
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
 
+        S = varargin{4}.sess;
         switch varargin{1}
 
             case 'graph'
@@ -145,7 +148,7 @@ switch class(varargin{1})
                     case 'convexoverlapping'
 
                         % Local costs
-                        s = sdpvar(length(pwa_struct),1);
+                        s = S.sdpvar(length(pwa_struct),1);
 
                         % Some region, one defined as minimizer
                         F = (sum(d)==1);
@@ -176,7 +179,7 @@ switch class(varargin{1})
                             [M,m] = derivebounds(cost);
                             F = F + (cost <= t + 2*(1+maxcost)*(1-d(i)));
                         end
-                        [t_bounds] = yalmip('getbounds',getvariables(t));
+                        [t_bounds] = S.getbounds(getvariables(t));
                         bounds(t,max([t_bounds(1) mincost]),min([t_bounds(2) 3*maxcost]));
 
 
@@ -234,7 +237,7 @@ switch class(varargin{1})
                     case {'general','convex'}
 
                         if isempty(d)
-                            d = binvar(length(pwa_struct{1}.Pn),1)
+                            d = S.binvar(length(pwa_struct{1}.Pn),1)
                         end
                         F = (sum(d) == 1);
 
@@ -261,7 +264,7 @@ switch class(varargin{1})
                         % Example : Someone tries to maximize value
                         % function
                         if length(d)~=length(costs)
-                            d = binvar(length(costs),1);
+                            d = S.binvar(length(costs),1);
                             F = (sum(d) == 1);
                         end
                         % t equals some of the costs

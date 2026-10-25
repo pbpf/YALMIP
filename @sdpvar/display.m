@@ -1,6 +1,8 @@
 function display(X)
 %DISPLAY (overloaded)
 
+S = X.sess;
+
 switch(X.typeflag)
     case {0,9,40}
         n = X.dim(1);
@@ -8,7 +10,7 @@ switch(X.typeflag)
         if (n*m==1)
 
             vars = depends(X);
-            if any(ismember(vars,yalmip('extvariables')))
+            if any(ismember(vars,S.getExtvariables()))
                 classification = 'Nonlinear scalar ';
             else                
                 linearbilinearquadraticsignomial = is(X,'LBQS');
@@ -39,23 +41,23 @@ switch(X.typeflag)
 
             if ~islinear(X)
                 variables = getvariables(X);
-                monomtable = yalmip('monomtable');
+                monomtable = S.getMonomtable();
                 s = sum((monomtable(variables,:)),2);
                % s = sum(full(monomtable(variables,:)),2);
                 if ((nnz(getbasematrix(X,0))==0) ) && all(s==s(1))
                     classification = [classification ', homogeneous'];
                 end
             end
-            if any(ismember(depends(X),yalmip('intvariables')))
+            if any(ismember(depends(X),S.getIntvariables()))
                 classification = [classification ', integer'];
             else
-                if any(ismember(depends(X),yalmip('binvariables')))
+                if any(ismember(depends(X),S.getBinvariables()))
                     classification = [classification ', binary'];
                 else
-                    if any(ismember(depends(X),yalmip('uncvariables')))
+                    if any(ismember(depends(X),S.getUncvariables()))
                         classification = [classification ', uncertain'];
                     else
-                        if any(ismember(depends(X),yalmip('semicontvariables')))
+                        if any(ismember(depends(X),S.getSemicontvariables()))
                         classification = [classification ', semi-continuous'];   
                         end
                     end
@@ -69,7 +71,7 @@ switch(X.typeflag)
                 classification = [classification ', ' num2str(nvars) ' variables)'];
             end
 
-            if any(ismember(depends(X),yalmip('parvariables')))
+            if any(ismember(depends(X),S.getParvariables()))
                 classification = [classification ', parametric'];
             end
           
@@ -92,7 +94,7 @@ switch(X.typeflag)
         else
 
             vars = depends(X);
-            if any(ismember(vars,yalmip('extvariables')))
+            if any(ismember(vars,S.getExtvariables()))
                 classification = 'Nonlinear matrix variable ';
             else
                 if islinear(X)
@@ -134,19 +136,19 @@ switch(X.typeflag)
                 info = [info ', Generalized KYP'];
             end            
             
-            if any(ismember(depends(X),yalmip('intvariables')))
+            if any(ismember(depends(X),S.getIntvariables()))
                 info = [info ', integer'];
             else
-                if any(ismember(depends(X),yalmip('binvariables')))
+                if any(ismember(depends(X),S.getBinvariables()))
                     info = [info ', binary'];
                 else
-                    if any(ismember(depends(X),yalmip('uncvariables')))
+                    if any(ismember(depends(X),S.getUncvariables()))
                         info = [info ', uncertain'];
                     end
                 end
             end
             
-            if any(ismember(depends(X),yalmip('parvariables')))
+            if any(ismember(depends(X),S.getParvariables()))
                 info = [info ', parametric'];
             end
             

@@ -22,6 +22,9 @@ if ~isa(Y,'sdpvar')
     error('Second arguments must be an sdpvar object')
 end
 
+% Verify both operands belong to the same session
+S = sessCheck(X,Y);
+
 if prod(size(W)) == 1
     W = repmat(W,size(Y));
 end
@@ -66,7 +69,7 @@ x_lmi_variables = X.lmi_variables;
 n = X.dim(1);
 m = X.dim(2);
 
-[monomtable,variabletype] = yalmip('monomtable');
+[monomtable,variabletype] = S.getMonomtable();
 if all(variabletype(x_lmi_variables)==0) % is(X,'linear')
     Z = X.basis(:,1);
     %v = [];
@@ -121,13 +124,13 @@ end
 
 if expand
     Xvariables = getvariables(Z);
-    extvar = yalmip('extvariables');
+    extvar = S.getExtvariables();
     Xext = find(ismember(Xvariables,extvar));
     if ~isempty(Xext)
         %We must dig down in extended operators to see if they use the replaced
         %set of variables
         for i = 1:length(Xext)
-            extstruct = yalmip('extstruct',Xvariables(Xext(i)));
+            extstruct = S.extstruct(Xvariables(Xext(i)));
             anychanged = 0;
             for j = 1:length(extstruct.arg)
                 if isa(extstruct.arg{j},'sdpvar')
@@ -146,7 +149,7 @@ if expand
                     % FIXME : Generalize code from sdpvar/plot
                     % extstruct = derive_new_mpt_data(extstruct);
                 end
-                Zi = yalmip('define',extstruct.fcn,extstruct.arg{:});
+                Zi = S.define('define',extstruct.fcn,extstruct.arg{:});
                 Xvariables(Xext(i)) = getvariables(Zi);
             end
         end
@@ -159,7 +162,7 @@ if expand
             Z.basis = [Z.basis(:,1) Z.basis(:,j+1)];
             Z.lmi_variables = Z.lmi_variables(j);
         end
-        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis);
+        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis,S);
     end
 end
 

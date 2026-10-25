@@ -3,6 +3,11 @@ function [KKTConstraints, details] = kkt(F,h,parametricVariables,ops)
 %
 % [KKTConstraints, details] = kkt(Constraints,Objective,parameters,options)
 
+S = session(F);
+if isempty(S)
+    error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
+end
+
 if ~isempty(F)
     if any(is(F,'sos2'))
         error('SOS2 structures not allowed in KKT');
@@ -38,7 +43,7 @@ if ~((all(is(F,'linear')) && (is(h,'quadratic') || is(h,'linear'))))
 end
 
 if ~isempty(nonlinear_parameters)
-    temporary_parameters = sdpvar(length(nonlinear_parameters),1);
+    temporary_parameters = S.sdpvar(length(nonlinear_parameters),1);
     for i = 1:length(nonlinear_parameters)
         F = replace(F,nonlinear_parameters(i),temporary_parameters(i));
         h = replace(h,nonlinear_parameters(i),temporary_parameters(i));
@@ -53,7 +58,7 @@ end
 if ~ismember(problemclass(model), {'LP', 'Convex QP', 'Nonconvex QP'})
     error('KKT system can only be derived for LPs or QPs');
 end
-integer_variables = union(yalmip('intvariables'),yalmip('binvariables'));
+integer_variables = union(S.getIntvariables(),S.getBinvariables());
 if ~isempty(integer_variables)
     decisionvariables = setdiff(model.used_variables, getvariables(parametricVariables));
     if ~isempty(intersect(integer_variables, decisionvariables))
@@ -184,8 +189,8 @@ end
 
 any_inequalities = size(A,1)>0;
 any_equalities = size(E,1)>0;
-Lambda = sdpvar(size(A,1),1); % Ax  <=b
-mu     = sdpvar(size(E,1),1); % Ex+f==0
+Lambda = S.sdpvar(size(A,1),1); % Ax  <=b
+mu     = S.sdpvar(size(E,1),1); % Ex+f==0
 
 if ops.kkt.dualbounds
     if ops.verbose

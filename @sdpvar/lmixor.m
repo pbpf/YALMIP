@@ -5,8 +5,9 @@ function varargout = lmixor(varargin)
 switch class(varargin{1})
     case 'char'
         z = varargin{2};
+        S = z.sess;
 
-        allextvars = yalmip('extvariables');
+        allextvars = S.getExtvariables();
         X = {};
         for i = 3:nargin
             Xtemp = expandxor(varargin{i},allextvars);
@@ -16,7 +17,7 @@ switch class(varargin{1})
         end
 
         F = ([]);
-        x = binvar(length(X),1);
+        x = binvarCore(S,length(X),1);
 
         for i = 1:length(X)
             F = F + (implies_internal(extsubsref(x,i),X{i}));
@@ -29,7 +30,8 @@ switch class(varargin{1})
     case {'lmi'}
         x = varargin{1};
         y = varargin{2};
-        varargout{1} = (yalmip('define','lmior',varargin{:}) == 1);
+        S = x.sess;
+        varargout{1} = (S.define('define','lmior',varargin{:}) == 1);
 
     otherwise
 end
@@ -41,7 +43,7 @@ if length(getvariables(x))>1
     return;
 end
 
-xmodel = yalmip('extstruct',getvariables(x));
+xmodel = x.sess.extstruct(getvariables(x));
 
 if ~isempty(xmodel) & isequal(xmodel.fcn,'lmior')
     x1 = xmodel.arg{1};

@@ -1,4 +1,5 @@
 function out = yalmiptest(prefered_solver,auto)
+Sst = yalmip.Session(); % file-wide session for the embedded examples
 %YALMIPTEST Runs a number of test problems.
 %
 %   YALMIPTEST is recommended when a new solver or a new version
@@ -256,7 +257,7 @@ clc
 yalmiptable([],header,data,formats)
 
 % Test if any LMI solver is installed.
-x = sdpvar(2);[p,aux1,aux2,m] = export(x>=0,[],[],[],[],0);
+x = Sst.sdpvar(2);[p,aux1,aux2,m] = export(x>=0,[],[],[],[],0);
 if ~isempty(m)
     only_lmilab = strcmpi(m.solver.tag,'lmilab');
     only_fmincon = strcmpi(m.solver.tag,'fmincon-standard');
@@ -278,7 +279,7 @@ else
         disp(' If you intend to solve LMIs you must install a solver.')
     end
 end
-x = binvar(1);[p,aux1,aux2,m] = export(x>=0,x,[],[],[],0);
+x = Sst.binvar(1);[p,aux1,aux2,m] = export(x>=0,x,[],[],[],0);
 if isempty(m)
     disp('You do not have any LP/MILP solver installed')
     disp(' If you intend to solve LPs/MILPs, you have to install one.')
@@ -290,7 +291,7 @@ else
         disp(' If you intend to solve MILP, please install a better solver.')
     end
 end
-x = binvar(1);[p,aux1,aux2,m] = export(x>=0,x^2,[],[],[],0);
+x = Sst.binvar(1);[p,aux1,aux2,m] = export(x>=0,x^2,[],[],[],0);
 if isempty(m)
     disp('You do not have any QP/SOCP/MIQP/MISOCP solver installed')
     disp(' If you intend to solve QP/SOCP/MIQP/MISOCP you must install solver.')
@@ -311,40 +312,40 @@ function sol = test_core(ops)
 sol.yalmipmodel.solver.tag = '';
 sol.problem = 0;
 try
-    x = sdpvar(2,2);
-    x = sdpvar(2,2,'symmetric');
-    x = sdpvar(2,2,'full');
-    x = sdpvar(2,2,'toeplitz');
-    x = sdpvar(2,2,'hankel');
-    x = sdpvar(2,2,'skew');
-    if ~ishermitian(sdpvar(2,2,'hermitian','complex'))
+    x = Sst.sdpvar(2,2);
+    x = Sst.sdpvar(2,2,'symmetric');
+    x = Sst.sdpvar(2,2,'full');
+    x = Sst.sdpvar(2,2,'toeplitz');
+    x = Sst.sdpvar(2,2,'hankel');
+    x = Sst.sdpvar(2,2,'skew');
+    if ~ishermitian(Sst.sdpvar(2,2,'hermitian','complex'))
         error('bug')
     end
-    if ~issymmetric(sdpvar(2,2,'symmetric','complex'))
+    if ~issymmetric(Sst.sdpvar(2,2,'symmetric','complex'))
         error('bug')
     end
-    if ~isreal(real(sdpvar(2,2,'symmetric','complex')))
+    if ~isreal(real(Sst.sdpvar(2,2,'symmetric','complex')))
         error('bug')
     end
-    if isreal(sqrt(-1)*real(sdpvar(2,2,'symmetric','complex')))
+    if isreal(sqrt(-1)*real(Sst.sdpvar(2,2,'symmetric','complex')))
         error('bug')
     end
-    x = sdpvar(2,1,'','co');
+    x = Sst.sdpvar(2,1,'','co');
     if ~isreal(x'*x)
         error('bug')
     end
-    x = sdpvar(2,2,'','co');
+    x = Sst.sdpvar(2,2,'','co');
     if ~isreal(diag(x'*x))
         error('bug')
     end
-    x = sdpvar(1,1);
-    y = sdpvar(2,2);
+    x = Sst.sdpvar(1,1);
+    y = Sst.sdpvar(2,2);
     x*eye(2);
     eye(2)*x;
     y*3;
     3*y;
-    x = sdpvar(2,3);
-    y = sdpvar(2,3);
+    x = Sst.sdpvar(2,3);
+    y = Sst.sdpvar(2,3);
     assign(x,randn(2,3));
     z = replace(x,x(1,1:2),[8 9]);
     z = x+y;
@@ -373,21 +374,24 @@ try
     z = triu(x);
     z = [x y];
     z = [x;y];
-    sdpvar x y
+    Sst = yalmip.Session();
+    x = Sst.sdpvar("x",1,1);
+    y = Sst.sdpvar("y",1,1);
     diag([x y])*[x^-1;y^-1];
     assert(isequal([x x;x x]*x-[x x;x x].*x,zeros(2)))
     assert(isequal(trace([x x;x x]*[x y;y x])-(x*x+x*y+y*x+x*x),0))
     
     % Regression ??
-    yalmip('clear')
-    sdpvar x
+    Sst = yalmip.Session(); % fresh registry
+    Sst = yalmip.Session();
+    x = Sst.sdpvar("x",1,1);
     
     (1+x+x^4)*(1-x^2);
     
     % Regression complex multiplcation
     A = randn(10,5)+sqrt(-1)*randn(10,5);
     b = randn(10,1)+sqrt(-1)*randn(10,1);
-    x = sdpvar(5,1);
+    x = Sst.sdpvar(5,1);
     res = A*x-b;
     assert(nnz(clean([res res]'*[res res]-res'*res,1e-8))==0)
     assert(isreal(clean(res'*res,1e-8)))    
@@ -398,8 +402,8 @@ catch
 end
 
 function sol = test_semidefinite_programming(ops)
-t = sdpvar(1,1);
-Y = sdpvar(2,2);
+t = Sst.sdpvar(1,1);
+Y = Sst.sdpvar(2,2);
 F = [Y<=t*eye(2), Y>=[1 0.2;0.2 1]];
 sol = optimize(F,t,ops);
 
@@ -410,8 +414,8 @@ B = [1;0];
 C = [0.5 0.5];
 [H,S] = create_CHS(A,B,C,N);
 x = [2;0];
-t = sdpvar(2*N,1);
-U = sdpvar(N,1);
+t = Sst.sdpvar(2*N,1);
+U = Sst.sdpvar(N,1);
 Y = H*x+S*U;
 F = (U<=1)+(U>=-1);
 F = F+(Y(N)>=-1);
@@ -420,7 +424,7 @@ F = F+([Y;U]<=t)+([Y;U]>=-t);
 sol = optimize(F,sum(t),ops);
 
 function sol = test_socp_programming(ops)
-x = sdpvar(2,1);
+x = Sst.sdpvar(2,1);
 a = [0;1];
 b = [1;1];
 F = norm(x-a)<=1;
@@ -428,52 +432,53 @@ F = F+[norm(x-b) <= 1];
 sol = optimize(F,sum(x),ops);
 
 function sol = test_misdp_programming(ops)
-x = intvar(4,1);
+x = Sst.intvar(4,1);
 e = magic(4)*x-1;
-sdpvar t
+Sst = yalmip.Session();
+t = Sst.sdpvar("t",1,1);
 obj = t;
 sol = optimize([t e';e eye(4)]>=0,obj,ops);
 
 function sol = test_misocp_programming(ops)
-x = intvar(4,1);
+x = Sst.intvar(4,1);
 obj = norm(magic(4)*x-1,2);
 sol = optimize([-5 <= x <= 5],obj,ops);
 
 function sol = test_miquadratic_programming(ops)
-x = intvar(4,1);
+x = Sst.intvar(4,1);
 obj = norm(magic(4)*x-1,2)^2;
 sol = optimize([-5 <= x <= 5],obj,ops);
 
 function sol = test_milinear_programming(ops)
-x = intvar(4,1);
+x = Sst.intvar(4,1);
 obj = norm(magic(4)*x-1,1);
 sol = optimize([-5 <= x <= 5],obj,ops);
 
 function sol = test_quadratic_programming(ops)
-x = sdpvar(10,1);
+x = Sst.sdpvar(10,1);
 sol = optimize([sum(x)==2, -1 <= x <= 1],x'*x,ops);
 
 function sol = test_nonconvex_quadratic_programming(ops)
-x = sdpvar(10,1);
+x = Sst.sdpvar(10,1);
 ops.forceglobal = 1;
 sol = optimize([sum(x)==2, -1 <= x <= 1],-x'*x,ops);
 
 function sol = test_nonconvex_global_programming(ops)
-x = sdpvar(3,1);
+x = Sst.sdpvar(3,1);
 ops.forceglobal = 1;
 sol = optimize([sum(x.^3)==2, -1 <= x <= 1],-x'*x,ops);
 
 function sol = test_nonlinear_semidefinite_programming(ops)
 A = [-1 2;-3 -4];
-P = sdpvar(2,2);
-alpha = sdpvar(1,1);
+P = Sst.sdpvar(2,2);
+alpha = Sst.sdpvar(1,1);
 F = (P>=eye(2))+(A'*P+P*A <= -2*alpha*P)+(alpha >= 0);
 sol = optimize([F,P(:) <= 100],-alpha,ops);
 
 function sol = test_geometric_programming(ops)
-t1 = sdpvar(1,1);
-t2 = sdpvar(1,1);
-t3 = sdpvar(1,1);
+t1 = Sst.sdpvar(1,1);
+t2 = Sst.sdpvar(1,1);
+t3 = Sst.sdpvar(1,1);
 t = [t1 t2 t3];
 obj = (40*t1^-1*t2^-0.5*t3^-1)+(20*t1*t3)+(40*t1*t2*t3);
 F = ((1/3)*t1^-2*t2^-2+(4/3)*t2^0.5*t3^-1 <= 1);
@@ -481,11 +486,16 @@ F = [F, t>=0];
 sol = optimize(F,obj,ops);
 
 function sol = test_nonlinear_programming(ops)
-sdpvar x y
+Sst = yalmip.Session();
+x = Sst.sdpvar("x",1,1);
+y = Sst.sdpvar("y",1,1);
 sol = optimize(x^2 + x^4 + exp(x) <= 1, x^2+y^2,ops);
 
 function sol = test_exponential_cone_programming(ops)
-sdpvar x y z
+Sst = yalmip.Session();
+x = Sst.sdpvar("x",1,1);
+y = Sst.sdpvar("y",1,1);
+z = Sst.sdpvar("z",1,1);
 sol = optimize([expcone([x;2;z]),x==1],z,ops);
 
 function html = addLink(x)

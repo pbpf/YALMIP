@@ -1,13 +1,14 @@
 function LU = getbounds(F,avoidequalitybounds,LU)
 
+S = F.sess;
 K.f = 0;
 K.l = 0;
 L = [];
 U = [];
 if nargin < 3
-    LU =  yalmip('getbounds',1:yalmip('nvars'));
+    LU =  S.getbounds(1:S.nvars());
 end
-binary = yalmip('binvariables');
+binary = S.getBinvariables();
 LU(binary,1) = 0;
 LU(binary,2) = 1;
 F = flatten(F);
@@ -62,7 +63,7 @@ for i = 1:length(F.LMIid)
     end
 end
 
-semicont = yalmip('semicontvariables');
+semicont = S.getSemicontvariables();
 if ~isempty(semicont)
     for i = 1:length(semicont)
         if LU(semicont(i),1) > 0
@@ -87,7 +88,7 @@ end
 
 % Try to bound some nonlinear terms
 % FIX: complete code
-[mt,variable_type] = yalmip('monomtable');
+[mt,variable_type] = S.getMonomtable();
 quadratic = find(variable_type == 2);
 if ~isempty(quadratic)
     M = mt(quadratic,:);

@@ -15,19 +15,20 @@ switch class(varargin{1})
         varargout{1} = sum(svd(varargin{1}));
         
     case 'sdpvar'
-        varargout{1} = yalmip('define',mfilename,varargin{:});
+        varargout{1} = varargin{1}.sess.define(mfilename,varargin{:});
         
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
         if isequal(varargin{1},'graph')
             t = varargin{2};
             X = varargin{3};
+            S = X.sess;
             [n,m] = size(X);
             if is(X,'real')
-                U = sdpvar(m);
-                V = sdpvar(n);
+                U = S.sdpvar(m);
+                V = S.sdpvar(n);
             else
-                U = sdpvar(m,m,'hermitian','complex');
-                V = sdpvar(n,n,'hermitian','complex');
+                U = S.sdpvar(m,m,'hermitian','complex');
+                V = S.sdpvar(n,n,'hermitian','complex');
             end
             F = [trace(U)+trace(V) <= 2*t, [U X';X V]>=0];
             varargout{1} = F;

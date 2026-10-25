@@ -6,6 +6,7 @@ if isnumeric(X)
     X = Y;
     Y = temp;
 end
+S = sessCheck(X,Y);
 if isa(X,'sdpvar') & isa(Y,'sdpvar')
     error('nonlinear CONV not supported yet. Make feature request');
 end

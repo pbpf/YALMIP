@@ -538,6 +538,11 @@ end
 
 appendYALMIPvariables(S,lmi_variables,mt,variabletype,hashed_monoms,current_hash);
 
+% Register the display name (used by sdisplay instead of workspace sniffing)
+if ~isempty(displayname)
+    S.registerVariablenames(displayname, lmi_variables);
+end
+
 % Create an object
 if isa(basis,'cell')
     top = 1;

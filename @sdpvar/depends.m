@@ -20,7 +20,8 @@ else
     x = varargin{1};
 end
 
-[mt,variabletype] = yalmip('monomtable');
+S = x.sess;
+[mt,variabletype] = S.getMonomtable();
 
 % Simple linear cases
 if ~any(variabletype(x.lmi_variables))

@@ -18,7 +18,7 @@ F = flatten(F);
 used = recursivedepends(F.clauses);
 
 % Now, determine the involved linear variables
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = F.sess.getMonomtable();
 if any(variabletype)%1%~isempty(nlv) & any(ismembc(used,nlv(1,:)))
     LinearVariables = find(any(mt(used,:),1));    
     LinearVariables = LinearVariables(:)';

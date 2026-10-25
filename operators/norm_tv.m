@@ -13,7 +13,7 @@ switch class(varargin{1})
         varargout{1} = sum(sqrt(sum(Z.^2,1)));                                                 
         
     case 'sdpvar'
-        varargout{1} = yalmip('define',mfilename,varargin{:});
+        varargout{1} = varargin{1}.sess.define(mfilename,varargin{:});
         
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
         if isequal(varargin{1},'graph')
@@ -23,7 +23,7 @@ switch class(varargin{1})
             [n,m] = size(X);
             Dx = [diff(X,1,1);zeros(1,m)];
             Dy = [diff(X,1,2) zeros(n,1)];
-            T = sdpvar(n,m,'full');
+            T = X.sess.sdpvar(n,m,'full');
             F = cone([reshape(T,1,[]);reshape(Dx,1,[]);reshape(Dy,1,[])]);
             F = [F, sum(sum(T)) <= t];
             

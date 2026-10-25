@@ -41,7 +41,8 @@ end
 if ~all(base(2:end)==1)
     return
 end
-modelst = yalmip('extstruct',getvariables(x));
+S = x.sess;
+modelst = S.extstruct(getvariables(x));
 if isempty(modelst)
     return;
 end

@@ -113,7 +113,7 @@ elseif isequal(subs.type,'{}')
     
     % This is not really supported yet...
     if isa(subs.subs{1},'sdpvar')
-        varargout{1} = yalmip('definemulti','optimizer_operator',subs(1).subs{1},self,self.dimout);
+        varargout{1} = self.sess.define('definemulti','optimizer_operator',subs(1).subs{1},self,self.dimout);
         return
     end
     

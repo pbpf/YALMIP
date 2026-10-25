@@ -11,8 +11,9 @@ switch class(varargin{1})
         switch varargin{1}
             case 'graph'
                 t = varargin{2};
-                x = varargin{3};                  
-                sdpvar z
+                x = varargin{3};
+                S = x.sess;
+                z = sdpvarCore(S,'z',1,1);
                 F = [expcone([z;t;x]), cone([2*t;1-z],1+z)];                
                 operator = CreateBasicOperator('concave','increasing','positive','graph'); 
                 operator.domain = [0 inf];

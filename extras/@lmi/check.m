@@ -1,7 +1,7 @@
-function [pres,dres] = check(F)
-% CHECK(F)  Displays/calculates constraint residuals on constraint F
+function [pres,dres] = check(F,sol)
+% CHECK(F,sol)  Displays/calculates constraint residuals on constraint F
 %
-% [pres,dres] = check(F)
+% [pres,dres] = check(F,sol)   with sol = optimize(Fc,obj)
 %
 % pres : Primal constraint residuals
 % dres : Dual constraint residuals
@@ -16,18 +16,17 @@ function [pres,dres] = check(F)
 %  Second order cone t>=||x||      : t-||x||
 %  Exponential cone constraint     : x(3) - exp(x(1)/x(2))*x(2)
 %  Integrality constraint on x     : max(abs(x-round(x)))
-%  Sum-of-square constraint        : Minus value of largest (absolute value) coefficient 
+%  Sum-of-square constraint        : Minus value of largest (absolute value) coefficient
 %                                   in the polynomial p-v'*v
 %
 % Dual constraints are evaluated similarily.
 %
-%    See also   SOLVESDP, SOLVESOS, SOSD, DUAL
+%    See also   OPTIMIZE, DUAL
 
-% Check if solution avaliable
-currsol = evalin('caller','yalmip(''getsolution'')');
-if isempty(currsol)
-    disp('No solution available.')
-    return
+% The stateless refactoring removed the global "last solution": the
+% solution struct returned by OPTIMIZE must be passed explicitly.
+if nargin < 2
+    error('YALMIP:sessionRequired','Since the stateless refactoring, pass the solution: [pres,dres] = check(F, sol), where sol = optimize(Fc,obj).')
 end
 
 F = flatten(F);
@@ -88,7 +87,7 @@ for j = 1:nlmi
 end
 if ~isempty(ParVar)
     ParVar = recover(ParVar);
-    pp = replace(p,ParVar,double(ParVar));
+    pp = replace(p,ParVar,double(value(ParVar,sol)));
     top = 1;
     clear p
     for j = 1:length(p_dim)
@@ -100,7 +99,7 @@ end
 for j = 1:nlmi
     constraint_type = F.clauses{j}.type;
     if constraint_type~=11 && constraint_type~=56
-        F0 = double(F.clauses{j}.data);
+        F0 = double(value(F.clauses{j}.data,sol));
     end
     if ~((constraint_type == 56) || (constraint_type==11)) && any(isnan(F0(:)))
         res(j,1) = NaN;
@@ -163,16 +162,23 @@ for j = 1:nlmi
             soscount=soscount+1;
             
             case 56
-                 res(j,1) = logicSatisfaction(F.clauses{j}.data);
+                 res(j,1) = logicSatisfaction(F.clauses{j}.data,sol);
             
         otherwise
             res(j,1) = nan;
         end
     end
     
-    % Get the internal index   
+    % Get the internal index
     LMIid = F.LMIid(j);
-    dual  = yalmip('dual',LMIid);
+    % Look up the dual for this constraint in the passed solution payload
+    dual = [];
+    if isfield(sol,'eval') && isfield(sol.eval,'duals_index') && ~isempty(sol.eval.duals_index)
+        index_to_dual = find(sol.eval.duals_index==LMIid);
+        if ~isempty(index_to_dual)
+            dual = sol.eval.duals_data{index_to_dual};
+        end
+    end
     if isempty(dual) | any(isnan(dual))
         resdual(j,1) = NaN;
     else
@@ -247,36 +253,36 @@ else
     disp(' ');
 end
 
-function res = logicSatisfaction(clause);
+function res = logicSatisfaction(clause,sol);
 
 if isequal(clause{1},'ismember')
     if isa(clause{2},'sdpvar') &  isa(clause{3},'double')
-        res = -min(sum(abs(value(clause{2}) - clause{3}),1))
+        res = -min(sum(abs(value(clause{2},sol) - clause{3}),1))
         return
     end
 end
 a = clause{2};
 b = clause{3};
 if isa(a,'sdpvar')
-    aval = double(a);
+    aval = double(value(a,sol));
     if is(a,'binary')
         atruth = aval == 1;
     else
         atruth = aval>=0;
     end
 elseif isa(a,'lmi') | isa(a,'constraint')
-    aval = check(lmi(a));
+    aval = check(lmi(a),sol);
     atruth = aval >= 0;
 end
 if isa(b,'sdpvar')
-    bval = double(b);
+    bval = double(value(b,sol));
     if is(b,'binary')
         btruth = bval == 1;
     else
         btruth = bval>=0;
     end
 elseif isa(b,'lmi') | isa(b,'constraint')
-    bval = check(lmi(b));
+    bval = check(lmi(b),sol);
     btruth = bval >= 0;
 end
 if isnan(aval) | isnan(bval)

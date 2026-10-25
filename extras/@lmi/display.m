@@ -40,8 +40,9 @@ lmiinfo{57} = 'Stacked SDP constraints';
 lmiinfo{58} = 'Vectorized power cone constraints';
 
 headers = {'ID','Constraint','Coefficient range','Tag'};
-rankVariables = yalmip('rankvariables');
-extVariables = yalmip('extvariables');
+S = X.sess;
+rankVariables = S.rankvariables();
+extVariables = S.getExtvariables();
 if nlmi>0
     for i = 1:nlmi
         
@@ -64,7 +65,7 @@ if nlmi>0
         else
             classification = '';
            
-            members = ismembcYALMIP(getvariables(X.clauses{i}.data),yalmip('intvariables'));
+            members = ismembcYALMIP(getvariables(X.clauses{i}.data),S.getIntvariables());
             if any(members)
                 classification = [classification ',integer'];
             end

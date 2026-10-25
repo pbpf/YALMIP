@@ -16,16 +16,17 @@ switch class(varargin{1})
         end
         
         X = varargin{1};
+        S = X.sess;
         [n,m] = size(X);
         if is(varargin{1},'hermitian') | min(n,m)==1
-            varargout{1} = yalmip('define',mfilename,varargin{:});
+            varargout{1} = S.define('define',mfilename,varargin{:});
         else
             % Create one variable for each column
             y = [];
             for i = 1:m
                 index = (1+n*(i-1)):i*n;
                 x = extsubsref(X,index);
-                y = [y yalmip('define',mfilename,x)];
+                y = [y S.define('define',mfilename,x)];
             end
             varargout{1} = y;
         end
@@ -36,7 +37,8 @@ switch class(varargin{1})
             X = varargin{3}; % Third arg and above are the args user used when defining t.
 
             n = length(X);
-            z = sdpvar(n,1);          
+            S = X.sess;
+            z = sdpvarCore(S,n,1);
             
             F = [X >= 0, sum(z) <= n*t];
             F = [F, cone([(X+z)';(X-z)';2*repmat(t,1,n)])];

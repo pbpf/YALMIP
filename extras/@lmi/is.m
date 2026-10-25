@@ -8,9 +8,10 @@ function YESNO = is(F,property)
 if length(F.LMIid)==0
     YESNO = 0;
 else
-    
+
     F = flatten(F);
-      
+    S = F.sess;
+
     YESNO=zeros(length(F.LMIid),1);
     switch property
         case 'dualized'
@@ -126,7 +127,7 @@ else
         case 'signomial'
             for i = 1:length(F.clauses)
                 Fi = F.clauses{i};
-                monomtable = yalmip('monomtable');
+                monomtable = S.getMonomtable();
                 monomtable = monomtable(getvariables(Fi.data),:);
                 YESNO(i,1) = any(find(any(0>monomtable,2) | any(monomtable-fix(monomtable),2)));
             end
@@ -158,7 +159,7 @@ else
             
             
         case 'logic'
-            allextvars = yalmip('extvariables');
+            allextvars = S.getExtvariables();
             if isempty(allextvars)
                 YESNO(i,1) = 0;
             else
@@ -169,7 +170,7 @@ else
                     if ~isempty(lgc)
                         for j = lgc
                             variable = xi(j);
-                            extstruct = yalmip('extstruct',11);
+                            extstruct = S.extstruct(11);
                             if isequal(extstruct.fcn,'or') | isequal(extstruct.fcn,'and')
                                 YESNO(i,1) = 1;
                                 break

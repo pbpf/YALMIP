@@ -9,5 +9,5 @@ function F = rational(x,N)
 
 %   See also BINARY, INTEGER, BINVAR, INTVAR, SEMIVAR
 
-y = intvar(numel(x),1);
+y = intvarCore(x.sess,numel(x),1);
 F = [reshape(x,[],1) == y/N];

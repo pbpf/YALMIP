@@ -11,7 +11,7 @@ while i>2
     end
 end
 if length(Y.dim) == 2;    
-    Y = sdpvar([],[],[],[],[],[],[],struct(Y));
+    Y = sdpvar([],[],[],[],[],[],[],struct(Y),session(Y));
     Y = clean(Y);
 else
     temp = any(Y.basis,1);

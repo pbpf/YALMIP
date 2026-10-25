@@ -20,12 +20,16 @@ end
 
 keep = [];
 F = flatten(F);
+S = F.sess;
+if isempty(S)
+    error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
+end
 for i = 1:length(F.LMIid)
     F.clauses{i}.data = replace(F.clauses{i}.data,X,W,expand);
     if F.clauses{i}.type == 55
         % Complementarity Constraints, where we have a binvar in indicators
         W_indicators = W(logical(ismember(X, F.clauses{i}.extra.indicators)));
-        if ~isempty(W_indicators) && ~all(ismember(depends(W_indicators),yalmip('binvariables')))
+        if ~isempty(W_indicators) && ~all(ismember(depends(W_indicators),S.getBinvariables()))
             error('Complementarity constraints indicators can only be replaced with binary variables');
         end
         F.clauses{i}.extra.indicators = replace(F.clauses{i}.extra.indicators,X,W,expand);
@@ -42,5 +46,5 @@ F.clauses = {F.clauses{find(keep)}};
 % Get new identifiers
 F.LMIid = [];
 for i = 1:length(F.clauses)
-    F.LMIid = [F.LMIid yalmip('lmiid')];
+    F.LMIid = [F.LMIid S.lmiid()];
 end

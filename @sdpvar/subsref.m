@@ -22,6 +22,7 @@ end
 
 
 X = varargin{1};
+S = X.sess;
 
 try
     switch Y(1).type
@@ -64,9 +65,9 @@ try
             OldArgument = recover(depends(X));
             vars = getvariables(X);
             mpt_solution = 1;
-            if all(ismembc(vars,yalmip('extvariables')))
+            if all(ismembc(vars,S.getExtvariables()))
                 for i = 1:length(X)
-                    nonlinearModel = yalmip('extstruct',vars);
+                    nonlinearModel = S.extstruct(vars);
                     if isequal(nonlinearModel{1}.fcn,'pwa_yalmip') | isequal(nonlinearModel{1}.fcn,'pwq_yalmip')
                     else
                         mpt_solution = 0;
@@ -80,8 +81,8 @@ try
                 end
             end
             vars = getvariables(X);
-            if (length(vars) == 1) & ismembc(vars,yalmip('extvariables'))
-                nonlinearModel = yalmip('extstruct',vars);
+            if (length(vars) == 1) & ismembc(vars,S.getExtvariables())
+                nonlinearModel = S.extstruct(vars);
                 OldArgument = [];
                 for i = 1:length(nonlinearModel.arg)
                     if isa(nonlinearModel.arg{i},'sdpvar')

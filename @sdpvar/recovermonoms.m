@@ -6,7 +6,8 @@ if size(newton_m,1)==1 & nnz(newton_m)==0
     return
 end
 
-[mt,oldvariabletype,mt_hash,hash] = yalmip('monomtable');
+S = x.sess;
+[mt,oldvariabletype,mt_hash,hash] = S.getMonomtable();
 
 origSize = size(mt,1);
 vars = x.lmi_variables;
@@ -117,7 +118,7 @@ if size(mt,1) > origSize
         signomial = any(0>newmt,2) | any(newmt-fix(newmt),2);
         newvariabletype(signomial) = 4;
     end
-    yalmip('setmonomtable',mt,[oldvariabletype newvariabletype]);
+    S.setmonomtable(mt,[oldvariabletype newvariabletype]);
 end
 
 

@@ -59,7 +59,8 @@ switch nargin
             elseif length(X) == 1
                 y = X;
             else
-                y = yalmip('define','min_internal',X);
+                S = X.sess;
+                y = S.define('define','min_internal',X);
                 reDeclareForBinaryMax(y,X);
             end
             return
@@ -69,9 +70,10 @@ switch nargin
         end
         
     case 2
-        
+
         X = varargin{1};
         Y = varargin{2};
+        S = sessCheck(X,Y);
         [nx,mx] = size(X);
         [ny,my] = size(Y);
         if ~((nx*mx==1) | (ny*my==1))
@@ -145,7 +147,8 @@ switch nargin
                 if  isnumeric(inparg)
                     y = [y min(inparg)];
                 elseif isa(inparg,'sdpvar')
-                    z = yalmip('define','min_internal',inparg);
+                    S = inparg.sess;
+                    z = S.define('define','min_internal',inparg);
                     y = [y z];
                     reDeclareForBinaryMax(z,inparg);
                 else

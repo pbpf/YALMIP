@@ -1,7 +1,9 @@
 function [F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistruct(F)
 %lmi2sedumistruct   Internal function: Converts LMI to format needed in SeDuMi
 
-nvars = yalmip('nvars'); %Needed lot'sa times...
+F = flatten(F);
+S = F.sess;
+nvars = S.nvars(); %Needed lot'sa times...
 
 % We first browse to see what we have got and the
 % dimension of F_struc (massive speed improvement)
@@ -275,7 +277,7 @@ F_struc = F_struc.';
 % Now fix things for the rank constraint
 % This is currently a hack...
 % Should not be in this file
-[rank_variables,dual_rank_variables] = yalmip('rankvariables');
+[rank_variables,dual_rank_variables] = S.rankvariables();
 if ~isempty(rank_variables)
     used_in = find(sum(abs(F_struc(:,1+rank_variables)),2));
     if ~isempty(used_in)
@@ -285,7 +287,7 @@ if ~isempty(rank_variables)
                 if length(ii)==2 & kk(2)<1
                     r = floor(kk(1));
                     var = jj(2)-1;
-                    extstruct = yalmip('extstruct',var);
+                    extstruct = S.extstruct(var);
                     X = extstruct.arg{1};
                     if issymmetric(X)
                         F_structemp = sedumize(X,nvars);
@@ -344,7 +346,7 @@ if ~isempty(dual_rank_variables)
                 if length(ii)==2 & kk(2)<1
                     r = floor(kk(1));
                     var = jj(2)-1;
-                    extstruct = yalmip('extstruct',var);
+                    extstruct = S.extstruct(var);
                     X = extstruct.arg{1};
                     id = getlmiid(X);
                     inlist=getlmiid(F);

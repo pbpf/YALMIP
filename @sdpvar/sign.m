@@ -12,11 +12,12 @@ switch class(varargin{1})
                 t = varargin{2};
                 X = varargin{3};
                 
-                d1 = binvar(1);
-                d2 = binvar(1);
-                d3 = binvar(1);
+                S = X.sess;
+                d1 = binvarCore(S,1);
+                d2 = binvarCore(S,1);
+                d3 = binvarCore(S,1);
                 [M,m] = derivebounds(X);
-                if isequal(getbase(X),[0 1]) && ismember(getvariables(X),yalmip('tempintvariables'))
+                if isequal(getbase(X),[0 1]) && ismember(getvariables(X),S.getTempintvariables())
                     % Numerically unstable case with integer X
                     % d1: Negative <= -1
                     % d2: 0

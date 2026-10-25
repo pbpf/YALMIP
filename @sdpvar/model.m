@@ -1,4 +1,4 @@
-function [properties,F,arguments,fcn]=model(X,method,options,extstruct,w)
+function [properties,F,arguments,fcn]=model(X,method,options,extstruct,w,S)
 %MODEL  Internal function to extracts nonlinear operator models
 %
 % [properties,F] = model(x)
@@ -14,6 +14,12 @@ function [properties,F,arguments,fcn]=model(X,method,options,extstruct,w)
 % Gives F = [t<=x, t<=y]
 
 extvar = getvariables(X);
+if nargin < 6
+    S = [];
+end
+if isempty(S)
+    S = X.sess;
+end
 arguments   = cell(1,length(extvar));
 properties  = cell(1,length(extvar));
 
@@ -31,9 +37,9 @@ if nargin < 5
 end
 
 if nargin<4
-    extstruct = yalmip('extstruct',extvar);
+    extstruct = S.extstruct(extvar);
 elseif isempty(extstruct)
-    extstruct = yalmip('extstruct',extvar);
+    extstruct = S.extstruct(extvar);
 end
 
 if isempty(extstruct)
@@ -42,12 +48,13 @@ end
 
 fcn = extstruct.fcn;
 try
-    n = yalmip('nvars');
-    [F,properties,arguments] = feval(fcn,method,extstruct.var,extstruct.arg{1:end-1});
+    n = S.nvars();
+    % The operator implementation is invoked with a trailing session argument
+    [F,properties,arguments] = feval(fcn,method,extstruct.var,extstruct.arg{1:end-1},S);
     if isa(F,'constraint')
         F = lmi(F);
     end
-    newAux = n+1:yalmip('nvars');
+    newAux = n+1:S.nvars();
     involved = getvariables(extstruct.arg{1});
     for i = 2:length(extstruct.arg)-1
         vars = getvariables(extstruct.arg{i});
@@ -58,8 +65,8 @@ try
     if ~isempty(options)
         if ~(strcmp(options.robust.auxreduce,'none'))
             % This info is only needed when we do advanced Robust optimization
-            yalmip('setdependence',[getvariables(extstruct.var) newAux],involved);
-            yalmip('setdependence',[getvariables(extstruct.var)],newAux);
+            S.setdependence([getvariables(extstruct.var) newAux],involved);
+            S.setdependence([getvariables(extstruct.var)],newAux);
         end
     end
 catch

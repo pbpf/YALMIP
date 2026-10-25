@@ -1,6 +1,13 @@
 function y = power(x,d)
 %POWER (overloaded)
 
+% Get session from whichever operand is symbolic
+if isa(x,'sdpvar')
+    S = x.sess;
+else
+    S = d.sess;
+end
+
 % Vectorize x if d is vector
 if numel(x)==1 & (numel(d)>1)
     x = x.*ones(size(d));
@@ -84,12 +91,12 @@ if fractional | negative | different
     else
         base = getbase(x);
         if isequal(base,[0 1])
-            mt = yalmip('monomtable');
+            mt = S.getMonomtable();
             var = getvariables(x);
             previous_var = find((mt(:,var)==d)  & (sum(mt~=0,2)==1));
             if isempty(previous_var)
                 mt(end+1,:) = mt(getvariables(x),:)*d;
-                yalmip('setmonomtable',mt);
+                S.setmonomtable(mt);
                 y = recover(size(mt,1));
             else
                 y = recover(previous_var);
@@ -129,7 +136,8 @@ end
 
 function y = vectorizedUnitPower(x,d)
 d = d(1);
-[mt,variabletype,hashM,hash] = yalmip('monomtable');
+S = x.sess;
+[mt,variabletype,hashM,hash] = S.getMonomtable();
 var = getvariables(x);
 
 usedmt = mt(var,:);
@@ -158,7 +166,7 @@ else
     end
     mt = [mt;usedmt(find(keep),:)*d];
 end
-yalmip('setmonomtable',mt,variabletype);
+S.setmonomtable(mt,variabletype);
 y = reshape(recover(y),x.dim);
 
             

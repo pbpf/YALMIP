@@ -42,6 +42,8 @@ switch class(varargin{1})
             pwaclass = 'general'
         end
 
+        S = varargin{2}.sess;
+
         if isa(varargin{1},'struct')
             varargin{1} = {varargin{1}};
         end
@@ -64,7 +66,7 @@ switch class(varargin{1})
         end
 
         % This will be a container for binary variables in the furture
-        varargin{end+1} = binvar(length(varargin{1}{1}.Pn),1);
+        varargin{end+1} = S.binvar(length(varargin{1}{1}.Pn),1);
 
         % Create one variable for each row
         % Inefficient but the only way currently in YALMIP
@@ -73,12 +75,12 @@ switch class(varargin{1})
 
         for i = 1:length(varargin{1}{1}.Ci{1})
             varargin{end} = i;
-            varargout{1} = [varargout{1};yalmip('define',mfilename,varargin{:})];
+            varargout{1} = [varargout{1};S.define(mfilename,varargin{:})];
         end
 
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
 
-
+        S = varargin{4}.sess;
         switch varargin{1}
 
             case 'graph'
@@ -112,7 +114,7 @@ switch class(varargin{1})
                         else
                             n = length(x);
                             m = length(d);
-                            z = sdpvar(n,m,'full');
+                            z = S.sdpvar(n,m,'full');
                             F = (sum(d) == 1);
                             cost = 0;
                             [Mm,mm] = derivebounds(x);
@@ -144,7 +146,7 @@ switch class(varargin{1})
 
                         n = length(x);
                         cost = 0;
-                        r = binvar(length(pwq_struct),1);
+                        r = S.binvar(length(pwq_struct),1);
                         d = {};
 
                         % Derive bounds from polytopes
@@ -164,11 +166,11 @@ switch class(varargin{1})
                             if length(pwq_struct{j}.Pn) == 1
                                 d{j} = r(j);
                             else
-                                d{j} = binvar(length(pwq_struct{j}.Pn),1);
+                                d{j} = S.binvar(length(pwq_struct{j}.Pn),1);
                                 F = F + (sum(d{j}) == r(j));
                             end
                             m = length(d{j});
-                            z = sdpvar(n,m,'full');
+                            z = S.sdpvar(n,m,'full');
 
                             for i = 1:m
                                 bounds(z(:,i),mx,Mx);

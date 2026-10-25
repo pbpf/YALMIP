@@ -24,7 +24,8 @@ switch class(varargin{1})
             end
         end
         
-        varargout{1} = yalmip('define','crossentropy_internal',[varargin{1};varargin{2}]);
+        S = sessCheck(varargin{1},varargin{2});
+        varargout{1} = S.define('define','crossentropy_internal',[varargin{1};varargin{2}]);
             
     otherwise
         error(['SDPVAR/' upper(mfilename) ' called with weird argument']);

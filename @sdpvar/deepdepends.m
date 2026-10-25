@@ -8,7 +8,8 @@ function  LinearVariables = deepdepends(x)
 % Output
 %    i : DOUBLE
 
-[mt,variabletype] = yalmip('monomtable');
+S = x.sess;
+[mt,variabletype] = S.getMonomtable();
 
 % Simple linear cases
 if ~any(variabletype(x.lmi_variables))
@@ -16,11 +17,11 @@ if ~any(variabletype(x.lmi_variables))
 else
     LinearVariables = find(any(mt(x.lmi_variables,:),1));
 end
-extended = yalmip('extvariables');
+extended = S.getExtvariables();
 bad = ismember(LinearVariables,extended);
 if any(bad)
     InnerArguments = [];
-    p = yalmip('extstruct');
+    p = S.extstruct();
     for j = find(bad)
         k = find(LinearVariables(j)==extended);
         InnerArguments = [InnerArguments deepdepends(p(k).arg{1})];

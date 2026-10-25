@@ -7,7 +7,8 @@ if nargin == 1
     if isa(varargin{1},'sdpvar')
         if length(X) == 1
             if isequal(full(getbase(X)),[zeros(length(X),1) eye(length(X))])
-                extstruct = yalmip('extstruct',getvariables(X));
+                S = X.sess;
+                extstruct = S.extstruct(getvariables(X));
                 if ~isempty(extstruct)
                     if isequal(extstruct.fcn,'pwa_yalmip') | isequal(extstruct.fcn,'pwq_yalmip')%#ok
                         % Maybe some reduction has been performed so we
