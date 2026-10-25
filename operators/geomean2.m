@@ -48,7 +48,7 @@ case 'char' % YALMIP send 'model' when it wants the epigraph or hypograph
     if isequal(varargin{1},'graph')
         t = varargin{2}; % Second arg is the extended operator variable
         X = varargin{3}; % Third arg and above are the args user used when defining t.           
-        varargout{1} = detset(t,X,sdpsession(varargin));        
+        varargout{1} = detset(t,X,sessOf(X));
         if issymmetric(X)
             varargout{2} = struct('convexity','concave','monotonicity','none','definiteness','positive','model','graph');
         else

@@ -58,5 +58,5 @@ q = 1;
 l = ceil(log2(abs(p)));
 r = 2^l-p;
 y = [ones(r,1)*x;ones(q,1)*t;ones(2^l-r-q,1)];
-F = detset(x,y,sdpsession(varargin));
+F = detset(x,y,sessOf(x));
 
