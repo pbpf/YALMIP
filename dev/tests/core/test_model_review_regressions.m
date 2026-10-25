@@ -41,7 +41,7 @@ x = S.sdpvar(1); w = S.sdpvar(1); Z.r = 1; Z.center = 0;
 ops.verbose = 0; ops.robust.auxreduce = 'none'; V.w_variables = getvariables(w);
 [F,~] = filter_normball([-w*(x+1)>=0,-w*(x-1)>=0],Z,x,w,w,'2-norm',ops,V);
 sol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
-vars = recover(depends(F)); sol = assign(vars,zeros(length(vars),1), sol); sol = assign(x,-1, sol);
+vars = recover(depends(F),sessOf(F)); sol = assign(vars,zeros(length(vars),1), sol); sol = assign(x,-1, sol);
 testCase.verifyLessThan(min(check(F, sol)),0);
 
 function test_polya_negative_coefficients(testCase)
@@ -67,7 +67,7 @@ for i = 1:numel(cases)
     sol = assign(x,points(i), sol); sol = assign(b,0, sol);
     best = -Inf;
     for bits = 0:2^numel(aux)-1
-        sol = assign(recover(aux),bitget(bits,1:numel(aux))', sol);
+        sol = assign(recover(aux,sessOf(aux)),bitget(bits,1:numel(aux))', sol);
         best = max(best,min(check(F, sol)));
     end
     testCase.verifyGreaterThanOrEqual(best,-1e-12);
