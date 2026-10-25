@@ -11,7 +11,7 @@ end
 
 C1 = flatten(C1);
 C2 = flatten(C2);
-S = C1.sess;
+S = sessOf(C1);
 sys = C1;
 sys.clauses{1}.data = [C1.clauses{1}.data(:) C2.clauses{1}.data(:)];
 sys.clauses{1}.extra.indicators = S.binvar(length(C1.clauses{1}.data(:)),1);

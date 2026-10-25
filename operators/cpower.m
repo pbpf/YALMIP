@@ -28,7 +28,7 @@ switch class(varargin{1})
         if isreal(X)
             dim = size(X);
             X = reshape(X,prod(dim),1);
-            S = X.sess;
+            S = sessOf(X);
             y = [];
             for i = 1:prod(dim)
                 y = [y;S.define('define',mfilename,extsubsref(X,i),varargin{2})];

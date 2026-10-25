@@ -31,10 +31,18 @@ all_lmi_variables = unique(all_lmi_variables);
 % Verify all symbolic operands share one session
 S = [];
 for i = 1:length(varargin)
-    if isa(varargin{i},'sdpvar') && isfield(varargin{i},'sess') && ~isempty(varargin{i}.sess)
+    S_i = [];
+    if isa(varargin{i},'sdpvar')
+        try
+            S_i = varargin{i}.sess; %#ok<STREMP> % direct access: isfield fails on legacy objects
+        catch
+            S_i = [];
+        end
+    end
+    if ~isempty(S_i)
         if isempty(S)
-            S = varargin{i}.sess;
-        elseif S ~= varargin{i}.sess
+            S = S_i;
+        elseif S ~= S_i
             error('YALMIP:sessionMismatch','Operands belong to different yalmip.Session objects. Create all variables in one expression from the same session.');
         end
     end

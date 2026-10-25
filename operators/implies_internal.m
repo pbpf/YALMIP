@@ -18,7 +18,7 @@ if isa(Y,'constraint')
 end
 
 % Session travels with the symbolic operands
-S = X.sess;
+S = sessOf(X);
 
 % % Special case x == 1 (or x = 0) implies something
 % Avoids introducing a glue binary for the equality

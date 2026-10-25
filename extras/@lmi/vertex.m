@@ -33,7 +33,7 @@ if all(b > 0)
 	x_c = zeros(size(A,2),1);
     R = inf;
 else
-    S = P.sess;
+    S = sessOf(P);
     x = S.sdpvar(size(A,2),1);
     if isempty(Aeq)
         [x_c,R] = chebyball(A*x <= b);

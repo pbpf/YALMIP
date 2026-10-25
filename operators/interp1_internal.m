@@ -14,7 +14,7 @@ switch class(varargin{1})
         
         t = varargin{2};
         x = varargin{3};
-        S = x.sess;
+        S = sessOf(x);
         xi = varargin{4};
         yi = varargin{5};
         method = varargin{6};

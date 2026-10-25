@@ -78,7 +78,7 @@ problem.exponentialcone = exponential_cone;
 % ********************************************************
 % Make a list of all globally available discrete variables
 % ********************************************************
-S = F.sess;
+S = sessOf(F);
 integer_variables   = S.getIntvariables();
 binary_variables    = S.getBinvariables();
 semicont_variables = S.getSemicontvariables();

@@ -29,7 +29,7 @@ if isa(varargin{end},'sdpvar')
     varargin = {varargin{1:end-1}};     
 end
 N = length(varargin);
-S = varargin{1}.sess;
+S = sessOf(varargin{1});
 
 if N==1
     Fhull = varargin{1};

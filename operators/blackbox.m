@@ -72,7 +72,7 @@ if ~isa(varargin{1},'char') && any(strcmp(cellfun(@class,varargin,'UniformOutput
     end
     % Populate completely to save for later 
     operator = assertOperatorProperties(operator);
-    S = varargin{1}.sess;
+    S = sessOf(varargin{1});
     if numel(output) == 1
         if numel(dataExample)>1
             f = varargin{2};

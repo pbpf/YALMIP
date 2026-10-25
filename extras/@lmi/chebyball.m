@@ -22,7 +22,7 @@ A = -p.F_struc(:,2:end);
 b = p.F_struc(:,1);
 
 x = recover(p.used_variables);
-S = F.sess;
+S = sessOf(F);
 r = S.sdpvar(1);
 
 if nargin < 2

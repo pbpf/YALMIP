@@ -125,7 +125,7 @@ if options.expand
         end
     catch
     end
-    [F,failure,cause,expansionstate] = expandmodel(F,h,options,[],S);
+    [F,failure,cause,expansionstate] = expandmodel(F,h,options,[],[],S);
     operators = expansionstate.ALREADY_MODELLED;
     % Models temporarily added for analysis phase. Can be deleted now
     try

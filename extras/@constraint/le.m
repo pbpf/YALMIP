@@ -15,7 +15,7 @@ try
         F.List{end+1} = '<=';
         F.List{end+1} = Y;
         F.Evaluated{end+1} = Z;
-        F.ConstraintID(end+1) = X.sess.lmiid();
+        F.ConstraintID(end+1) = sessOf(X).lmiid();
         F.strict(end+1) = 0;
     else
         % x < (w > y)
@@ -28,7 +28,7 @@ try
         F = Y;
         F.List = {X,'<=',F.List{:}};
         F.Evaluated = {Z,F.Evaluated{:}};
-        F.ConstraintID = [Y.sess.lmiid() F.ConstraintID];
+        F.ConstraintID = [sessOf(Y).lmiid() F.ConstraintID];
         F.strict = [1 F.strict];
     end
 catch

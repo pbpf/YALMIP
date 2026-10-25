@@ -11,7 +11,7 @@ switch class(varargin{1})
     case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save them.
 
         x = varargin{1};
-        y = x.sess.definemulti(mfilename,x,[size(x,1) 1]);
+        y = sessOf(x).definemulti(mfilename,x,[size(x,1) 1]);
         varargout{1} = y;
 
     case 'char' % YALMIP send 'graph' when it wants the epigraph or hypograph

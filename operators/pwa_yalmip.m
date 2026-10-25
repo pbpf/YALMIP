@@ -71,7 +71,7 @@ switch class(varargin{1})
             pwaclass = 'general'
         end
 
-        S = varargin{2}.sess;
+        S = sessOf(varargin{2});
 
         if isa(varargin{1},'struct')
             varargin{1} = {varargin{1}};
@@ -120,7 +120,7 @@ switch class(varargin{1})
 
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
 
-        S = varargin{4}.sess;
+        S = sessOf(varargin{4});
         switch varargin{1}
 
             case 'graph'

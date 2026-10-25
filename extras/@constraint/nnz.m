@@ -13,11 +13,11 @@ function varargout = nnz(varargin)
 switch class(varargin{1})
 
     case 'constraint'
-        varargout{1} = varargin{1}.sess.define('define','nnz',varargin{1});
+        varargout{1} = sessOf(varargin{1}).define('define','nnz',varargin{1});
 
     case 'char'
         t = varargin{2};
-        S = t.sess;
+        S = sessOf(t);
         x = varargin{3};
         switch varargin{1}
             case 'graph'

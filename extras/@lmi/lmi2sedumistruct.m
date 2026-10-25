@@ -2,7 +2,7 @@ function [F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistru
 %lmi2sedumistruct   Internal function: Converts LMI to format needed in SeDuMi
 
 F = flatten(F);
-S = F.sess;
+S = sessOf(F);
 nvars = S.nvars(); %Needed lot'sa times...
 
 % We first browse to see what we have got and the

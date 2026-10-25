@@ -5,13 +5,13 @@ function sys = uncvarCore(S, varargin)
 
 switch numel(varargin)
     case 1
-        sys = sdpvar(varargin{1},'session',{S});
+        sys = S.sdpvar(varargin{1});
     case 2
-        sys = sdpvar(varargin{1},varargin{2},'session',{S});
+        sys = S.sdpvar(varargin{1},varargin{2});
     case 3
-        sys = sdpvar(varargin{1},varargin{2},varargin{3},'session',{S});
+        sys = S.sdpvar(varargin{1},varargin{2},varargin{3});
     case 4
-        sys = sdpvar(varargin{1},varargin{2},varargin{3},varargin{4},'session',{S});
+        sys = S.sdpvar(varargin{1},varargin{2},varargin{3},varargin{4});
     otherwise
         error('Wrong number of input arguments. See help-text for sdpvar')
 end

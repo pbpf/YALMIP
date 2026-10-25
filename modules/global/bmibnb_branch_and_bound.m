@@ -125,7 +125,7 @@ numGlobalSolutions = 0;
 balanceIndicator = 1;
 
 if p.options.bmibnb.plotregions
-    p.plotter.x = p.sess.sdpvar(length(p.c),1);
+    p.plotter.x = sessOf(p).sdpvar(length(p.c),1);
     p.plotter.ops = p.options;
     p.plotter.ops.solver = '';
     p.plotter.ops.plot.shade = 0.1;
@@ -1035,7 +1035,7 @@ if p.options.bmibnb.lowerpsdfix && isempty(p.evalMap) && ~any(p.variabletype > 2
             end
             
             if (p.options.bmibnb.lowerpsdfix == -1 || p.options.bmibnb.lowerpsdfix == 1) && length(e) <= 500 && ~isempty(p.solver.sdpsolver)
-                x = p.sess.sdpvar(length(r),1);
+                x = sessOf(p).sdpvar(length(r),1);
                 % FIXME: Use lower level setup
                 ops = p.options;
                 ops.warmstart = 0;

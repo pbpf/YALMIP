@@ -19,7 +19,7 @@ switch class(varargin{1})
         yi = varargin{5};
         zi = varargin{6};
         method = varargin{7};
-        S = t.sess;
+        S = sessOf(t);
         
         % YALMIP requests a graph model
         if isequal(varargin{1},'graph')

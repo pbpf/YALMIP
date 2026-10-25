@@ -7,7 +7,7 @@ varargin = {varargin{find(~cellfun('isempty',varargin))}};
 switch class(varargin{1})
     case 'char'
         z = varargin{2};
-        S = z.sess;
+        S = sessOf(z);
         X = varargin{3};
         Y = varargin{4};
 
@@ -47,7 +47,7 @@ switch class(varargin{1})
         varargout{3} = [x(:);q];
 
     case {'sdpvar','constraint'}
-        varargout{1} = varargin{1}.sess.define('define','or',varargin{:});
+        varargout{1} = sessOf(varargin{1}).define('define','or',varargin{:});
  
     otherwise
 end

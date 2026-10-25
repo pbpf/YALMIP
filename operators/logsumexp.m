@@ -28,7 +28,7 @@ switch class(varargin{1})
 
         if min(size(varargin{1}))>1
             x = varargin{1};
-            S = x.sess;
+            S = sessOf(x);
             y = [];
             for i = 1:size(x,2)
                 y = [y S.define('define',mfilename,x(:,i))];
@@ -37,7 +37,7 @@ switch class(varargin{1})
         elseif max(size(varargin{1}))==1
             varargout{1} = varargin{1};
         else
-            varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{1});
+            varargout{1} = sessOf(varargin{1}).define('define',mfilename,varargin{1});
         end
 
     case 'char'

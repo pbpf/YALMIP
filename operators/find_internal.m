@@ -1,6 +1,6 @@
 function Model = find_internal(pos,x)
 
-S = x.sess;
+S = sessOf(x);
 n = length(x);
 
 % Binary to model if element is non-zero

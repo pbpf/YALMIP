@@ -74,7 +74,7 @@ else
     return
 end
 
-S = F.sess;
+S = sessOf(F);
 y = S.sdpvar(length(model.c),1);
 
 vecF = model.F_struc*[1;y];

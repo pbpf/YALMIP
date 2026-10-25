@@ -27,7 +27,7 @@ switch class(varargin{1})
         elseif p == 1
             varargout{1} = max(0,X);
         else
-            varargout{1} = X.sess.define('define',mfilename,X,p);
+            varargout{1} = sessOf(X).define('define',mfilename,X,p);
         end
         
     case 'char' % YALMIP send 'model' when it wants the epigraph or hypograph
@@ -43,7 +43,7 @@ switch class(varargin{1})
                     monotonicity = 'none';
             end
             
-            e = X.sess.sdpvar(1);
+            e = sessOf(X).sdpvar(1);
             F = [e >= X, pospower(e,t,p)];                
             
             varargout{1} = F;

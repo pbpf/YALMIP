@@ -1,7 +1,7 @@
 function [F,M,m] = max_integer_model(X,t,M,m,S)
 
 if nargin < 5
-    S = X.sess;
+    S = sessOf(X);
 end
 
 if nargin < 3

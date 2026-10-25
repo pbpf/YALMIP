@@ -39,15 +39,15 @@ else
             end
                
             if ~isempty(S) && any(ismember(lmi_variables,S.nonCommutingVariables()))
-                varargout{1} = ncvar(n,1,[],lmi_variables(:)',basis,0,[],S);
+                varargout{1} = ncvar(n,1,[],lmi_variables(:)',basis,0,'session',{S});
             else
-                varargout{1} = sdpvar(n,1,[],lmi_variables(:)',basis,0,[],S);
+                varargout{1} = sdpvarFast(n,1,[],lmi_variables(:)',basis,0,S);
             end
         else
             if ~isempty(S) && any(ismember(lmi_variables,S.nonCommutingVariables()))
-                x = ncvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,[],S);
+                x = ncvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,'session',{S});
             else
-                x = sdpvar(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,[],S);
+                x = sdpvarFast(n,1,[],lmi_variables(:)',sparse(i,i+1,ones(n,1),n,n+1),0,S);
             end
             for i = 1:length(lmi_variables)
                 varargout{i} = x(i);

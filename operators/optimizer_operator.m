@@ -12,7 +12,7 @@ switch class(varargin{1})
 
     case {'sdpvar','optimizer'} % Overloaded operator for SDPVAR objects.
         O = struct(varargin{1});
-        varargout{1} = varargin{1}.sess.definemulti(mfilename,varargin{2},varargin{1},O.dimin);
+        varargout{1} = sessOf(varargin{1}).definemulti(mfilename,varargin{2},varargin{1},O.dimin);
 
     case 'char' % YALMIP sends 'model' when it wants the epigraph or hypograph
 

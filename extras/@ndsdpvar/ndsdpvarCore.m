@@ -43,7 +43,7 @@ if nargin > d+1
 end
 
 v0 = S.nvars();
-X = sdpvar(n(1),n(2),type,field,'session',{S});
+X = S.sdpvar(n(1),n(2),type,field);
 vars = getvariables(X);
 N = prod(n(3:end));
 nNewVars = length(vars)*N;

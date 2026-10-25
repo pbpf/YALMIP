@@ -27,7 +27,7 @@ switch class(varargin{1})
         [n,m] = size(X);
         if isreal(X) & min(n,m)==1
             if varargin{2}>=1
-                varargout{1} = X.sess.define('define',mfilename,varargin{:});
+                varargout{1} = sessOf(X).define('define',mfilename,varargin{:});
             else
                 error('PNORM only applicable for p>=1');
             end
@@ -40,7 +40,7 @@ switch class(varargin{1})
             t = varargin{2}; % Second arg is the extended operator variable
             X = varargin{3}; % Third arg and above are the args user used when defining t.
             p = varargin{4};
-            S = X.sess;
+            S = sessOf(X);
             if nargin > 5 || (nargin == 5 && ~isa(varargin{5},'yalmip.Session'))
                 method = varargin{5};
             else

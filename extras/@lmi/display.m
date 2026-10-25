@@ -40,7 +40,7 @@ lmiinfo{57} = 'Stacked SDP constraints';
 lmiinfo{58} = 'Vectorized power cone constraints';
 
 headers = {'ID','Constraint','Coefficient range','Tag'};
-S = X.sess;
+S = sessOf(X);
 rankVariables = S.rankvariables();
 extVariables = S.getExtvariables();
 if nlmi>0

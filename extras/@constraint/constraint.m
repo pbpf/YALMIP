@@ -85,8 +85,8 @@ if isa(Z,'sdpvar') && ~isequal(quantifier,'==')
 end
 F.List={X,quantifier,Y};
 F.Evaluated{1} = Z;
-F.sess = Z.sess;
-F.ConstraintID = F.sess.lmiid();
+F.sess = session(Z);
+F.ConstraintID = sessOf(F).lmiid();
 F.tag{1} = '';
 F = class(F,'constraint');
 	

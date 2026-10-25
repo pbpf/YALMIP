@@ -2,7 +2,7 @@ function F = linearnegativeconstraint_implies_binary(f,X,M,m,eps,S);
 % Big-M for f<=0 implies X==1. Assumes f and X vectors of same size
 
 if nargin < 6
-    S = f.sess;
+    S = sessOf(f);
 end
 
 if nargin < 3 | isempty(M)

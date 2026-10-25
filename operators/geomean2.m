@@ -39,7 +39,7 @@ case 'sdpvar' % Overloaded operator for SDPVAR objects. Pass on args and save th
     X = varargin{1};
     [n,m] = size(X);
     if is(varargin{1},'hermitian') | min(n,m)==1
-        varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{:});    
+        varargout{1} = sessOf(varargin{1}).define('define',mfilename,varargin{:});    
     else
         error('GEOMEAN2 can only be applied to real vectors and Hermitian matrices');
     end

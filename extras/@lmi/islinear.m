@@ -6,7 +6,7 @@ function itslinear=islinear(F)
 % F : SET object
 % p : boolean 0/1
 
-[monomtable,variabletype] = F.sess.getMonomtable();
+[monomtable,variabletype] = sessOf(F).getMonomtable();
 itslinear = 1;
 i = 1;
 F = flatten(F);

@@ -6,6 +6,14 @@ function YESNO = is(X,property,additional)
 %   'scalar', 'linear', 'bilinear','quadratic','signomial', 'homogeneous', 'integer', 'binary'
 
 S = X.sess;
+if isempty(S)
+    % Object without a session (e.g. built by recover without one):
+    % registry-dependent queries return conservative defaults.
+    S = struct('getBinvariables',@() [],'getIntvariables',@() [],'quantvariables',@() [], ...
+        'getExtvariables',@() [],'getVariabletype',@() [],'getLogicvariables',@() [], ...
+        'getTempintvariables',@() [],'getTempbinvariables',@() [],'getSemicontvariables',@() [], ...
+        'getUncvariables',@() [],'getAuxvariables',@() []);
+end
 
 switch property
     case 'logic'

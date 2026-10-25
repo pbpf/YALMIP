@@ -5,6 +5,9 @@ function varargout = dispatch(S, varargin)
 %   state. Session methods delegate here, preserving the original
 %   dispatcher argument conventions (varargin{1} = command string).
 
+% Restore the original dispatcher's disp_nargin semantics (S does not count)
+disp_nargin = nargin - 1; %#ok<NASGU>
+
 switch varargin{1}
     
     case 'clearsolution'
@@ -40,7 +43,7 @@ switch varargin{1}
     case 'setmonomtable'
         % New monom table
         S.monomtable = varargin{2};
-        if nargin>=4
+        if disp_nargin>=4
             % User has up-dated the hash tables him self.
             S.hashedmonomtable=varargin{4};
             S.hash = varargin{5};
@@ -55,7 +58,7 @@ switch varargin{1}
             temp = S.monomtable(end-need_new+1:end,:);
             S.hashedmonomtable = [S.hashedmonomtable;temp*S.hash];
         end
-        if nargin >= 3 && ~isempty(varargin{3})
+        if disp_nargin >= 3 && ~isempty(varargin{3})
             S.variabletype = varargin{3};
             if length(S.variabletype) ~=size(S.monomtable,1)
                 error('ASSERT')
@@ -123,7 +126,7 @@ switch varargin{1}
         else
             allXunitary = 0;
         end
-        y = sdpvar(numel(X),1,'session',{S});
+        y = S.sdpvar(numel(X),1);
         allNewExtended = [];
         allNewExtendedIndex = [];
         allPreviouslyDefinedExtendedToIndex = [];
@@ -132,7 +135,7 @@ switch varargin{1}
             correct_operator = find(strcmp(varargin{2},{S.ExtendedMap(:).fcn}));
         end
                 
-        z = sdpvar(numel(X),1,'session',{S}); % Standard format     y=f(z),z==arg
+        z = S.sdpvar(numel(X),1); % Standard format     y=f(z),z==arg
         
         S.auxVariables = [ S.auxVariables  getvariables(z)];
         S.auxVariables = [ S.auxVariables  getvariables(y)];
@@ -294,7 +297,7 @@ switch varargin{1}
                 X = varargin{3:end};
                 [n,m] = size(X);
                 if min([n m]) == 1
-                    y = sdpvar(1,1,'session',{S});
+                    y = S.sdpvar(1,1);
                     S.ExtendedMap(end+1).fcn = varargin{2};
                     S.ExtendedMap(end).arg = {varargin{3:end},[]};
                     S.ExtendedMap(end).var = y;
@@ -303,7 +306,7 @@ switch varargin{1}
                     S.ExtendedMap(end).Hash = this_hash;
                     S.ExtendedMapHashes = [S.ExtendedMapHashes this_hash];
                 else
-                    y = sdpvar(1,m,'session',{S});
+                    y = S.sdpvar(1,m);
                     for i = 1:m
                         if isa(X(:,i),'double')
                             y(i) = max(X(:,i));
@@ -325,7 +328,7 @@ switch varargin{1}
                 % ABS is a bit special since we need one
                 % new variable for each element...
                 X = varargin{3:end};
-                y = sdpvar(numel(X),1,'session',{S});
+                y = S.sdpvar(numel(X),1);
                 allNewExtended = [];
                 allNewExtendedIndex = [];
                 allPreviouslyDefinedExtendedToIndex = [];
@@ -420,7 +423,7 @@ switch varargin{1}
                 elseif isequal(varargin{2},'sign')
                     y = intvarCore(S, nout(1),nout(2));
                 else
-                    y = sdpvar(nout(1),nout(2),'session',{S});
+                    y = S.sdpvar(nout(1),nout(2));
                 end
                 if ~strcmpi({'sort'},varargin{2})
                     % Oh fuck is this ugly. Sort assumes ordering on some
@@ -432,7 +435,7 @@ switch varargin{1}
                     % everything which isn't based on callbacks. This saves
                     % a lot of setup time on huge models
                     if ~(strcmp(varargin{2},'norm') || strcmp(varargin{2},'abs'))
-                        z = sdpvar(size(varargin{3},1),size(varargin{3},2),'full','session',{S}); % Standard format     y=f(z),z==arg
+                        z = S.sdpvar(size(varargin{3},1),size(varargin{3},2),'full'); % Standard format     y=f(z),z==arg
                         S.auxVariables = [ S.auxVariables  getvariables(z)];
                     else
                         z = [];
@@ -554,7 +557,7 @@ switch varargin{1}
         varargout{1} = S.extVariables;
         
     case 'extstruct'
-        if nargin == 1
+        if disp_nargin == 1
             varargout{1} = S.ExtendedMap;
         elseif length(varargin{2})==1
             found = 0;
@@ -677,7 +680,7 @@ switch varargin{1}
         gemInPath('clear');
         
     case 'cleardual'
-        if nargin==1
+        if disp_nargin==1
             S.duals_index = [];
             S.duals_data = [];
             S.duals_associated_index = [];
@@ -728,7 +731,7 @@ switch varargin{1}
         
     case 'setsolution'
                            
-        if nargin < 3
+        if disp_nargin < 3
             solutionIndex = 1;
         else
             solutionIndex = varargin{3};
@@ -833,7 +836,7 @@ switch varargin{1}
         end
         
     case 'clearsos'
-        if nargin==1
+        if disp_nargin==1
             S.sos_index = [];
             S.sos_data = [];
             S.sos_ParV = [];
@@ -902,32 +905,32 @@ switch varargin{1}
         
         
     case 'getinternalsetstate'
-        varargout{1} = internal_setstate; % Get internal state, called from saveobj
+        varargout{1} = S; % Get internal state, called from saveobj
         
     case 'setinternalsetstate'
-        internal_setstate = varargin{2}; % Set internal state, called from loadobj
+        S = varargin{2}; % Set internal state, called from loadobj
         
     case 'getinternalsdpvarstate'
-        varargout{1} = internal_sdpvarstate; % Get internal state, called from saveobj
+        varargout{1} = S; % Get internal state, called from saveobj
         
     case 'setinternalsdpvarstate'
-        internal_sdpvarstate = varargin{2}; % Set internal state, called from loadobj
+        S = varargin{2}; % Set internal state, called from loadobj
         
         % Back-wards compability....
-        if ~isfield(internal_sdpvarstate,'extVariables')
+        if ~isfield(S,'extVariables')
             S.extVariables = [];
         end
-        if ~isfield(internal_sdpvarstate,'ExtendedMap')
+        if ~isfield(S,'ExtendedMap')
             S.ExtendedMap = [];
 			S.containsSemivar = false;
         end
-        if ~isfield(internal_sdpvarstate,'ExtendedMapHashes')
+        if ~isfield(S,'ExtendedMapHashes')
             S.ExtendedMapHashes = [];
         end  
-        if ~isfield(internal_sdpvarstate,'variabletype')
+        if ~isfield(S,'variabletype')
             S.variabletype = ~(sum(S.monomtable,2)==1 & sum(S.monomtable~=0,2)==1);
         end
-        if ~isfield(internal_sdpvarstate,'hash')
+        if ~isfield(S,'hash')
             S.hash=[];
             S.hashedmonomtable=[];
         end
@@ -1021,7 +1024,7 @@ switch varargin{1}
         end
             
     case 'nonCommutingTable'
-        if nargin == 2
+        if disp_nargin == 2
             S.nonCommutingTable = varargin{2};       
         else
             varargout{1} = S.nonCommutingTable;
@@ -1038,11 +1041,11 @@ switch varargin{1}
         S.internalconstraints{end+1} = varargin{1};
         
         %  case {'setnvars'}
-        %      sdpvar('setnvars',varargin{2},'session',{S});
+        %      S.sdpvar('setnvars',varargin{2});
         
     case {'nvars'}
         varargout{1} = size(S.monomtable,1);
-        % varargout{1} = sdpvar('nvars','session',{S});
+        % varargout{1} = S.sdpvar('nvars');
         
     case {'info'}
         version_str = yalmipversion(); release = '';
@@ -1091,7 +1094,7 @@ switch varargin{1}
         end
         
     case 'getbounds'
-        if ~isfield(internal_sdpvarstate,'boundlist')
+        if ~isfield(S,'boundlist')
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
         elseif isempty(S.boundlist)
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
@@ -1105,7 +1108,7 @@ switch varargin{1}
         varargout{2} = S.boundlist(indicies,:);
         
     case 'setbounds'
-        if ~isfield(internal_sdpvarstate,'boundlist')
+        if ~isfield(S,'boundlist')
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
         elseif isempty(S.boundlist)
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
@@ -1157,7 +1160,7 @@ switch varargin{1}
         end
         
         % This is the standard operators. INPUTS -> 1 scalar output
-        y = sdpvar(1,1,'session',{S});
+        y = S.sdpvar(1,1);
         S.ExtendedMap(end+1).fcn = varargin{2};
         S.ExtendedMap(end).arg = {varargin{3:end}};
         S.ExtendedMap(end).var = y;
@@ -1171,7 +1174,7 @@ switch varargin{1}
         S.nonHermitiannonCommutingTable(varargin{2}) = 1;
         
     case 'solver'
-        if (nargin==2)
+        if (disp_nargin==2)
             if isa(varargin{2},'char')
                 solver = varargin{2};
                 S.preferedSolver = solver;

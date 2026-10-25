@@ -48,7 +48,7 @@ catch
 end
 
 % 7. sdisplay uses embedded names
-fprintf('sdisplay: %s\n', sdisplay(x(1) + x(2)^2));
+sd = sdisplay(x(1) + x(2)^2); fprintf('sdisplay: %s\n', sd{1});
 
 % 8. Parametric optimizer object
 t = S.sdpvar("t",1,1);

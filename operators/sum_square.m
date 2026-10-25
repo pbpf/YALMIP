@@ -7,7 +7,7 @@ switch class(varargin{1})
         varargout{1} = x(:)'*x(:);
         
     case 'sdpvar'         
-        varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{1});        
+        varargout{1} = sessOf(varargin{1}).define('define',mfilename,varargin{1});        
 
     case 'char'
 

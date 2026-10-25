@@ -12,7 +12,7 @@ switch class(varargin{1})
 
     case 'char'
         x = varargin{3};
-        S = x.sess;
+        S = sessOf(x);
         [nx,mx] = size(x);
         x = reshape(x,nx*mx,1);
 

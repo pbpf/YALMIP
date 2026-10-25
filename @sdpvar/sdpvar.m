@@ -1,23 +1,20 @@
 function sys = sdpvar(varargin)
 %SDPVAR Create symbolic decision variable (session-based)
 %
-%   Since the stateless refactoring, variables are created through a
-%   session object which owns the variable registry:
+%   Variables are created through a session object which owns the variable
+%   registry:
 %
 %       S = yalmip.Session();
 %       x = S.sdpvar(3,1);                % Full 3x1
 %       x = S.sdpvar("x",3,1);            % With display name
 %       P = S.sdpvar(3,3,'symmetric');    % Symmetric 3x3
-%       u = S.intvar(2,2);                % Integer (see INTVAR)
 %
 %   The optional display name (a char/string first argument) is used by
-%   SDISPLAY instead of workspace introspection.
+%   SDISPLAY instead of workspace introspection. Internal fast-path
+%   constructors used by the operator overloads take an optional trailing
+%   session argument which is copied into the result.
 %
-%   This file retains the internal fast-path constructors used by the
-%   operator overloads; they append an optional trailing session argument
-%   which is copied into the result.
-%
-%   See also yalmip.Session, INTVAR, BINVAR, methods('sdpvar')
+%   See also yalmip.Session, INTVAR, BINVAR
 
 superiorto('double');
 
@@ -30,28 +27,72 @@ if isstruct(varargin{1})
     return
 end
 
-% Internal creation pathway used by yalmip.Session methods and the
-% dispatcher: the session handle travels in a cell so that this plain
-% function call does not dispatch back to a Session method.
-if nargin >= 2 && isequal(varargin{end-1},'session') && iscell(varargin{end})
-    S = varargin{end}{1};
-    args = varargin(1:end-2);
-    varargin = args;
-    if S.gemInPath()
-        try
-            superiorto('sgem');
-            superiorto('gem');
-        catch
-        end
+if nargin == 2 && isequal(varargin{1},'finalize') && isstruct(varargin{2})
+    sys = varargin{2};
+    if isempty(sys.lmi_variables)
+        sys = full(reshape(sys.basis(:,1),sys.dim(1),sys.dim(2)));
+    else
+        sys = class(sys,'sdpvar');
     end
-    displayname = '';
-    if ischar(varargin{1}) || isstring(varargin{1})
-        displayname = char(varargin{1});
-        varargin = varargin(2:end);
-        if isempty(varargin)
-            error('YALMIP:sessionRequired','Give the shape after the display name, e.g. S.sdpvar("x",3).')
-        end
+    return
+end
+
+% 1-argument copy/convert paths used internally by operator overloads
+if nargin==1
+    if isa(varargin{1},'sdpvar')
+        sys = varargin{1};
+        sys.typeflag = 0;
+        return
     end
+    if isempty(varargin{1})
+        sys = varargin{1};
+        return
+    end
+    error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); x = S.sdpvar(3,1).')
+end
+
+
+
+% Session-based creation (the former user syntax sdpvar(n,m,...) now goes
+% through yalmip.Session/sdpvar, which appends the internal session payload)
+if ~(nargin >= 2 && isequal(varargin{end-1},'session') && iscell(varargin{end}))
+
+
+    error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); x = S.sdpvar(3,1).')
+end
+S = varargin{end}{1};
+args = varargin(1:end-2);
+varargin = args;
+
+if S.gemInPath()
+    try
+        superiorto('sgem');
+        superiorto('gem');
+    catch
+    end
+end
+
+displayname = '';
+if ischar(varargin{1}) || isstring(varargin{1})
+    displayname = char(varargin{1});
+    varargin = varargin(2:end);
+    if isempty(varargin)
+        error('YALMIP:sessionRequired','Give the shape after the display name, e.g. S.sdpvar("x",3).')
+    end
+    % With a display name, a 2-vector is the SHAPE of one full variable
+    if numel(varargin) == 1 && isequal(size(varargin{1}),[1 2])
+        varargin = {varargin{1}(1), varargin{1}(2)};
+    end
+end
+
+nargs = numel(varargin);
+if nargs > 2
+    if isa(varargin{3},'double') && ~isempty(varargin{3})
+        sys = ndsdpvarCore(S, varargin{:});
+        return
+    end
+end
+
 % Quick cell-based only for real full/symmetric matrices, so just
 % iteratively call sdpvarCore to generate all cells
 if length(varargin{1}) > 1 && numel(varargin) <= 4 && numel(varargin) > 2
@@ -65,7 +106,7 @@ if length(varargin{1}) > 1 && numel(varargin) <= 4 && numel(varargin) > 2
             field = varargin{4};
         end
         for i = 1:length(varargin{1})
-            sys{i} = sdpvarCore(S, n(i),m(i),structure,field);
+            sys{i} = sdpvar(n(i),m(i),structure,field, 'session', {S});
         end
         return
     end
@@ -87,7 +128,7 @@ conicinfo = [0 0];
 % *************************************************************************
 if numel(varargin) > 2
     if isa(varargin{3},'double') && ~isempty(varargin{3})
-        sys = ndsdpvarCore(S, varargin{:});
+        sys = ndsdpvar(varargin{:}, 'session', {S});
         return
     end
 end
@@ -444,7 +485,7 @@ for blk = 1:length(n)
 
         case 'skew complex'
             if n==1
-                sys = sdpvarCore(S, 1,1)*sqrt(-1);
+                sys = sdpvar(1,1)*sqrt(-1, 'session', {S});
                 return
             else
                 basis = spalloc(n^2,1+nvar,2);
@@ -604,101 +645,58 @@ else
         sys.dim(2) = 1;
         sys = toeplitz(sys);
     end
-en
-    end
-    return
+% Register the display name (used by sdisplay instead of workspace sniffing)
+if ~isempty(displayname)
+    S.registerVariablenames(displayname, lmi_variables);
 end
 
-% 1-argument copy/convert paths used internally by operator overloads
-if nargin==1
-    if isa(varargin{1},'sdpvar')
-        sys = varargin{1};
-        sys.typeflag = 0;
-        return
+% Create an object
+if isa(basis,'cell')
+    top = 1;
+    for blk = 1:length(n)
+        sys{blk}.basis = basis{blk};
+        nn = size(sys{blk}.basis,2)-1;
+        sys{blk}.lmi_variables = lmi_variables(top:top+nn-1);
+        top = top + nn;
+        sys{blk}.dim(1) = n(blk);
+        sys{blk}.dim(2) = m(blk);
+        sys{blk}.typeflag = 0;
+        sys{blk}.savedata = [];
+        sys{blk}.extra = [];
+        sys{blk}.extra.expanded = [];
+        sys{blk}.extra.opname = '';
+        sys{blk}.extra.createTime = definecreationtime;
+        sys{blk}.conicinfo = conicinfo;
+        sys{blk}.originalbasis = matrix_type;
+        sys{blk}.sess = S;
+        sys{blk}.name = displayname;
+        sys{blk} = class(sys{blk},'sdpvar');
     end
-    if isempty(varargin{1})
-        sys = varargin{1};
-        return
+    if length(n)==1
+        sys = sys{1};
     end
-    error('YALMIP:sessionRequired',['Create variables via a session: S = yalmip.Session(); x = S.sdpvar(' num2str(varargin{1}) ').'])
+else
+    sys.basis = basis;
+    sys.lmi_variables = lmi_variables;
+    sys.dim(1) = n;
+    sys.dim(2) = m;
+    sys.typeflag = 0;
+    sys.savedata = [];
+    sys.extra = [];
+    sys.extra.expanded = [];
+    sys.extra.opname = '';
+    sys.extra.createTime = definecreationtime;
+    sys.conicinfo = conicinfo;
+    sys.originalbasis = matrix_type;
+    sys.sess = S;
+    sys.name = displayname;
+    sys = class(sys,'sdpvar');
+    if isequal(matrix_type,'hankel')
+        sys.dim(2) = 1;
+        sys = hankel(sys);
+    elseif isequal(matrix_type,'toeplitz')
+        sys.dim(2) = 1;
+        sys = toeplitz(sys);
+    end
 end
-
-% Internal fast paths (5 to 9 arguments). An optional trailing session
-% argument is stored in the result so that the session travels with every
-% symbolic object created during operator evaluation.
-if nargin >= 5
-    if isa(varargin{end},'yalmip.Session')
-        sess = varargin{end};
-        varargs = varargin(1:end-1);
-    else
-        sess = [];
-        varargs = varargin;
-    end
-    switch numel(varargs)
-        case 5 % Fast version for internal use
-            sys.basis = varargs{5};
-            sys.lmi_variables=varargs{4};
-            sys.dim(1) = varargs{1};
-            sys.dim(2) = varargs{2};
-            sys.typeflag = 0;
-            sys.savedata = [];
-            sys.extra = [];
-            sys.extra.expanded = [];
-            sys.extra.opname = '';
-            sys.extra.createTime = definecreationtime;
-            sys.conicinfo = 0;
-            sys.originalbasis = 'unknown';
-        case 6 % Fast version for internal use
-            sys.basis = varargs{5};
-            sys.lmi_variables=varargs{4};
-            sys.dim(1) = varargs{1};
-            sys.dim(2) = varargs{2};
-            sys.typeflag = varargs{6};
-            sys.savedata = [];
-            sys.extra = [];
-            sys.extra.expanded = [];
-            sys.extra.opname = '';
-            sys.extra.createTime = definecreationtime;
-            sys.conicinfo = 0;
-            sys.originalbasis = 'unknown';
-        case 7 % Fast version for internal use
-            sys.basis = varargs{5};
-            sys.lmi_variables=varargs{4};
-            sys.dim(1) = varargs{1};
-            sys.dim(2) = varargs{2};
-            sys.typeflag = varargs{6};
-            sys.savedata = [];
-            sys.extra = varargs{7};
-            sys.extra.expanded = [];
-            sys.extra.opname = '';
-            sys.extra.createTime = '';
-            sys.conicinfo = varargs{7};
-            sys.originalbasis = 'unknown';
-        case 8
-            sys = varargs{8};
-        otherwise
-            error('Wrong number of arguments in sdpvar creation');
-    end
-    sys.sess = sess;
-    if ~isfield(sys,'name')
-        sys.name = '';
-    end
-    % Find zero-variables (not applicable for the struct-passthrough case 8)
-    if numel(varargs) ~= 8
-        constants = find(sys.lmi_variables==0);
-        if ~isempty(constants);
-            sys.lmi_variables(constants)=[];
-            sys.basis(:,1) = sys.basis(:,1) + sum(sys.basis(:,1+constants),2);
-            sys.basis(:,1+constants)=[];
-        end
-    end
-    if isempty(sys.lmi_variables)
-        sys = full(reshape(sys.basis(:,1),sys.dim(1),sys.dim(2)));
-    else
-        sys = class(sys,'sdpvar');
-    end
-    return
 end
-
-% All user-facing creation (1-4 arguments) requires a session.
-error('YALMIP:sessionRequired','Create variables via a session: S = yalmip.Session(); x = S.sdpvar(3,1).')

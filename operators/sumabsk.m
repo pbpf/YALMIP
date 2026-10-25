@@ -60,7 +60,7 @@ switch class(varargin{1})
         if (min(n,m) > 1 & ~issymmetric(X))
             error('sumk can only be applied on vectors and symmetric matrices');
         else
-            varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{:});
+            varargout{1} = sessOf(varargin{1}).define('define',mfilename,varargin{:});
         end
         
     case 'char' % YALMIP send 'model' when it wants the epigraph or hypograph
@@ -68,7 +68,7 @@ switch class(varargin{1})
             t = varargin{2}; % Second arg is the extended operator variable
             X = varargin{3}; % Third arg and above are the args user used when defining t.
             k = min(varargin{4},length(X));
-            S = X.sess;
+            S = sessOf(X);
             if nargin > 5 || (nargin == 5 && ~isa(varargin{5},'yalmip.Session'))
                 w = varargin{5};
             else

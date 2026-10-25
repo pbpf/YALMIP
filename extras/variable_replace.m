@@ -24,7 +24,7 @@ if isequal(getbase(Y),[0 1]) && isequal(getbase(W),[0 1])
             Z.basis = [Z.basis(:,1) Z.basis(:,j+1)];
             Z.lmi_variables = Z.lmi_variables(j);
         end
-        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis);
+        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis,sessOf(Z));
        else
            Z = X;
        end          
@@ -102,7 +102,7 @@ try
             Z.basis = [Z.basis(:,1) Z.basis(:,j+1)];
             Z.lmi_variables = Z.lmi_variables(j);
         end
-        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis);
+        Z = sdpvar(Z.dim(1),Z.dim(2),[],Z.lmi_variables,Z.basis,sessOf(Z));
     end
 catch
 end

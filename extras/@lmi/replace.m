@@ -20,7 +20,7 @@ end
 
 keep = [];
 F = flatten(F);
-S = F.sess;
+S = sessOf(F);
 if isempty(S)
     error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
 end

@@ -189,7 +189,7 @@ p.boundpropagation.sepquad = 1;
 % *************************************************************************
 % Extract bounds from model using direct information available
 % *************************************************************************
-bounds = p.sess.getbounds(p.used_variables);
+bounds = sessOf(p).getbounds(p.used_variables);
 if isequal(size(bounds),size(p.lb))
     p.lb = max(p.lb,bounds(:,1));
     p.ub = min(p.ub,bounds(:,2));

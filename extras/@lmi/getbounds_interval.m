@@ -1,6 +1,6 @@
 function LU = getbounds(F)
 
-S = F.sess;
+S = sessOf(F);
 K.f = 0;
 K.l = 0;
 L = [];

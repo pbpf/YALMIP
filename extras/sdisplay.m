@@ -47,7 +47,7 @@ end
 S = session(pvec);
 
 global_LinearVariables = depends(pvec);
-global_x = recover(global_LinearVariables);
+global_x = recover(global_LinearVariables, S);
 [global_exponent_p,global_ordered_list] = exponents(pvec,global_x);
 global_exponent_p = full(global_exponent_p);
 global_names = S.getvariablenames(global_LinearVariables);

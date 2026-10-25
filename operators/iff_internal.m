@@ -22,7 +22,7 @@ if isa(X,'lmi') & isa(Y,'sdpvar')
 end
 
 % Session travels with the symbolic operands
-S = X.sess;
+S = sessOf(X);
 
 if isa(X,'sdpvar') & isa(Y,'sdpvar')
     % user presumably works with binary variables

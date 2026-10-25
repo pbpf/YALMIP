@@ -5,7 +5,7 @@ function sys = semivarCore(S, varargin)
 %
 %   See also yalmip.Session, SDPVAR, BINVAR, INTVAR
 
-sys = sdpvar(varargin{:}, 'session', {S});varargin{:});
+sys = sdpvar(varargin{:}, 'session', {S});
 if isa(sys,'cell')
     for i = 1:length(sys)
         S.semicontVariables = [S.semicontVariables getvariables(sys{i})];

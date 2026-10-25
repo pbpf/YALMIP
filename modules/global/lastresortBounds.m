@@ -27,7 +27,7 @@ if p.options.bmibnb.sdpbounder && isempty(p.evalMap) && all(p.variabletype <=2)
                 
                 A = A(:,v);
                 n = length(v);
-                S = p.sess;
+                S = sessOf(p);
                 gamma = S.sdpvar(1);
                 sdpvar tau1 tau2
                 if ~isinf(upper)

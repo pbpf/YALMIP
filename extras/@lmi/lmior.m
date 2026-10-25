@@ -10,9 +10,9 @@ switch class(varargin{1})
         % The derived variable carries the session on the model.m path; on
         % the expandmeta path z is empty, so take it from the operands
         if isa(z,'sdpvar')
-            S = z.sess;
+            S = sessOf(z);
         else
-            S = X.sess;
+            S = sessOf(X);
         end
 
         F = ([]);
@@ -29,7 +29,7 @@ switch class(varargin{1})
     case {'lmi'}
         x = varargin{1};
         y = varargin{2};
-        varargout{1} = (varargin{1}.sess.define('define','lmior',varargin{:}) == 1);
+        varargout{1} = (sessOf(varargin{1}).define('define','lmior',varargin{:}) == 1);
 
     otherwise
 end

@@ -4,7 +4,7 @@ Fcont = ([]);
 M = 1e3;
 % How many elements in this clause
 Flogic = flatten(Flogic);
-S = Flogic.sess;
+S = sessOf(Flogic);
 n = size( Flogic.clauses{1},2);
 % Are all simple letters?
 all_letters = 1;

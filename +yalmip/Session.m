@@ -127,7 +127,7 @@ classdef Session < handle
         end
 
         function varargout = define(obj, varargin)
-            varargout = yalmip.dispatch(obj, varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, varargin{:});
         end
 
         % ----- name registry ----------------------------------------------
@@ -208,311 +208,315 @@ classdef Session < handle
         end
 
         function varargout = clearsolution(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'clearsolution', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'clearsolution', varargin{:});
         end
 
         function varargout = setmonomtable(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setmonomtable', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setmonomtable', varargin{:});
         end
 
         function varargout = defineVectorizedUnitary(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'defineVectorizedUnitary', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'defineVectorizedUnitary', varargin{:});
         end
 
         function varargout = setdependence(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setdependence', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setdependence', varargin{:});
         end
 
         function varargout = setdependenceUser(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setdependenceUser', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setdependenceUser', varargin{:});
         end
 
         function varargout = getdependence(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getdependence', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getdependence', varargin{:});
         end
 
         function varargout = getdependenceUser(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getdependenceUser', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getdependenceUser', varargin{:});
         end
 
         function varargout = getarguments(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getarguments', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getarguments', varargin{:});
         end
 
         function varargout = extstruct(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'extstruct', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'extstruct', varargin{:});
         end
 
         function varargout = expvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'expvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'expvariables', varargin{:});
         end
 
         function varargout = rankvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'rankvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'rankvariables', varargin{:});
         end
 
         function varargout = setnonlinearvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setnonlinearvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setnonlinearvariables', varargin{:});
         end
 
         function varargout = cleardual(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'cleardual', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'cleardual', varargin{:});
         end
 
         function varargout = associatedual(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'associatedual', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'associatedual', varargin{:});
         end
 
         function varargout = addcomplexpair(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addcomplexpair', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addcomplexpair', varargin{:});
         end
 
         function varargout = getcomplexpair(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getcomplexpair', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getcomplexpair', varargin{:});
         end
 
         function varargout = setallsolution(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setallsolution', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setallsolution', varargin{:});
         end
 
         function varargout = setvalues(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setvalues', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setvalues', varargin{:});
         end
 
         function varargout = numbersolutions(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'numbersolutions', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'numbersolutions', varargin{:});
         end
 
         function varargout = selectsolution(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'selectsolution', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'selectsolution', varargin{:});
         end
 
         function varargout = setsolution(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setsolution', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setsolution', varargin{:});
         end
 
         function varargout = addauxvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addauxvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addauxvariables', varargin{:});
         end
 
         function varargout = addauxvariablesW(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addauxvariablesW', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addauxvariablesW', varargin{:});
         end
 
         function varargout = getsolution(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getsolution', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getsolution', varargin{:});
         end
 
         function varargout = setdual(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setdual', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setdual', varargin{:});
         end
 
         function varargout = dual(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'dual', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'dual', varargin{:});
         end
 
         function varargout = clearsos(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'clearsos', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'clearsos', varargin{:});
         end
 
         function varargout = setsos(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setsos', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setsos', varargin{:});
         end
 
         function varargout = getsos(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getsos', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getsos', varargin{:});
         end
 
         function varargout = getinternalsetstate(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getinternalsetstate', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getinternalsetstate', varargin{:});
         end
 
         function varargout = setinternalsetstate(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setinternalsetstate', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setinternalsetstate', varargin{:});
         end
 
         function varargout = getinternalsdpvarstate(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getinternalsdpvarstate', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getinternalsdpvarstate', varargin{:});
         end
 
         function varargout = setinternalsdpvarstate(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setinternalsdpvarstate', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setinternalsdpvarstate', varargin{:});
         end
 
         function varargout = setintvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setintvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setintvariables', varargin{:});
         end
 
         function varargout = setbinvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setbinvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setbinvariables', varargin{:});
         end
 
         function varargout = settempintvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'settempintvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'settempintvariables', varargin{:});
         end
 
         function varargout = settempbinvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'settempbinvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'settempbinvariables', varargin{:});
         end
 
         function varargout = quantvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'quantvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'quantvariables', varargin{:});
         end
 
         function varargout = setsemicontvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setsemicontvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setsemicontvariables', varargin{:});
         end
 
         function varargout = setuncvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setuncvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setuncvariables', varargin{:});
         end
 
         function varargout = setparvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setparvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setparvariables', varargin{:});
         end
 
         function varargout = nonCommutingVariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'nonCommutingVariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'nonCommutingVariables', varargin{:});
         end
 
         function varargout = nonlinearvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'nonlinearvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'nonlinearvariables', varargin{:});
         end
 
         function varargout = addinternal(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addinternal', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addinternal', varargin{:});
         end
 
         function varargout = nvars(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'nvars', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'nvars', varargin{:});
         end
 
         function varargout = info(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'info', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'info', varargin{:});
         end
 
         function varargout = getbounds(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'getbounds', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'getbounds', varargin{:});
         end
 
         function varargout = setbounds(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setbounds', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setbounds', varargin{:});
         end
 
         function varargout = logicextvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'logicextvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'logicextvariables', varargin{:});
         end
 
         function varargout = addlogicvariable(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addlogicvariable', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addlogicvariable', varargin{:});
         end
 
         function varargout = setNonHermitianNonCommuting(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'setNonHermitianNonCommuting', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'setNonHermitianNonCommuting', varargin{:});
         end
 
         function varargout = solver(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'solver', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'solver', varargin{:});
         end
 
         function varargout = clear(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'clear', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'clear', varargin{:});
         end
 
         function varargout = nextConstraintId(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'lmiid', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'lmiid', varargin{:});
+        end
+
+        function varargout = lmiid(obj, varargin)
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'lmiid', varargin{:});
         end
 
         function varargout = version(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'version', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'version', varargin{:});
         end
 
         function varargout = addextendedvariable(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'addextendedvariable', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'addextendedvariable', varargin{:});
         end
 
         function varargout = getMonomtable(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'monomtable', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'monomtable', varargin{:});
         end
 
         function varargout = getVariabletype(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'variabletype', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'variabletype', varargin{:});
         end
 
         function varargout = getLogicvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'logicVariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'logicVariables', varargin{:});
         end
 
         function varargout = getSetNonCommutingTable(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'nonCommutingTable', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'nonCommutingTable', varargin{:});
         end
 
         function varargout = nextSosId(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'sosid', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'sosid', varargin{:});
         end
 
         function varargout = getContainsSemivar(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'containsSemivar', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'containsSemivar', varargin{:});
         end
 
         function varargout = getIntvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'intvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'intvariables', varargin{:});
         end
 
         function varargout = getBinvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'binvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'binvariables', varargin{:});
         end
 
         function varargout = getAuxvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'auxvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'auxvariables', varargin{:});
         end
 
         function varargout = getAuxvariablesW(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'auxvariablesW', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'auxvariablesW', varargin{:});
         end
 
         function varargout = getExtvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'extvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'extvariables', varargin{:});
         end
 
         function varargout = getSemicontvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'semicontvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'semicontvariables', varargin{:});
         end
 
         function varargout = getUncvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'uncvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'uncvariables', varargin{:});
         end
 
         function varargout = getParvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'parvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'parvariables', varargin{:});
         end
 
         function varargout = getTempintvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'tempintvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'tempintvariables', varargin{:});
         end
 
         function varargout = getTempbinvariables(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'tempbinvariables', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'tempbinvariables', varargin{:});
         end
 
         function varargout = getExtendedmap(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'extendedmap', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'extendedmap', varargin{:});
         end
 
         function varargout = ver(obj, varargin)
-            varargout = obj.version('ver', varargin{:});
+            [varargout{1:nargout}] = obj.version('ver', varargin{:});
         end
 
         function varargout = ConstraintID(obj, varargin)
-            varargout = obj.nextConstraintId('ConstraintID', varargin{:});
+            [varargout{1:nargout}] = obj.nextConstraintId('ConstraintID', varargin{:});
         end
 
         function varargout = addEvalVariable(obj, varargin)
-            varargout = obj.addextendedvariable('addEvalVariable', varargin{:});
+            [varargout{1:nargout}] = obj.addextendedvariable('addEvalVariable', varargin{:});
         end
 
         function varargout = definemulti(obj, varargin)
-            varargout = yalmip.dispatch(obj, 'definemulti', varargin{:});
+            [varargout{1:nargout}] = yalmip.dispatch(obj, 'definemulti', varargin{:});
         end
     end
 end

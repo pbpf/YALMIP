@@ -9,7 +9,7 @@ switch class(varargin{1})
         if isa(varargin{2},'sdpvar')
             error('x^y currently not supported for SDPVAR x and SDPVAR y')
         else
-            varargout{1} = varargin{1}.sess.define('define',mfilename,varargin{:});
+            varargout{1} = sessOf(varargin{1}).define('define',mfilename,varargin{:});
         end
 
     case 'char'

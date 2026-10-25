@@ -1,6 +1,6 @@
 function F = nnz_internal(z,x,direction)
 
-S = x.sess;
+S = sessOf(x);
 switch direction
     case 0
         [nx,mx] = size(x);

@@ -10,7 +10,7 @@ if length(F.LMIid)==0
 else
 
     F = flatten(F);
-    S = F.sess;
+    S = sessOf(F);
 
     YESNO=zeros(length(F.LMIid),1);
     switch property

@@ -120,7 +120,7 @@ switch class(X)
                 otherwise
                     error('The string does not define an SDPVAR object')
             end
-            F.sess = Fi{1}.sess;
+            F.sess = session(Fi{1});
 
         catch
             error(lasterr)
@@ -129,7 +129,7 @@ switch class(X)
     case 'sdpvar'
         Fi = {X};
         strict = 0;
-        F.sess = X.sess;
+        F.sess = session(X);
         X='Numeric value';
 
     case 'logic'
@@ -139,7 +139,7 @@ switch class(X)
 
     case {'struct','constraint'}
         [Fi,strict,LMIIdentifiers,tags] = getlist(X);
-        F.sess = X.sess;
+        F.sess = session(X);
         if isempty(handlestring) || length(handlestring)==0
             handlestring = tags{1};
         end
@@ -223,10 +223,10 @@ end
 % Special case for x<y<z<...
 % Merge into one constraint, gives nicer displays
 if ~exist('LMIIdentifiers','var')
-   if isempty(F.sess)
+   if isempty(sessOf(F))
        error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
    end
-   LMIIdentifiers = F.sess.lmiid();
+   LMIIdentifiers = sessOf(F).lmiid();
 end
 
 if all(TypeofConstraint == 2) && all(strict==strict(1))

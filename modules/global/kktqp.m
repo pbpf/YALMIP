@@ -39,7 +39,7 @@ if ~all(isinf(interfacedata.ub))
     end
 end
 
-S = interfacedata.sess;
+S = sessOf(interfacedata);
 x = S.sdpvar(length(c),1);
 [dummy, L, U,sols,vals] = boundingbox(A*x <= b,[],[],interfacedata.f + interfacedata.c'*x + x'*interfacedata.Q'*x);
 timing.boundingbox = toc(timing.total);
