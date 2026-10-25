@@ -70,16 +70,16 @@ for i = 1:length(p)
         base = [base;p(i)];
         v = 1;
     elseif isa(p(i),'sdpvar')
-        [exponent_p,p_base] = getexponentbase(p(i),recover(depends(p(i))));
+        [exponent_p,p_base] = getexponentbase(p(i),recover(depends(p(i)),sdpvarargumentsession(p)));
         ParametricIndicies = find(ismember(allvar,t));
         % FIX : don't define it here, wait until sparser below. Speed!!
-        tempbase = parameterizedbase(p(i),[],recover(t),ParametricIndicies,exponent_p,p_base,allvar);
+        tempbase = parameterizedbase(p(i),[],recover(t,sessOf(p)),ParametricIndicies,exponent_p,p_base,allvar);
         [i,j,k] = unique(full(exponent_p(:,find(~ismember(allvar,t)))),'rows');
         V = sparse(1:length(k),k,1,length(tempbase),max(k))';
         base = [base;V*tempbase];
         if nargout == 2
             keepthese = j(1:max(k));
-            v = recovermonoms(exponent_p(keepthese,find(~ismember(allvar,t))),recover(xvar));
+            v = recovermonoms(exponent_p(keepthese,find(~ismember(allvar,t))),recover(xvar,sdpvarargumentsession(p)));
         end
     elseif isa(p,'ncvar')
   
@@ -209,13 +209,13 @@ if all(s == 1) & all(sum(parametric_basis,2)<=1)%all(sum(parametric_basis,2)<=1)
     end
 else
     % Bummer, nonlinear parameterization sucks...
-    S = sdpvarargumentsession(p,x,vin);
+    S = sdpvarargumentsession(p);
     [mt,variabletype,hashedmonoms,hashkey] = S.getMonomtable();
     exponent_p_ParametricIndicies = exponent_p(:,ParametricIndicies);
     LocalHash = exponent_p_ParametricIndicies*hashkey(allvar(ParametricIndicies));
     [yn,loc] = ismember(LocalHash,hashedmonoms);
     something = any(exponent_p_ParametricIndicies,2);
-    dummy = sdpvar(1);
+    dummy = S.sdpvar(1);
     for i = 1:length(p_base)
         %j = find(exponent_p(i,ParametricIndicies));
        % j = find(exponent_p_ParametricIndicies(i,:));
@@ -242,7 +242,7 @@ else
             xx{i} = p_base(i);
         end
     end
-    p_base_parametric = stackcell(sdpvar(1,1),xx)';
+    p_base_parametric = stackcell(S.sdpvar(1,1),xx)';
 end
 
 function c = fullcoefficients(p,x,v)

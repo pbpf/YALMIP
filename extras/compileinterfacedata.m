@@ -1047,9 +1047,9 @@ if options.warmstart
     else
         %FIX : Do directly using yalmip('solution')
         %solution = yalmip('getsolution');
-        x0_used = double(recover(used_variables));
+        x0_used = double(value(recover(used_variables,S)));
     end
-    x0 = zeros(sdpvar('nvars'),1);
+    x0 = zeros(S.nvars(),1);
     x0(used_variables)  = x0_used(:);
     if ~solver.supportsinitialNAN
         x0(isnan(x0))=0;
