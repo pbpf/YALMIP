@@ -62,8 +62,8 @@ err = 0;
 p1 = ~isreal(obj);%~(isreal(F) & isreal(obj));
 p2 = ~(islinear(F) & islinear(obj));
 p3 = any(is(F,'integer')) | any(is(F,'binary'));
-S = session(F);
-bad = union(S.getBinvariables(),S.getIntvariables());
+DSES = session(F);
+bad = union(DSES.getBinvariables(),DSES.getIntvariables());
 usd = union(depends(F),depends(obj));
 p4 = any(ismember(usd,bad));
 if p1 | p2 | p3 | p4
@@ -198,7 +198,7 @@ if ~isempty(elementwise_index)
     if ~isempty(implicit_positive)        
         implicit_positive = setdiff(implicit_positive,getvariables(F_CONE));
         if ~isempty(implicit_positive) 
-            Flp = Flp + (recover(implicit_positive) >= 0);
+            Flp = Flp + (recover(implicit_positive,DSES) >= 0);
         end
     end
 
@@ -277,7 +277,7 @@ if ~isempty(elementwise_index)
         base = getbase(lpconstraint);
         lpcones = (base(:,1)<0) & (sum(abs(base(:,2:end)),2)==1) & (sum(base(:,2:end)==1,2)==1);
         if ~isempty(find(lpcones))
-            s = recover(getvariables(lpconstraint(find(lpcones))));
+            s = recover(getvariables(lpconstraint(find(lpcones))),DSES);
             x  = [x reshape(s,1,length(s))];
         end
     end
@@ -291,12 +291,12 @@ if ~isempty(elementwise_index)
             x  = [x lpconstraint(find(lpcones))];
             nlp = lpconstraint(find(~lpcones));
             if ~isempty(nlp)
-                s = sdpvar(1,length(nlp));
+                s = DSES.sdpvar(1,length(nlp));
                 F_AXb = F_AXb + (nlp-s==0);
                 x = [x s];
             end
         elseif length(lpconstraint) > 0
-            s = sdpvar(1,length(lpconstraint));
+            s = DSES.sdpvar(1,length(lpconstraint));
             x = [x s]; % New LP cones
             F_AXb = F_AXb + (lpconstraint-s==0);
         end
@@ -326,7 +326,7 @@ if ~isempty(elementwise_index)
             % remove the x variables since they are already in a cone
             % variable
             xcone = x(find(~keep));
-            s = sdpvar(1,length(xcone));
+            s = DSES.sdpvar(1,length(xcone));
             F_AXb = F_AXb + (xcone-s==0);
             x = x(find(keep));
             x = [x s];
@@ -356,13 +356,13 @@ if nnz(isSDP) > 0
     if any(isc)
         for i = 1:length(ns)
             if isc(i)
-                Slacks{i} = sdpvar(ns(i),ns(i),'hermitian','complex');
+                Slacks{i} = DSES.sdpvar(ns(i),ns(i),'hermitian','complex');
             else
-                Slacks{i} = sdpvar(ns(i),ns(i));
+                Slacks{i} = DSES.sdpvar(ns(i),ns(i));
             end
         end
     else
-        Slacks = sdpvar(ns,ms);
+        Slacks = DSES.sdpvar(ns,ms);
     end
     if ~isa(Slacks,'cell')
         Slacks = {Slacks};
@@ -393,7 +393,7 @@ for i = 1:length(F)
         % SOC dual-form cone
         Fi = sdpvar(F(i));
         n  = size(Fi,1);
-        S  = sdpvar(n,1);
+        S = DSES.sdpvar(n,1);
         %        S = Slacks{i};
         slack = Fi-S;
         if is(slack,'complex')
@@ -409,7 +409,7 @@ for i = 1:length(F)
          % Vectorized SOC dual-form cone
         Fi = sdpvar(F(i));
         [n,m]  = size(Fi);
-        S  = sdpvar(n,m,'full');        
+        S = DSES.sdpvar(n,m,'full');        
         slack = Fi-S;
         if is(slack,'complex')
             F_AXb =  F_AXb + (real(slack)==0) + (imag(slack)==0);
@@ -462,7 +462,7 @@ if any(is(F_CONE,'complexsdpcone')) & (complexsolver == 0)
         if is(X{i},'complexsdpcone')
             Xreplace{top} = X{i};
             n = length(X{i});
-            Xnew{top} = sdpvar(2*n);
+            Xnew{top} = DSES.sdpvar(2*n);
             
             
             rQ = real(Xreplace{top});
@@ -474,16 +474,16 @@ if any(is(F_CONE,'complexsdpcone')) & (complexsolver == 0)
             s0r = getvariables(rQ);
             s1r = getvariables(L1);
             s2r = getvariables(L3);
-            r0 = recover(s0r);
-            r1 = recover(s1r);
-            r2 = recover(s2r);
+            r0 = recover(s0r,DSES);
+            r1 = recover(s1r,DSES);
+            r2 = recover(s2r,DSES);
             
             s0i = getvariables(iQ);
             s1i = getvariables(triu(L2,1))';
             s2i = getvectorvariables(L2(find(tril(ones(length(L2)),-1))));
-            i0 = recover(s0i);
-            i1 = recover(s1i);
-            i2 = recover(s2i);
+            i0 = recover(s0i,DSES);
+            i1 = recover(s1i,DSES);
+            i2 = recover(s2i,DSES);
            
             replacement = [r1+r2;i1-i2];
             if ~isempty(F_AXb)
@@ -875,7 +875,7 @@ end
 if length(b) == 0
     error('Dual program is somehow trivial (0 variables in dual)');
 end
-y = sdpvar(length(b),1);
+y = DSES.sdpvar(length(b),1);
 yvars = getvariables(y);
 cf = [];
 Af = [];
@@ -883,7 +883,7 @@ Fdual = ([]);
 for j = 1:n_cones
     if size(X{j},1)==size(X{j},2)
         % Yep, this is optimized...
-        S = sdpvar(ns(j),ns(j),[],yvars,[C{j}(:) -vecA{j}]);
+        S = sdpvarFast(ns(j),ns(j),[],yvars,[C{j}(:) -vecA{j}],DSES);
         % Fast call avoids symmetry check
         Fdual = Fdual + lmi(S,[],[],[],1);
     else
@@ -931,10 +931,10 @@ end
 objdual = b'*y + obj_offset;
 if auto
     for i = 1:length(X)
-        S.associatedual(getlmiid(Fdual(i)),X{i});
+        DSES.associatedual(getlmiid(Fdual(i)),X{i});
     end
     if n_free>0
-        S.associatedual(getlmiid(Fdual(end)),t);
+        DSES.associatedual(getlmiid(Fdual(end)),t);
     end
 end
 

@@ -1,0 +1,11 @@
+STAGE_RESULT stage3z core passed=38 failed=1 incomplete=3
+STAGE_RESULT stage3z operators passed=48 failed=0 incomplete=5
+STAGE_RESULT stage3z misc passed=8 failed=0 incomplete=0
+STAGE_RESULT stage3z dualize passed=0 failed=0 incomplete=21
+STAGE_RESULT stage3z sos passed=1 failed=0 incomplete=25
+STAGE_RESULT stage3z geometric passed=3 failed=0 incomplete=10
+STAGE_RESULT stage3z logic passed=4 failed=0 incomplete=3
+STAGE_RESULT stage3z chance passed=1 failed=0 incomplete=0
+STAGE_RESULT stage3z moment passed=0 failed=0 incomplete=1
+STAGE_RESULT stage3z slayer passed=1 failed=0 incomplete=1
+STAGE_TOTAL stage3z passed=104 failed=1 incomplete=69
