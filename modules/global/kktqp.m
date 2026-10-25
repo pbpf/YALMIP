@@ -39,7 +39,8 @@ if ~all(isinf(interfacedata.ub))
     end
 end
 
-x = sdpvar(length(c),1);
+S = interfacedata.sess;
+x = S.sdpvar(length(c),1);
 [dummy, L, U,sols,vals] = boundingbox(A*x <= b,[],[],interfacedata.f + interfacedata.c'*x + x'*interfacedata.Q'*x);
 timing.boundingbox = toc(timing.total);
 
@@ -47,11 +48,11 @@ timing.boundingbox = toc(timing.total);
 Q = -2*interfacedata.Q;
 c = -interfacedata.c;
 
-yalmip('setbounds',getvariables(x),L,U);
+S.setbounds(getvariables(x),L,U);
 
-y = sdpvar(length(b),1);  % Duals 
-dy = binvar(length(b),1); % indicater dual ==0 
-ds = binvar(length(b),1); % indicater slack==0 
+y = S.sdpvar(length(b),1);  % Duals 
+dy = S.binvar(length(b),1); % indicater dual ==0 
+ds = S.binvar(length(b),1); % indicater slack==0 
 s = b-A*x;                % slack 
 
 % Derive bounds on primal slack

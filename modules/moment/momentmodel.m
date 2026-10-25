@@ -1,5 +1,7 @@
 function [Fnew, obj, M,k,x,u,n,deg,linears,nonlinears,vecConstraints,isinequality,ulong] = momentmodel(F,obj,k,keepnonlinears)
 
+S = session(F);
+
 if nargin < 2
     obj = [];
 end
@@ -119,7 +121,7 @@ end
 Fnew = Fnew + Fmoments;
 
 % Get all binary and reduce problem
-binaries = union(binaries,yalmip('binvariables'));
+binaries = union(binaries,S.getBinvariables());
 if ~isempty(binaries)
     if isa(obj,'sdpvar')        
         obj = eliminateBinary(obj,binaries);
@@ -137,9 +139,9 @@ for i = 1:length(M)
     vars = [vars getvariables(M{i})];
 end
 vars = unique([vars getvariables(obj)]);
-[mt,variabletype] = yalmip('monomtable');
+[mt,variabletype] = S.getMonomtable();
 nonlinears = vars(find(variabletype(vars)));
-newLinear = sdpvar(length(nonlinears),1);
+newLinear = S.sdpvar(length(nonlinears),1);
 
 if isa(obj,'sdpvar')
     obj = variablereplace(obj,nonlinears,getvariables(newLinear));

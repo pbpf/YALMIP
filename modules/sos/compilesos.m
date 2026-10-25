@@ -1,4 +1,6 @@
 function [F,obj,m,everything,modeltype] = compilesos(F,obj,options,params,candidateMonomials)
+
+S = session(F);
 %COMPILESOS Derive sum-of-squares model without solving
 %
 %    [F,obj,m] = compilesos(F,h,options,params,monomials) compiles the SOS
@@ -121,7 +123,7 @@ end
 % *************************************************************************
 %% Expand the parametric constraints
 % *************************************************************************
-if ~isempty(yalmip('extvariables'))
+if ~isempty(S.getExtvariables())
     [F_parametric,failure] = expandmodel(F_parametric,obj,options);
     F_parametric = expanded(F_parametric,1);
     if ~isa(obj,'logdet')
@@ -178,7 +180,7 @@ if options.verbose>0;disp(['Detected ' num2str(length(ParametricVariables)) ' pa
 % ************************************************
 NonLinearParameterization = 0;
 if ~isempty(ParametricVariables)
-    monomtable = yalmip('monomtable');
+    monomtable = S.getMonomtable();
     ParametricMonomials = monomtable(uniquestripped([getvariables(obj) getvariables(F_original)]),ParametricVariables);
     if any(sum(abs(ParametricMonomials),2)>1)
         NonLinearParameterization = 1;
@@ -190,7 +192,7 @@ end
 % ************************************************
 IntegerData = 0;
 if ~isempty(ParametricVariables)
-    globalInteger =  [yalmip('binvariables') yalmip('intvariables')];    
+    globalInteger =  [S.getBinvariables() S.getIntvariables()];    
     integerVariables = getvariables(F_parametric(find(is(F_parametric,'binary') | is(F_parametric,'integer'))));
     integerVariables = [integerVariables intersect(ParametricVariables,globalInteger)];
     integerVariables = intersect(integerVariables,ParametricVariables);
@@ -242,7 +244,7 @@ end
 % Save this and return to calling function so we know if we have dualized
 modeltype = options.sos.model;
 
-if ~isempty(yalmip('extvariables')) & options.sos.model == 2 & nargin<4
+if ~isempty(S.getExtvariables()) & options.sos.model == 2 & nargin<4
     disp(' ')
     disp('**Using nonlinear operators in SOS problems can cause problems.')
     disp('**Please specify all parametric variables using the fourth argument');

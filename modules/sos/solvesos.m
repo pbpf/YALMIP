@@ -1,4 +1,7 @@
 function [sol,m,Q,residuals,everything] = solvesos(F,obj,options,params,candidateMonomials)
+
+% The session travels with the symbolic problem data
+S = session(F);
 %SOLVESOS Sum of squares decomposition
 %
 %    [sol,m,B,residual] = solvesos(F,h,options,params,monomials) is used
@@ -113,7 +116,7 @@ end
 
 if isempty(everything) || ~isfield(everything,'p')
     % compilesos has detected trivially infeasible
-    sol.yalmipversion = yalmip('version');
+    sol.yalmipversion = yalmipversion();
     sol.matlabversion = version;
     sol.yalmiptime = etime(clock,yalmip_time);
     sol.solvertime = 0;         
@@ -372,7 +375,7 @@ switch sol.problem
 end
 
 % Don't need these outside
-yalmip('cleardual')
+S.cleardual()
 
 % Done with YALMIP, this is the time it took, minus solver
 if ~isfield(sol,'solvertime')

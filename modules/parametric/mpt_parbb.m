@@ -4,10 +4,13 @@ function model = mpt_parbb(Matrices,options)
 % YALMIP and MPT code. Hence, a substantial part of the computation time is
 % stupid over-head.
 
+% The model is self-contained, so a fresh session owns all variables here
+S = yalmip.Session();
+
 [Matrices.lb,Matrices.ub] = mpt_detect_and_improve_bounds(Matrices,Matrices.lb,Matrices.ub,Matrices.binary_var_index,options);
 
-U = sdpvar(Matrices.nu,1);
-x = sdpvar(Matrices.nx,1);
+U = S.sdpvar(Matrices.nu,1);
+x = S.sdpvar(Matrices.nx,1);
 F = (Matrices.G*U <= Matrices.W + Matrices.E*x);
 F = F + (Matrices.lb <= [U;x] <= Matrices.ub);
 F = F + (binary(U(Matrices.binary_var_index)));
@@ -40,7 +43,7 @@ ops.expand = 0;
 % Gather all binary variables
 y = unique([depends(F) depends(obj)]);
 n = length(y)-length(x);
-y = intersect(y,[yalmip('binvariables') depends(F(find(is(F,'binary'))))]);
+y = intersect(y,[S.getBinvariables() depends(F(find(is(F,'binary'))))]);
 y = recover(y);
 
 % Make sure binary relaxations satisfy 0-1 constraints
