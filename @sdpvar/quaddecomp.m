@@ -14,7 +14,7 @@ if (n*m==1)
     if nargin==2
         x_var = union(x_var,depends(z));
     end
-    x = recover(x_var);
+    x = recover(x_var, S);
     if all(variabletype(x_lin) ==0)% is(p,'linear')
         n = length(x);
         Q = spalloc(n,n,0);

@@ -16,7 +16,7 @@ x_var = find(any(mt(x_lin,:),1));
 if nargin==2
     x_var = union(x_var,depends(z));
 end
-x = recover(x_var);
+x = recover(x_var, S);
 
 basis = getbase(p);
 vars = getvariables(p);
