@@ -28,10 +28,10 @@ if isa(X,'lmi') && length(X)==1 && length(sdpvar(X))==1 && is(X,'equality')
     if is(x,'binary')
         B = getbase(x);
         if isequal(B,[1 -1]) || isequal(B,[-1 1])
-            varargout{1} = implies_internal(recover(depends(x)),Y);
+            varargout{1} = implies_internal(recover(depends(x),sessOf(x)),Y);
             return
         elseif isequal(B,[0 -1]) || isequal(B,[0 1])
-            varargout{1} = implies_internal(1-recover(depends(x)),Y);
+            varargout{1} = implies_internal(1-recover(depends(x),sessOf(x)),Y);
             return
         end        
     end
@@ -136,7 +136,7 @@ switch settype(X)
         n = length(X);
         if 0 % isequal(getbase(X),[-ones(n,1) eye(n)]) | isequal(getbase(X),[ones(n,1) -eye(n)]) & all(ismember(depends(X),S.getBinvariables()));
             % Smart code for X == 1 implies Y
-            F = [Y(:) >= recover(getvariables(X))];
+            F = [Y(:) >= recover(getvariables(X),sessOf(X))];
         else           
             d = S.binvar(length(X),2,'full');
             %F = linearnegativeconstraint_implies_binary([-zero_tolerance-X;X-zero_tolerance],[d(:,1);d(:,2)],[],[],zero_tolerance);

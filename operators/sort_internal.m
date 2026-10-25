@@ -1,4 +1,4 @@
-function [F,vars] = sort_internal(t,X,data);%ii,D,V);
+function [F,vars] = sort_internal(t,X,data,S);%ii,D,V);
 
 % Hack to figure out all the sorted variables, not just this index.
 % Sort is implemented in a slighlt different way (general feature in
@@ -20,8 +20,8 @@ if data.isthisloc == 1
     vars = vars - n;
 end
 
-t   = recover(vars);
-loc = recover(vars+n);
+t   = recover(vars,S);
+loc = recover(vars+n,S);
 
 [M,m] = derivebounds(X);
 X = reshape(X,1,n);

@@ -6,7 +6,7 @@ function [F,vars] = pwadynamics_internal(first_coord,varargin)
 % elements. Reduces the number of calls to the operator code.
 
 n = length(varargin{1});
-xplus = recover(getvariables(first_coord):getvariables(first_coord)+n-1);
+xplus = recover(getvariables(first_coord):getvariables(first_coord)+n-1,sdpsession(varargin));
 vars = getvariables(xplus);
 F = ([]);
 for i = 1:(length(varargin)/2)

@@ -94,7 +94,7 @@ switch class(varargin{1})
         data = varargin{4};
 
         % Call external to allow subsrefs in classs        
-        [F,vars] = sort_internal(t,X,data);
+        [F,vars] = sort_internal(t,X,data,sessOf(t));
 
         varargout{1} = F;
         varargout{2} = struct('convexity','none','monotonicity','none','definiteness','none','model','integer');

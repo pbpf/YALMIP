@@ -61,7 +61,7 @@ if all(variabletype(vars)==4)
     for i = 1:length(g)
          gi = extsubsref(g,i);       
          [~,common] = find(mt(getvariables(gi),:) < 0);
-         y = recover(common(1));
+         y = recover(common(1),sessOf(x));
          x = gi*y;
          if length(g)==1
              % Testing some display issues
