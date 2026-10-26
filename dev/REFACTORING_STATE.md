@@ -354,9 +354,13 @@ R2026b N-D `norm` in test_ndsdpvar, `quadprog.Algorithm` property rename) and th
 
 SeDuMi 1.3, SDPT3 and MPT3 were fetched, built for R2026b (`mex` + gcc 14.2)
 and installed as `/opt/sedumi`, `/opt/sdpt3`, `/opt/mpt3`, with staging copies
-under `~/yalmip-solvers`. `~/MATLAB/startup.m` and `dev/baseline/run_stage.m`
-put each solver's `/opt` tree first and fall back to the staging copy, so the
-setup works before and after the move.
+under `~/yalmip-solvers`. `~/Document/MATLAB/startup.m` (this install's actual
+MATLAB userpath — `userpath` reports it, `~/MATLAB` is not read) and
+`dev/baseline/run_stage.m` put each solver's `/opt` tree first and fall back to
+the staging copy, so the setup works before and after the move to `/opt`.
+Verified in a fresh session: `sedumi`/`sdpt3`/`fourier`/`Polyhedron` resolve,
+`test_robust_5/test1` reproduces its expected optimum, and
+`loadsdpafile` + `cutsdp` solves `diw_15` to -95.0.
 
 Gate, run 2026-10-27 (`solved9`): **338 of 361 tests pass, 0 new failures
 per test versus the Stage 0 baseline, 11 baseline failures fixed** (was
