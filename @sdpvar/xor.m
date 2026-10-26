@@ -23,9 +23,10 @@ switch class(varargin{1})
         if m>0
             varargout{1} = (sum(xy) == 1);
         else
+            n = numel(xy);
             T1 = -ones(n);
             T1 = T1 + 2*diag(ones(n,1));
-            t = combnk(1:n,2);
+            t = nchoosek(1:n,2);
             T2 = zeros(size(t,1),n);
             for i = 1:size(t,1)
                 T2(i,t(i,1)) = 1;

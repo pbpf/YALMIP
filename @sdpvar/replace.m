@@ -91,7 +91,7 @@ if all(variabletype(x_lmi_variables)==0) % is(X,'linear')
             %Z = Z + feas_var(j)*X.basis(:,i+1);
         end
     end
-    v = sparse(i1,ones(length(i1),1),recover(v1),length(x_lmi_variables),1);
+    v = sparse(i1,ones(length(i1),1),recover(v1,S),length(x_lmi_variables),1);
     v = v + sparse(i2,ones(length(i2),1),feas_var(v2),length(x_lmi_variables),1);
     Z = Z + X.basis(:,2:end)*v;
 else

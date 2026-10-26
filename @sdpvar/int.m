@@ -19,7 +19,7 @@ function F = int(f,x,from,to)
 
 if nargin < 2
     xi = depends(f);  
-    x = recover(xi);
+    x = recover(xi, f.sess);
 end
 
 if nargin < 3

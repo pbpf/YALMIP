@@ -187,20 +187,19 @@ end
 if length(F) > 0
     unc_declarations = is(F,'uncertain');
     if any(unc_declarations)
+        wvars = getvariables(sdpvar(F(find(unc_declarations))));
         try
-            diagnostic = solverobust(F(find(~unc_declarations)),h,options,recover(getvariables(sdpvar(F(find(unc_declarations))))));
+            diagnostic = solverobust(F(find(~unc_declarations)),h,options,recover(wvars,S));
             return
-        catch
-            if strfind(lasterr,'Undefined function ''solverobust'' ') 
+        catch ME
+            if ~isempty(strfind(ME.message,'Undefined function ''solverobust'' '))
                 display('***');
                 display('It looks like you have failed to add yalmip/modules/robust to your path');
                 display('Information on required paths https://yalmip.github.io/tutorial/installation/');
                 display(['For complete path, use addpath(genpath(''' fileparts(which('yalmiptest.m')) '''))']);
                 display('***');
-                error(lasterr)
-            else
-                error(lasterr)
             end
+            rethrow(ME)
         end        
     end
 end
@@ -301,10 +300,10 @@ if options.dualize == 1
     if ~isempty(complexInfo)
         for i = 1:length(complexInfo.replaced)
             n = size(complexInfo.replaced{i},1);
-            re = 2*double(complexInfo.new{i}(1:n,1:n));            
-            im = 2*double(complexInfo.new{i}(1:n,n+1:end));
+            re = 2*double(complexInfo.new{i}(1:n,1:n),diagnostic);            
+            im = 2*double(complexInfo.new{i}(1:n,n+1:end),diagnostic);
             im=triu((im-im')/2)-(triu((im-im')/2))';
-            assign(complexInfo.replaced{i},re + sqrt(-1)*im);
+            diagnostic = assign(complexInfo.replaced{i},re + sqrt(-1)*im,diagnostic);
         end
     end
     return
@@ -552,9 +551,6 @@ if ~isempty(output.Primal)
         S.setsolution(solution_internal);
     end
 end
-% Attach the evaluation payload so value(x,sol) / dual(F,sol) work without
-% any global "last solution" state
-diagnostic.eval = S.evalSnapshot();
 if interfacedata.options.saveduals & solver.dual 
     if isempty(interfacedata.Fremoved) | (nnz(interfacedata.Q)>0)
         try
@@ -600,6 +596,11 @@ if any(strfind(solver.tag,'GUROBI'))
         end
     end
 end
+
+% Attach the evaluation payload so value(x,sol) / dual(F,sol) work without
+% any global "last solution" state. Taken after dual recovery since
+% associated duals are folded into the solution values there.
+diagnostic.eval = S.evalSnapshot();
 
 function yesno = warningon
 

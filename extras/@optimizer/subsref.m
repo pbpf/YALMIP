@@ -388,11 +388,12 @@ elseif isequal(subs.type,'{}')
                 % 0 corresponds to variables which weren't visible in
                 % problem
                 output.Primal = [nan;output.Primal];
-                assign(self.output.z,output.Primal(1+self.map));
+                soltmp = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+                soltmp = assign(self.output.z,output.Primal(1+self.map),soltmp);
                 if ~isempty(thisData)
-                    assign(self.input.expression,thisData);
+                    soltmp = assign(self.input.expression,thisData,soltmp);
                 end
-                u = [u reshape(double(self.output.expression),self.dimout)];
+                u = [u reshape(double(self.output.expression,soltmp),self.dimout)];
             end
         end
         varargout{2}(i) = output.problem;

@@ -21,8 +21,8 @@ end
 A = -p.F_struc(:,2:end);
 b = p.F_struc(:,1);
 
-x = recover(p.used_variables);
 S = sessOf(F);
+x = recover(p.used_variables,S);
 r = S.sdpvar(1);
 
 if nargin < 2

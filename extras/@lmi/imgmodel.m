@@ -104,5 +104,5 @@ end
 
 objimage = model.c'*y+y'*model.Q*y+model.f;
 
-x = recover(recoverdata.used_variables);
+x = recover(recoverdata.used_variables,S);
 y = recoverdata.H*y+recoverdata.x_equ;

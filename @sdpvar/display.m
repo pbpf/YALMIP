@@ -163,27 +163,6 @@ switch(X.typeflag)
             n = X.dim(1);
             m = X.dim(2);
             
-            if (n<100) && (n==m)
-                x = recover(xvars);
-                if ~any(any(isnan(value(x))))
-                    doubleX = double(X);
-                    try
-                    eigX = eig(doubleX);
-                    info = [info '\nEigenvalues between [' num2str(min(eigX)) ',' num2str(max(eigX)) '], '  num2str(nnz(doubleX)) ' nonzeros'];               
-                    catch
-                    end
-                end
-            elseif n~=m
-                x = recover(xvars);
-                if ~any(any(isnan(value(x))))
-                    doubleX = value(X);
-                    try                       
-                        info = [info '\nValues in range [' num2str(min(min(doubleX))) ',' num2str(max(max(doubleX))) '], ' num2str(nnz(doubleX)) ' nonzeros'];
-                    catch
-                    end
-                end
-            end
-            
             B = getbase(X);
             [ii,jj,ss1] = find(real(getbase(B)));
             [ii,jj,ss2] = find(imag(getbase(B)));

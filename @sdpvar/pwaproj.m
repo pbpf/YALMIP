@@ -16,7 +16,7 @@ if length(Complicating)==length(hvars)
     LinearTerm = 0;
 else
     NonComplicating = find(~ismember(hvars,S.getExtvariables()));
-    LinearTerm = recover(hvars(NonComplicating))'*coefficients(NonComplicating)';
+    LinearTerm = recover(hvars(NonComplicating),S)'*coefficients(NonComplicating)';
 end
 
 if isempty(Complicating)
@@ -34,7 +34,7 @@ allargs = [];
 if ~isempty(Complicating)
     for i = 1:length(Complicating)
         extstruct = S.extstruct(hvars(Complicating(i)));
-        [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i))));
+        [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i)),S));
         RequiresEpi(i) = 1;
         z = S.sdpvar(size(arguments{i},1),size(arguments{i},2));
         allz = [allz;z];

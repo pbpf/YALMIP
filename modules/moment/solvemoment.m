@@ -98,7 +98,7 @@ sol = assign(nonlinears,value(linears,sol),sol);
 
 % Construct SOS decompositions if the user wants these
 if nargout >= 4
-    sosout.t = relaxdouble(obj,sol.eval);
+    sosout.t = relaxdouble(obj,sol);
     sosout.Q0 = dual(Fnew(1),sol);
     sosout.v0 = u{end};
     sosout.p0 = u{end}'*dual(Fnew(1),sol)*u{end};
@@ -118,7 +118,7 @@ end
 % Get the moment matrices
 % M{end} = M_original;
 for i = 1:k+1
-    moments{i} = relaxdouble(M{i},sol.eval);
+    moments{i} = relaxdouble(M{i},sol);
 end
 
 % Extract solutions if possible (at-least fesible and unbounded)

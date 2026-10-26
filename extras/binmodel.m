@@ -114,9 +114,9 @@ if any(sum(mt(vars,non_binary),2) > 1)
             if isequal(pwr,2)
                 [~,idxb,pwrb] = find(mt(vars(violatingmonoms(i)),allbinary));
                 if isequal(pwrb,1)
-                    w = sdpvar(1);
+                    w = S.sdpvar(1);
                     replacelinear = [replacelinear;getvariables(w)];
-                    cuts = [cuts, recover(non_binary(idx))*recover(allbinary(idxb)) == w];
+                    cuts = [cuts, recover(non_binary(idx),S)*recover(allbinary(idxb),S) == w];
                     cuts = [cuts, LU(non_binary(idx),1) <= w <= LU(non_binary(idx),2)];
                 else
                     error('Expression has to be linear in the continuous variables')
@@ -130,7 +130,7 @@ if any(sum(mt(vars,non_binary),2) > 1)
     b = getbase(p);
     v = getvariables(p);
     v(violatingmonoms) = replacelinear;
-    p = b*[1;recover(v)];
+    p = b*[1;recover(v,S)];
     varargin{1} = p;
     varargin{end} = [varargin{end},cuts];
     [varargout{1:nargout}] = binmodel(varargin{:});
@@ -138,7 +138,7 @@ if any(sum(mt(vars,non_binary),2) > 1)
 end
 
 % These are the original monomials
-vecvar = recover(vars);
+vecvar = recover(vars,S);
 
 linear = find(vt(vars) == 0);
 quadratic = find(vt(vars) == 2);
@@ -149,7 +149,7 @@ polynomial = find(vt(vars) == 3);
 % continuous nonlinearities above)
 if ~isempty(quadratic)
     [ii,jj] = find(mt(vars(quadratic),:));
-    z_quadratic = recover(jj);
+    z_quadratic = recover(jj,S);
 else
     quadratic = [];
     z_quadratic = [];
@@ -160,17 +160,17 @@ if ~isempty(bilinear)
     [jj,ii] = find(mt(vars(bilinear),:)');
     xi = jj(1:2:end);
     yi = jj(2:2:end);
-    x = recover(xi);
-    y = recover(yi);
+    x = recover(xi,S);
+    y = recover(yi,S);
     
     if all(ismember(xi,allbinary)) & all(ismember(yi,allbinary))
         % fast case for binary*binary
-        z_bilinear = binvar(length(bilinear),1);
+        z_bilinear = S.binvar(length(bilinear),1);
         F = [F, binary(z_bilinear), x >= z_bilinear, y >= z_bilinear, 1+z_bilinear >= x + y, (0 <= z_bilinear <= 1):'Global bound'];
     else
-        z_bilinear = sdpvar(length(bilinear),1);
+        z_bilinear = S.sdpvar(length(bilinear),1);
         theseAreBinaries = find(ismember(xi,allbinary) & ismember(yi,allbinary));
-        z_bilinear(theseAreBinaries) = binvar(length(theseAreBinaries),1);
+        z_bilinear(theseAreBinaries) = S.binvar(length(theseAreBinaries),1);
         for i = 1:length(bilinear)
             if ismember(xi(i),allbinary) & ismember(yi(i),allbinary)
                 F = [F, x(i) >= z_bilinear(i), y(i) >= z_bilinear(i), 1+z_bilinear(i) >= x(i) + y(i), (0 <= z_bilinear(i) <= 1):'Global bound'];
@@ -188,7 +188,7 @@ end
 
 %general case a bit slower
 if ~isempty(polynomial)
-    z_polynomial = sdpvar(length(polynomial),1);
+    z_polynomial = S.sdpvar(length(polynomial),1);
     xvar = [];
     yvar = [];
     for i = 1:length(z_polynomial)
@@ -199,18 +199,18 @@ if ~isempty(polynomial)
             % Start by first modeling the binary part
             the_binary_monom = the_monom;the_binary_monom(non_binary) = 0;
             [ii,jj] = find(the_binary_monom);
-            x = recover(jj);
+            x = recover(jj,S);
             F = [F, x >= z_polynomial(i), length(x)-1+z_polynomial(i) >= sum(x), 0 <= z_polynomial(i) <= 1];
             % Now define the actual variable
-            temp =  z_polynomial(i);z_polynomial(i) = sdpvar(1,1);
+            temp =  z_polynomial(i);z_polynomial(i) = S.sdpvar(1,1);
             the_real_monom = the_monom;the_real_monom(allbinary)=0;
             [ii,jj] = find(the_real_monom);
-            x = recover(jj);
+            x = recover(jj,S);
             F = F + binary_times_cont(temp,x,z_polynomial(i));
         else
             % simple case, just binary terms
             [ii,jj] = find(the_monom);
-            x = recover(jj);
+            x = recover(jj,S);
             F = [F, x >= z_polynomial(i), length(x)-1+z_polynomial(i) >= sum(x), binary(z_polynomial(i))];
         end
     end
@@ -221,7 +221,7 @@ end
 
 ii = [linear quadratic bilinear polynomial];
 jj = ones(length(ii),1);
-kk = [recover(vars(linear));z_quadratic;z_bilinear;z_polynomial];
+kk = [recover(vars(linear),S);z_quadratic;z_bilinear;z_polynomial];
 vecvar = sparse(ii(:),jj(:),kk(:));
 
 % Recover the whole thing

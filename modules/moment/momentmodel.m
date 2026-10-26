@@ -47,7 +47,7 @@ for i = 1:length(F)
 end
 
 % Recover the involved variables
-x = recover(unique([depends(obj) xvars]));
+x = recover(unique([depends(obj) xvars]),S);
 n = length(x);
 
 % Check degrees of constraints
@@ -157,7 +157,7 @@ for i = 1:length(M)
 end
 linears = getvariables(newLinear);
 Fnew = variablereplace(Fnew,nonlinears,getvariables(newLinear));
-linears = recover(linears);
-nonlinears = recover(nonlinears);
+linears = recover(linears,S);
+nonlinears = recover(nonlinears,S);
 
 end

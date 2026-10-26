@@ -26,7 +26,7 @@ function keep = consistent(exponent_m,exponent_p)
 sdpvarout = 0;
 if isa(exponent_m,'sdpvar')
     z = depends(exponent_p);
-    z = recover(unique([depends(exponent_p) depends(exponent_m)]));
+    z = recover(unique([depends(exponent_p) depends(exponent_m)]),sessOf(exponent_m));
     [exponent_p,p_base] = getexponentbase(exponent_p,z);
     exponent_m = getexponentbase(exponent_m,z);    
     sdpvarout = 1;

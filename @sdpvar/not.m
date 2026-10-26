@@ -17,7 +17,7 @@ switch class(varargin{1})
         
         varargout{1} = z == 1-x;
         varargout{2} = struct('convexity','none','monotonicity','none','definiteness','none','model','integer');
-        varargout{3} = recover(getvariables(x));
+        varargout{3} = recover(getvariables(x), x.sess);
         
     case 'sdpvar'
         if nargin > 1

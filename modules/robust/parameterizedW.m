@@ -5,7 +5,7 @@ ng = size(G,1);
 mg = size(H,2);
 
 K = full(sparse(1:ng*mg,reshape(reshape(1:ng*mg,ng,mg)',ng*mg,1),1));
-x = recover(depends(H));
+x = recover(depends(H),S);
 n = length(x);
 
 Hbase = getbase(H);

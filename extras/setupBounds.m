@@ -6,7 +6,7 @@ S.setbounds(1:nv,L,U);
 % This is a hack to avoid bound propagation when this function is
 % called from optimizer.m
 if isfield(options,'avoidequalitybounds')
-    LU = getbounds(lmi(F),0,[],S);
+    LU = getbounds(lmi(F),0,S.getbounds(1:nv),S);
 else
     LU = getbounds(lmi(F),[],[L U],S);
 end

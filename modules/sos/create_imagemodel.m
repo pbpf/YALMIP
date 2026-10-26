@@ -53,10 +53,10 @@ else
     Bnull = sparse(ii,jj,kk,size(Bnull,1),size(Bnull,2));    
     t = S.sdpvar(size(Bnull,2),1);
     if options.sos.model == 2
-        imQ = -Q1*(R1'\(A+C*recover(x_vars)))+Bnull*t;
+        imQ = -Q1*(R1'\(A+C*recover(x_vars,S)))+Bnull*t;
     else
         H = deriveBasis(B);
-        imQ = -B\(A+C*recover(x_vars))+H*t;        
+        imQ = -B\(A+C*recover(x_vars,S))+H*t;        
     end
 end
 notUsed = find(sum(abs(B),2)==0);

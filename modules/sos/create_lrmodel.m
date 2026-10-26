@@ -23,7 +23,7 @@ for i = 1:length(Blockedb)
     allA = [allA spalloc(n1,m2,0);spalloc(n2,m1,0) Ai];
 end
 options.solver = 'sdplr';
-z = recover(ParametricVariables)
+z = recover(ParametricVariables,S)
 start = size(BlockedA,2)+1;
 Mi = [];
 for i = 1:length(allb)

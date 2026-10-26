@@ -173,7 +173,7 @@ F_sos = ([]);
 AllVariables =  uniquestripped([depends(obj) depends(F_original) depends(F_parametric)]);
 ParametricVariables = intersect(ParametricVariables,AllVariables);
 MonomVariables = setdiff(AllVariables,ParametricVariables);
-params = recover(ParametricVariables);
+params = recover(ParametricVariables,S);
 if isempty(MonomVariables)
     error('No independent variables? Perhaps you added a constraint (p(x)) when you meant (sos(p(x))). It could also be that you added a constraint directly in the independents, such as p(x)>=0 or similarily.');
 end
@@ -334,8 +334,8 @@ for constraint = 1:length(p)
     pVariables = depends(p{constraint});
     AllVariables = uniquestripped([pVariables ParametricVariables]);
     MonomVariables = setdiff1D(pVariables,ParametricVariables);
-    x = recover(MonomVariables);
-    z = recover(AllVariables);
+    x = recover(MonomVariables,S);
+    z = recover(AllVariables,S);
     MonomIndicies = find(ismember(AllVariables,MonomVariables));
     ParametricIndicies = find(ismember(AllVariables,ParametricVariables));
 

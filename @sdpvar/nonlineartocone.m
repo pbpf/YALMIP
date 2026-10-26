@@ -43,9 +43,9 @@ if (n*m==1)
     if r==0
         linear = base(1);
         if ~isempty(linvars)
-            linear = linear+base(1+find(ismember(linvars,vars)))*recover(linvars);
+            linear = linear+base(1+find(ismember(linvars,vars)))*recover(linvars,S);
         end
-        ConesAxb=[2*B*recover(h(used));1-linear];
+        ConesAxb=[2*B*recover(h(used),S);1-linear];
         Conescxd=1+linear;
         Fconv = cone(ConesAxb,Conescxd);
         info = 0;

@@ -41,7 +41,7 @@ if isnumeric(p)
 end
 
 if nargin<2 || isempty(y)
-    y = recover(depends(p));   
+    y = recover(depends(p), p.sess);   
 end
 
 if nargin < 3
@@ -72,7 +72,7 @@ if vector == 0
 else
     p = p(:);
     if isempty(y)
-        yy = recover(depends(p));
+        yy = recover(depends(p), p.sess);
     else
         yy = y;
     end

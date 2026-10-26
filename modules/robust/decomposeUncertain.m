@@ -81,8 +81,8 @@ end
 % Trying to take care of cases such as norm([x+w;x-w]), i.e. epigraphs with
 % uncertainty.
 %[F_xw,ops] = prepareforAuxiliaryRemoval(VariableType,F_xw,F_w,ops);
-x = recover(VariableType.x_variables);
-w = recover(VariableType.w_variables);
+x = recover(VariableType.x_variables,S);
+w = recover(VariableType.w_variables,S);
 ops.robust.forced_enumeration = 0;
 switch ops.robust.auxreduce
     case {'none','affine','','projection','enumeration'}
@@ -176,8 +176,8 @@ Uncertainty.uncertaintyTypes = uncertaintyTypes;
 Uncertainty.separatedZmodel = separatedZmodel;
 Uncertainty.uncertaintyGroups = uncertaintyGroups;
 
-VariableType.x = recover(VariableType.x_variables);
-VariableType.w = recover(VariableType.w_variables);
+VariableType.x = recover(VariableType.x_variables,S);
+VariableType.w = recover(VariableType.w_variables,S);
 
 failure = 0;
 
@@ -512,7 +512,8 @@ function Fnew = projectOut(F,w,newAuxVariables,uncertaintyGroups,ops)
 
 w_variables = getvariables(w);
 
-Graph = session(F).getdependence();
+S = session(F);
+Graph = S.getdependence();
 for i = 1:length(uncertaintyGroups)
     Graph(w_variables(uncertaintyGroups{i}),w_variables(uncertaintyGroups{i}))=1;
 end
@@ -580,7 +581,7 @@ for clique = 1:length(commonProjections)
         
         [A,b] = fourierMotzkin(A,b,sort(j));
         A(:,j)=[];
-        left = recover(setdiff(allVariables,newAuxVariables));
+        left = recover(setdiff(allVariables,newAuxVariables),S);
         X = b-A*left(:);
         Fnew = [Fnew,[[X >= 0] : 'Projected uncertain']];
     end
@@ -627,10 +628,10 @@ end
 function [Fnew,xnew,info] = adjustable(F,w,newAuxVariables,uncertaintyGroups,ops,VariableType)
 
 S = session(F);
-L = S.sdpvar(length(recover(newAuxVariables)),length(w),'full');
+L = S.sdpvar(length(recover(newAuxVariables,S)),length(w),'full');
 L = L.*VariableType.Graph(VariableType.aux_with_w_dependence,VariableType.w_variables);
-y0 = S.sdpvar(length(recover(newAuxVariables)),1);
-Fnew = replace(F,recover(newAuxVariables),y0+L*w);
-xnew = recover([getvariables(y0) getvariables(L)]);
+y0 = S.sdpvar(length(recover(newAuxVariables,S)),1);
+Fnew = replace(F,recover(newAuxVariables,S),y0+L*w);
+xnew = recover([getvariables(y0) getvariables(L)],S);
 info.nvars = length(getvariables(L));
 info.sparsity = length(getvariables(L))/prod(size(L));

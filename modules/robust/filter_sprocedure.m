@@ -18,7 +18,7 @@ if any(is(F_xw,'elementwise'))
     ops.sos.model=2;
     
     % All decision variables (i.e. not variables in SOS)
-    Parameters = [recover(setdiff(depends(p),depends(w)))];
+    Parameters = [recover(setdiff(depends(p),depends(w)),S)];
     for i = 1:length(p)
         d = degree(p(i),w);
         if all(d<=2) & any(d==2)

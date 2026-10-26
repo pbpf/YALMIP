@@ -67,7 +67,7 @@ if ~isempty(integer_variables)
 end
 
 if nargin < 3
-    x = recover(model.used_variables);
+    x = recover(model.used_variables,S);
     parameters = [];
 else
     % Make sure they are sorted    
@@ -76,7 +76,7 @@ else
     notparameters = find(ismember(model.used_variables,getvariables(x)));%parameters);
     parameters = setdiff(1:length(model.used_variables),notparameters);
     if ~isempty(parameters)
-        y = recover(model.used_variables(parameters));
+        y = recover(model.used_variables(parameters),S);
     end
 end
 

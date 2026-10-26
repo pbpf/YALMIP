@@ -2,14 +2,12 @@ function tests = test_robust_15
 tests = functiontests(localfunctions);
 
 function test1(testCase)
-S = yalmip.Session();
-x = S.sdpvar(2,1);
-w = S.sdpvar(2,1);
+Ses = yalmip.Session();
 P = eye(2);
 S = [120 140;140 180]/4;
 
-w = S.sdpvar(2,1);
-x = S.sdpvar(2,1);
+w = Ses.sdpvar(2,1);
+x = Ses.sdpvar(2,1);
 
 sol = optimize([(x+w)'*P*(x+w)<=1,w'*S*w <= 1,uncertain(w)],x(1),sdpsettings('verbose',1))
 value(x, sol)

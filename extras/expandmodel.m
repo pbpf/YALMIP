@@ -403,7 +403,7 @@ try
     expression_basis = getbase(expression);
     expression_vars  = getvariables(expression);
     [yesno,location] = ismember(variables(index_in_extended),expression_vars);
-    ztemp = recover(variables(index_in_extended));
+    ztemp = recover(variables(index_in_extended),S);
     while j<=length(index_in_extended) & ~failure
         % i = index_in_extended(j);
         % zi = recover(variables(i));
@@ -429,9 +429,9 @@ catch
         i = index_in_extended(j);
         basis = getbasematrix(expression,variables(i));
         if all(basis >= 0)
-            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state,S);
+            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i),S),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'convex',allExtStruct,w,state,S);
         else
-            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i)),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state,S);
+            [F_expand,failure,cause,state] = expandrecursive(recover(variables(i),S),F_expand,extendedvariables,monomtable,variabletype,where,level+1,options,method,[],'concave',allExtStruct,w,state,S);
         end
         j=j+1;
     end

@@ -151,19 +151,32 @@ if ~isempty(Constraints)
     end
 end
 
+% Session owning every symbol referenced by this problem
+Sopt = sessOf(Constraints);
+if isempty(Sopt)
+    Sopt = sessOf(Objective);
+end
+if isempty(Sopt)
+    Sopt = sessOf(x);
+end
+% Fall back to a fresh session when nothing symbolic was given
+if isempty(Sopt)
+    Sopt = yalmip.Session();
+end
+
 if ~isempty(Constraints)
     if any(is(Constraints,'sos'))
         tempOps = options;
         tempOps.sos.model = 2;
         tempOps.verbose = max(0,tempOps.verbose-1);
-        parameter_sos = [x;u;recover(depends(Objective))];
+        parameter_sos = [x;u;recover(depends(Objective),Sopt)];
         parameter_sos = depends(parameter_sos);
         for i = 1:length(Constraints)
             if ~is(Constraints,'sos')
                 parameter_sos = [parameter_sos depends(Constraints(i))];
             end
         end
-        parameter_sos = recover(parameter_sos);
+        parameter_sos = recover(parameter_sos,Sopt);
         [Constraints,Objective] = compilesos(Constraints,Objective,tempOps,parameter_sos);
     end
 end
@@ -231,7 +244,7 @@ if isempty(u) || (is(u,'linear') & all(sum(base | base,2) == 1) & all(sum(base,2
 else
     % Some expression which we will use assign and double to evaluate
     vars = depends(u);
-    z = recover(vars);    
+    z = recover(vars,Sopt);    
     map = [];
     for i = 1:length(z)        
         var = vars(i);
@@ -367,7 +380,7 @@ end
 sys.model.F_struc(1:prod(sys.dimin),:)=[];
 sys.model.K.f = sys.model.K.f-prod(sys.dimin);
 
-sys.sess = session(Constraints);
+sys.sess = Sopt;
 sys = class(sys,'optimizer');
 sys = optimizer_precalc(sys);
 

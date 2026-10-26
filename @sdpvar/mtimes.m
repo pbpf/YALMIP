@@ -868,7 +868,7 @@ if isequal(getbase(args),[0 1]) &&  isequal(getbase(X),[0 1])
         B = getbase(Y);k = B(2);
         switch Y.extra.opname
             case {'log','scaled log'}
-                Z = (-k)*plog([X;recover(find(v==-1))]);
+                Z = (-k)*plog([X;recover(find(v==-1),S)]);
             case {'exp','scaled exp'}
                 Z = [];
             otherwise
@@ -879,9 +879,9 @@ if isequal(getbase(args),[0 1]) &&  isequal(getbase(X),[0 1])
         B = getbase(Y);k = B(2);
         switch Y.extra.opname
             case {'log','scaled log'}                                                
-                Z = k*plog([X;recover(find(v==1))]);                
+                Z = k*plog([X;recover(find(v==1),S)]);                
             case {'exp','scaled exp'}
-                Z = k*pexp([X;recover(find(v==1))]);
+                Z = k*pexp([X;recover(find(v==1),S)]);
             otherwise
         end
     else

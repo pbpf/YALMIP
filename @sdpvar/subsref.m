@@ -38,7 +38,7 @@ try
                 A = B(:,2:end);
                 b = B(:,1);
                 x0 = -A\b;
-                x = recover(getvariables(z));
+                x = recover(getvariables(z),S);
                 varargout{1} = replace(X,x,x0);
                 return                
             end
@@ -62,7 +62,7 @@ try
             % This is a bit tricky, so we do the best we can; assume that
             % we want to replace the internal argument wih the new
             % expression
-            OldArgument = recover(depends(X));
+            OldArgument = recover(depends(X),S);
             vars = getvariables(X);
             mpt_solution = 1;
             if all(ismembc(vars,S.getExtvariables()))

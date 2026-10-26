@@ -78,7 +78,11 @@ problem.exponentialcone = exponential_cone;
 % ********************************************************
 % Make a list of all globally available discrete variables
 % ********************************************************
+% An empty constraint set carries no session; the objective does
 S = sessOf(F);
+if isempty(S)
+    S = sessOf(h);
+end
 integer_variables   = S.getIntvariables();
 binary_variables    = S.getBinvariables();
 semicont_variables = S.getSemicontvariables();
@@ -465,12 +469,12 @@ if (~isempty(h)) & ~isa(h,'double') & ~h_is_linear &~(relax==1) &~(relax==3)
                     if s >= -1e-10
                         p=0;
                         try
-                            [U,S,V]=svd(Q);
+                            [U,SS,V]=svd(Q);
                         catch
-                            [U,S,V]=svd(full(Q));
+                            [U,SS,V]=svd(full(Q));
                         end
-                        i = find(diag(S)>1e-10);
-                        R = sqrt(S(1:max(i),1:max(i)))*V(:,1:max(i))';
+                        i = find(diag(SS)>1e-10);
+                        R = sqrt(SS(1:max(i),1:max(i)))*V(:,1:max(i))';
                     end
                 end
             end

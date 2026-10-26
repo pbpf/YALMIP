@@ -47,7 +47,7 @@ lifted = all_variables(all_variables>gen_here);
 vars = union(setdiff(setdiff(setdiff(all_variables,all_extended),gen_here),lifted),non_ext_in);
 nx = length(vars);
 
-X = recover(vars);
+X = recover(vars,S);
 
 if nargin == 1
     Xdomain = (-100 <= X <= 100);

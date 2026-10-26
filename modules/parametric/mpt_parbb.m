@@ -19,9 +19,9 @@ h = Matrices.H*U + Matrices.F*x;
 
 Universe = polytope((Matrices.lb(end-Matrices.nx+1:end) <= x <= Matrices.ub(end-Matrices.nx+1:end)));
 
-model = parametric_bb(F,h,options,x,Universe);
+model = parametric_bb(F,h,options,x,Universe,S);
 
-function sol = parametric_bb(F,obj,ops,x,Universe)
+function sol = parametric_bb(F,obj,ops,x,Universe,S)
 
 % F   : All constraints
 % obj : Objective
@@ -44,7 +44,7 @@ ops.expand = 0;
 y = unique([depends(F) depends(obj)]);
 n = length(y)-length(x);
 y = intersect(y,[S.getBinvariables() depends(F(find(is(F,'binary'))))]);
-y = recover(y);
+y = recover(y,S);
 
 % Make sure binary relaxations satisfy 0-1 constraints
 F = F + (0 <= y <= 1);

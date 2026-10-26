@@ -17,11 +17,11 @@ else
     NonComplicating = find(~ismember(hvars,S.getExtvariables()));
     LinearwIndex = find(ismember(hvars,wvars));
     NonComplicating = setdiff(NonComplicating,LinearwIndex);
-    LinearTerm = recover(hvars(NonComplicating))'*coefficients(NonComplicating)';
+    LinearTerm = recover(hvars(NonComplicating),S)'*coefficients(NonComplicating)';
     if isempty(LinesarwIndex)
         Linearw = 0;
     else
-        Linearw = recover(hvars(LinearwIndex))'*coefficients(LinearwIndex)';
+        Linearw = recover(hvars(LinearwIndex),S)'*coefficients(LinearwIndex)';
     end
 end
 
@@ -40,7 +40,7 @@ allargs = [];
 if ~isempty(Complicating)
     for i = 1:length(Complicating)
         extstruct = S.extstruct(hvars(Complicating(i)));
-        [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i))));
+        [properties{i},F{i},arguments{i}]=model(recover(hvars(Complicating(i)),S));
         if intersect(depends(arguments{i}),wvars)
             RequiresEpi(i) = 1;
             z = S.sdpvar(size(arguments{i},1),size(arguments{i},2));
@@ -54,7 +54,7 @@ if ~isempty(Complicating)
             totalF = totalF + thisF;
             totalobjective=coefficients(Complicating(i))*t+totalobjective;
         else
-           LinearTerm = LinearTerm + recover(hvars(Complicating(i)))'*coefficients(Complicating(i))';  
+           LinearTerm = LinearTerm + recover(hvars(Complicating(i)),S)'*coefficients(Complicating(i))';  
         end
     end
 end

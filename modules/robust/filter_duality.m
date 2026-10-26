@@ -68,8 +68,8 @@ A = A';
 % Partition the uncertain variables
 simple_w  = find( ~isinf(lower) & ~isinf(upper));
 general_w = find( isinf(lower) |  isinf(upper));
-simple_w = recover(simple_w);
-general_w = recover(general_w);
+simple_w = recover(simple_w,S);
+general_w = recover(general_w,S);
 
 % Linear uncertain constraint is (Bbetai*x + cdi) >= 0 for all w, or
 % (bi' + (Bi*w)')*x + (ci'*w + di).
@@ -216,8 +216,8 @@ for i = 1:length(b)
                 % zets ==...
                 Anull = null(full(Alhs));
                 zeta2 = (Alhs\(-blhs +  Bi'*x + ci))+Anull*S.sdpvar(size(Anull,2),1);
-                lhs2 = replace(lhs2,recover(depends(lhs1)),zeta2);
-                Flocal = replace(Flocal,recover(depends(lhs1)),zeta2);
+                lhs2 = replace(lhs2,recover(depends(lhs1),S),zeta2);
+                Flocal = replace(Flocal,recover(depends(lhs1),S),zeta2);
             else
                 Flocal = [Flocal,lhs1 == Bi'*x + ci]; 
                % F = F + (lhs1 == Bi'*x + ci);

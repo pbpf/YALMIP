@@ -72,7 +72,7 @@ if all(variabletype(x_lmi_variables)==0) % is(X,'linear')
     for i = 1:length(x_lmi_variables)
         j = find(x_lmi_variables(i) == y_lmi_variables);
         if isempty(j)
-            Z = Z + recover(x_lmi_variables(i))*X.basis(:,i+1);
+            Z = Z + recover(x_lmi_variables(i),S)*X.basis(:,i+1);
         else
             Z = Z + feas_var(j)*X.basis(:,i+1);
         end
@@ -89,7 +89,7 @@ else
     local_monoms_left = monomtable(used_variables,:);
     local_monoms_left(:,replaced_vars) = 0;
     used_left = find(sum(local_monoms_left,1));
-    base = recovermonoms(local_monoms_left(:,used_left),recover(used_left));
+    base = recovermonoms(local_monoms_left(:,used_left),recover(used_left,S));
                 
     for rep = 1:size(Wall,2)
         W = Wall(:,rep);

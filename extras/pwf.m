@@ -77,7 +77,7 @@ switch class(varargin{1})
                 for i = 1:nargin/2
                     z = [z depends(varargin{2*i-1}) depends(varargin{2*i})];
                 end
-                z = recover(unique(z));
+                z = recover(unique(z),S);
                 
                 pwq{1}.Ai = {};
                 pwq{1}.Bi = {};
@@ -138,10 +138,10 @@ switch class(varargin{1})
                     m = -1e4;
                 end
                 F = F + (Xi >= m*(1-indicators(i)));
-                X = [X;recover(depends(Guard{i}))];
+                X = [X;recover(depends(Guard{i}),S)];
             end
             % cost = sum(delta_i*cost_i(x)) = sum(cost_i(delta_i*x))
-            X = recover(getvariables(X));
+            X = recover(getvariables(X),S);
 
             if 0
                 cost = 0;

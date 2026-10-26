@@ -1,8 +1,10 @@
-function [F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistruct(F)
+function [F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistruct(F,S)
 %lmi2sedumistruct   Internal function: Converts LMI to format needed in SeDuMi
 
 F = flatten(F);
-S = sessOf(F);
+if nargin < 2 || isempty(S)
+    S = sessOf(F);
+end
 nvars = S.nvars(); %Needed lot'sa times...
 
 % We first browse to see what we have got and the

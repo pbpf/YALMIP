@@ -21,9 +21,9 @@ if ~isempty(h_w)
         base = base(2:end);base = base(:);
         t = S.sdpvar(1,1);
     
-        F = [F,base(h_w(:))'*recover(h_variables(h_w)) <= t];
+        F = [F,base(h_w(:))'*recover(h_variables(h_w),S) <= t];
         base(h_w) = 0;
-        h = h0 + base(:)'*recover(h_variables) + t;          
+        h = h0 + base(:)'*recover(h_variables,S) + t;          
     else
         t = S.sdpvar(1,1);
         F = [F, h <= t];
@@ -93,8 +93,8 @@ end
 %     aux_w_or_w = union(aux_with_w_dependence,w_variables);  
 % end    
 
-x = recover(x_variables);
-w = recover(w_variables);
+x = recover(x_variables,S);
+w = recover(w_variables,S);
 
 if ~isempty(F_xw)
     F_xw_scalar =  F_xw(find(is(F_xw,'elementwise') | is(F_xw,'equality')));

@@ -97,13 +97,13 @@ if fractional | negative | different
             if isempty(previous_var)
                 mt(end+1,:) = mt(getvariables(x),:)*d;
                 S.setmonomtable(mt);
-                y = recover(size(mt,1));
+                y = recover(size(mt,1),S);
             else
-                y = recover(previous_var);
+                y = recover(previous_var,S);
             end
         elseif (size(base,2) == 2) & base(1)==0
             % Something like a*t^-d
-            y = base(2)^d*recover(getvariables(x))^d;
+            y = base(2)^d*recover(getvariables(x),S)^d;
         else
             error('Only unit scalars can have negative or non-integer powers.');
         end
@@ -167,6 +167,6 @@ else
     mt = [mt;usedmt(find(keep),:)*d];
 end
 S.setmonomtable(mt,variabletype);
-y = reshape(recover(y),x.dim);
+y = reshape(recover(y,S),x.dim);
 
             

@@ -96,13 +96,13 @@ if (ceil(d)-d>0) | (d<0)
                 newmt =  mt(getvariables(x),:)*d;
                 mt(end+1,:) = newmt;
                 S.setmonomtable(mt,[variabletype newvariabletypegen(newmt)]);
-                y = recover(size(mt,1));
+                y = recover(size(mt,1),S);
             else
-                y = recover(previous_var);
+                y = recover(previous_var,S);
             end
         elseif  (size(base,2) == 2) & base(1)==0 & base(2) > 0
             % Something like a*t^-d
-            y = base(2)^d*recover(getvariables(x))^d;
+            y = base(2)^d*recover(getvariables(x),S)^d;
         else
             % Bummer, something more complex, add an internal equality constraint 
             y = (S.define('define','mpower_internal',x))^d;

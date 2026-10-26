@@ -338,8 +338,8 @@ VariableType.w_variables = union(VariableType.w_variables,reclassifyAsUncertain)
 
 function [VariableType,h_fixed,F_xw] = reformatObjective(h,F_xw,VariableType)
 % Some pre-calc
-x = recover(VariableType.x_variables);
-w = recover(VariableType.w_variables);
+x = recover(VariableType.x_variables,S);
+w = recover(VariableType.w_variables,S);
 xw = [x;w];
 xind = find(ismembcYALMIP(getvariables(xw),getvariables(x)));
 wind = find(ismembcYALMIP(getvariables(xw),getvariables(w)));

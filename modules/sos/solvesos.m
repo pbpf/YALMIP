@@ -165,9 +165,9 @@ end
 % **********************************************
 for constraint = 1:length(p)
     for i = 1:length(BlockedQ{constraint})
-        doubleQ{constraint}{i} = normp(constraint)*double(BlockedQ{constraint}{i});
+        doubleQ{constraint}{i} = normp(constraint)*doubleValue(BlockedQ{constraint}{i},sol);
     end
-    doubleb{constraint}=normp(constraint)*double(Blockedb{constraint});
+    doubleb{constraint}=normp(constraint)*doubleValue(Blockedb{constraint},sol);
 end
 
 % **********************************************
@@ -248,7 +248,7 @@ if options.sos.impsparse == 1
     somesmall = 0;
     for i = 1:length(BlockedQ)
         for j =  1:length(BlockedQ{i})
-            small = find(abs(double(BlockedQ{i}{j}))<options.sos.sparsetol);
+            small = find(abs(doubleValue(BlockedQ{i}{j},sol))<options.sos.sparsetol);
             nullThese{i}{j} = small;
             if ~isempty(small)
                 somesmall = 1;
@@ -260,9 +260,9 @@ if options.sos.impsparse == 1
         sol =  solvesdp(F,obj,options);
         for constraint = 1:length(p)
             for i = 1:length(BlockedQ{constraint})
-                doubleQ{constraint}{i} = normp(constraint)*double(BlockedQ{constraint}{i});
+                doubleQ{constraint}{i} = normp(constraint)*doubleValue(BlockedQ{constraint}{i},sol);
             end
-            doubleb{constraint}=normp(constraint)*double(Blockedb{constraint});
+            doubleb{constraint}=normp(constraint)*doubleValue(Blockedb{constraint},sol);
         end
 
         % **********************************************
@@ -325,8 +325,8 @@ switch sol.problem
                     usedVariables = find(any(Q{constraint},2));
                     if length(usedVariables)<length(Q{constraint})
                         Qpart = Q{constraint}(usedVariables,usedVariables);
-                        [U,S,V]=svd(Qpart);
-                        R = sqrt(S)*V';
+                        [U,SS,V]=svd(Qpart);
+                        R = sqrt(SS)*V';
                         h0 = R*monoms{constraint}(usedVariables);
                         if isa(h0,'sdpvar')
                             h{constraint} = clean(R*monoms{constraint}(usedVariables),options.sos.clean);
@@ -335,8 +335,8 @@ switch sol.problem
                             h{constraint} = h0;
                         end
                     else
-                        [U,S,V]=svd(mid(Q{constraint}));
-                        R = sqrt(S)*V';
+                        [U,SS,V]=svd(mid(Q{constraint}));
+                        R = sqrt(SS)*V';
                         h0 = R*monoms{constraint};
 
                         if isa(h0,'sdpvar')
@@ -387,3 +387,14 @@ if ~isfield(sol,'solvertime')
 end
 
 sol.yalmiptime = etime(clock,yalmip_time)-sol.solvertime;
+
+function d = doubleValue(x,sol)
+% Evaluate x against the solve output, tolerating numeric entries and
+% models where no solution payload is available.
+if ~isa(x,'sdpvar')
+    d = double(x);
+elseif isstruct(sol) && (isfield(sol,'eval') || isfield(sol,'variables'))
+    d = double(x,sol);
+else
+    d = nan(size(x));
+end

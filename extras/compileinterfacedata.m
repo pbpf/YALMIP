@@ -71,7 +71,7 @@ end
 %% ADD RADIUS CONSTRAINT
 % *************************************************************************
 if isa(options.radius,'sdpvar') | ~isinf(options.radius)
-    x = recover(unique(union(depends(h),depends(F))));
+    x = recover(unique(union(depends(h),depends(F))),S);
     if length(x)>1
         F = F + (cone(x,options.radius));
     else
@@ -371,8 +371,8 @@ if ProblemClass.constraint.complementarity.variable | ProblemClass.constraint.co
             if (islinear(Cx) & islinear(Cy) & is(Cx,'lpcone') &  is(Cy,'lpcone'))
              Fok = [Fok, Fc(i)];
             else
-                s1 = sdpvar(length(Cx),1);
-                s2 = sdpvar(length(Cy),1);                
+                s1 = S.sdpvar(length(Cx),1);
+                s2 = S.sdpvar(length(Cy),1);                
                 Freform = [Freform,complements(s1>=0,s2>=0),s1 == Cx, s2 == Cy];
             end            
         end   
@@ -598,7 +598,7 @@ if ~isempty(logdetStruct)
                 evalVariables = union(evalVariables,getvariables( log_vi));
             end
         else
-        t = sdpvar(1,1);
+        t = S.sdpvar(1,1);
         Ptemp = [];
         for i = 1:length(logdetStruct.P)
             Ptemp = blkdiag(Ptemp,logdetStruct.P{i});
@@ -641,7 +641,7 @@ end
 % *************************************************************************
 old_binary_variables = binary_variables;
 if ~isempty(binary_variables) & (solver.constraint.binary==0)
-    x_bin = recover(binary_variables(ismember(binary_variables,unique([getvariables(h) getvariables(F)]))));
+    x_bin = recover(binary_variables(ismember(binary_variables,unique([getvariables(h) getvariables(F)]))),S);
     F = F + (x_bin<=1)+(x_bin>=0);
     integer_variables = union(binary_variables,integer_variables);
     binary_variables = [];
@@ -665,7 +665,7 @@ if any(strcmpi(solver.tag,{'bnb','cutsdp'})) & ~isempty(quad_info)
 end
 
 if convertQuadraticObjective
-    t = sdpvar(1,1);
+    t = S.sdpvar(1,1);
     x = quad_info.x;
     R = quad_info.R;
     if ~isempty(R)
@@ -673,13 +673,6 @@ if convertQuadraticObjective
         f = quad_info.f;
         F = F + lmi(cone([2*R*x;1-(t-f)],1+t-f));
         h = t+c'*x;
-        if options.warmstart
-            xx = value(x);
-            ff = norm(quad_info.R*xx)^2+f;
-            if ~isnan(ff)
-                assign(t,ff);
-            end
-        end
     end
     quad_info = [];
 end
@@ -774,7 +767,7 @@ end
 % *************************************************************************
 showprogress('Processing constraints',options.showprogress);
 F = lmi(F);
-[F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistruct(F);
+[F_struc,K,KCut,schur_funs,schur_data,schur_variables] = lmi2sedumistruct(F,S);
 % We add a field to remember the dimension of the logarithmic cost.
 % Actually, the actually value is not interesting, we know that the
 % logarithmic cost corresponds to the last LP or SDP constraint anyway

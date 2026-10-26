@@ -54,7 +54,7 @@ if all(variabletype(Xvariables) == 0) %| all(sum(mt(any(mt(getvariables(X),getva
     i2 = find(~aa);
     v2 = Xvariables(i2);    
     v = sparse(i1,ones(length(i1),1),W(v1),length(Xvariables),1);
-    v = v + sparse(i2,ones(length(i2),1),recover(v2),length(Xvariables),1);    
+    v = v + sparse(i2,ones(length(i2),1),recover(v2,S),length(Xvariables),1);    
     Z = Xbase*[1;v];    
     Z = reshape(Z,size(X,1),size(X,2));
 else

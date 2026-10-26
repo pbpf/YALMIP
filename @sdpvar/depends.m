@@ -20,6 +20,10 @@ else
     x = varargin{1};
 end
 
+if ~isa(x,'sdpvar')
+    LinearVariables = [];
+    return
+end
 S = x.sess;
 [mt,variabletype] = S.getMonomtable();
 

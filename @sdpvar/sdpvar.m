@@ -531,7 +531,7 @@ for blk = 1:length(n)
 
         case 'skew complex'
             if n==1
-                sys = sdpvar(1,1)*sqrt(-1, 'session', {S});
+                sys = sdpvar(1,1,'session',{S})*sqrt(-1);
                 return
             else
                 basis = spalloc(n^2,1+nvar,2);
@@ -691,58 +691,4 @@ else
         sys.dim(2) = 1;
         sys = toeplitz(sys);
     end
-% Register the display name (used by sdisplay instead of workspace sniffing)
-if ~isempty(displayname)
-    S.registerVariablenames(displayname, lmi_variables);
-end
-
-% Create an object
-if isa(basis,'cell')
-    top = 1;
-    for blk = 1:length(n)
-        sys{blk}.basis = basis{blk};
-        nn = size(sys{blk}.basis,2)-1;
-        sys{blk}.lmi_variables = lmi_variables(top:top+nn-1);
-        top = top + nn;
-        sys{blk}.dim(1) = n(blk);
-        sys{blk}.dim(2) = m(blk);
-        sys{blk}.typeflag = 0;
-        sys{blk}.savedata = [];
-        sys{blk}.extra = [];
-        sys{blk}.extra.expanded = [];
-        sys{blk}.extra.opname = '';
-        sys{blk}.extra.createTime = definecreationtime;
-        sys{blk}.conicinfo = conicinfo;
-        sys{blk}.originalbasis = matrix_type;
-        sys{blk}.sess = S;
-        sys{blk}.name = displayname;
-        sys{blk} = class(sys{blk},'sdpvar');
-    end
-    if length(n)==1
-        sys = sys{1};
-    end
-else
-    sys.basis = basis;
-    sys.lmi_variables = lmi_variables;
-    sys.dim(1) = n;
-    sys.dim(2) = m;
-    sys.typeflag = 0;
-    sys.savedata = [];
-    sys.extra = [];
-    sys.extra.expanded = [];
-    sys.extra.opname = '';
-    sys.extra.createTime = definecreationtime;
-    sys.conicinfo = conicinfo;
-    sys.originalbasis = matrix_type;
-    sys.sess = S;
-    sys.name = displayname;
-    sys = class(sys,'sdpvar');
-    if isequal(matrix_type,'hankel')
-        sys.dim(2) = 1;
-        sys = hankel(sys);
-    elseif isequal(matrix_type,'toeplitz')
-        sys.dim(2) = 1;
-        sys = toeplitz(sys);
-    end
-end
 end

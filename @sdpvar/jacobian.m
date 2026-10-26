@@ -15,11 +15,15 @@ switch nargin
     case 1
         dfdx = shadowjacobian(f);
     case 2
+        S = sessOf(f);
+        if isempty(S)
+            S = sessOf(x);
+        end
         if length(getvariables(x) > length(x(:)))
             % typical case is jacobian(f(X),X) with X a symmetric matrix
             % Shadowjacobian assumes elements of x are independent
-            dfdx = shadowjacobian(f,recover(x));
-            x_indep = recover(x);
+            dfdx = shadowjacobian(f,recover(x,S));
+            x_indep = recover(x,S);
             dfdx = map_to_original(dfdx,x,x_indep);
         else
             dfdx = shadowjacobian(f,x(:));

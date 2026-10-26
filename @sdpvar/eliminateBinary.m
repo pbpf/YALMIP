@@ -9,7 +9,7 @@ mt = mt(vars,:);
 mt(:,binaries) = min(mt(:,binaries),1);
 
 used_variables = find(any(mt,1));
-x = recover(used_variables)';
+x = recover(used_variables,S)';
 new_monoms = [];
 mt = mt(:,used_variables);
 

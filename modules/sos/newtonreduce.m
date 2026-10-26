@@ -26,7 +26,7 @@ function [exponent_m,changed,no_lp_solved,keep] = newtonreduce(exponent_m,expone
 sdpvarout = 0;
 if isa(exponent_m,'sdpvar')
     z = depends(exponent_p);
-    z = recover(unique([depends(exponent_p) depends(exponent_m)]));
+    z = recover(unique([depends(exponent_p) depends(exponent_m)]),sessOf(exponent_m));
     [exponent_p,p_base] = getexponentbase(exponent_p,z);
     [m,m_base] = getexponentbase(exponent_m,z);
     exponent_m = cell(1);exponent_m{1} = m;

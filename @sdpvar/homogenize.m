@@ -16,7 +16,7 @@ end
 p_variables = getvariables(p);
 p_homo = getbasematrix(p,0)*y^(deg/deg_y);
 for i = 1:length(p_variables);
-    monom = recover(p_variables(i));
+    monom = recover(p_variables(i), p.sess);
     if degree(monom)<deg
         power = (deg-(degree(monom)))/deg_y;
         p_homo = p_homo + getbasematrix(p,p_variables(i))*monom*y^power;

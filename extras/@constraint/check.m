@@ -1,5 +1,5 @@
-function [p,d] = check(X)
-% CHECK(F)  Displays/calculates constraint residuals on constraint F
+function [p,d] = check(X,varargin)
+% CHECK(X,SOL)  Displays/calculates constraint residuals on constraint X
 %
 % [pres,dres] = CHECK(F)
 %
@@ -24,9 +24,9 @@ function [p,d] = check(X)
 
 switch nargout
     case 0
-        check(lmi(X));
+        check(lmi(X),varargin{:});
     case 1
-        p = check(lmi(X));
+        p = check(lmi(X),varargin{:});
     case 2
-        [p,d] = check(lmi(X));
+        [p,d] = check(lmi(X),varargin{:});
 end

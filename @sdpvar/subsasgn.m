@@ -255,6 +255,17 @@ catch
     error(lasterr)
 end
 
+% A constant wrapper (double2sdpvar) carries no session; when symbolic
+% values are written into it, the result belongs to the written operand.
+if isa(y,'sdpvar') && isempty(y.sess)
+    if isa(X,'sdpvar') && ~isempty(X.sess)
+        y.sess = X.sess;
+    end
+    if isempty(y.sess) && isa(Y,'sdpvar') && ~isempty(Y.sess)
+        y.sess = Y.sess;
+    end
+end
+
 
 function y = specialcode(X,Y,I)
 

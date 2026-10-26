@@ -1,5 +1,6 @@
 function X = sdpvarremap(X,old,new)
 
+S = sessOf(X);
 [index,pos] = ismember(old, getvariables(X));
 if nnz(index)>0
     index = find(index);
@@ -15,7 +16,7 @@ if nnz(index)>0
        if isempty(nopos)
            temp = B(:,1) + B(:,1+pos)*new(index);
        else
-           temp = B(:,1) + B(:,1+pos)*new(index)+B(:,1+nopos)*recover(temp(nopos));
+           temp = B(:,1) + B(:,1+pos)*new(index)+B(:,1+nopos)*recover(temp(nopos),S);
        end
     elseif 0
         variables = getvariables(X);
@@ -24,12 +25,12 @@ if nnz(index)>0
        
         if ~isempty(keeppos)
             keepvariables = variables(keeppos);
-            temp = B(:,1)+B(:,keeppos + 1)*recover(keepvariables)+B(:,pos + 1)*new(index);
+            temp = B(:,1)+B(:,keeppos + 1)*recover(keepvariables,S)+B(:,pos + 1)*new(index);
         else
             temp = B(:,1)+B(:,pos + 1)*new(index);
         end
     else
-        temp = recover(getvariables(X));
+        temp = recover(getvariables(X),S);
         temp(pos) = new(index);
         temp = getbase(X)*[1;temp];
     end

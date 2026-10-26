@@ -108,7 +108,7 @@ F = F + (A11>=0) + (A12>=0) + (A21>=0) + (A31>=0) + (B11>=0) + ...
     (B12>=0) + (B21>=0) + (B31>=0); 
 
 % Call solver:
-parametric=recover(setdiff(depends(F),depends(x)));
+parametric=recover(setdiff(depends(F),depends(x)),S);
 [sol,v,Q,residual,model]=solvesos(F,[],sdpsettings('sos.post',1,'sedumi.free',0,'verbose',2,'debug',1),parametric);
 
 testCase.assertTrue(sol.problem==0 | sol.problem == 4);

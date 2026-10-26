@@ -57,14 +57,14 @@ integervars = intersect(integervars,vars);
 
 vars = setdiff(vars,union(integervars,binvars));
 integervars = setdiff(integervars,binvars);
-obj = amplexpr(h,vars,binvars,integervars);
+obj = amplexpr(h,vars,binvars,integervars,S);
 constraints = {};
 
 if ~isempty(F)
     for i = 1:length(F)
         if is(F(i),'element-wise')
             C = sdpvar(F(i));C=C(:);
-            dummy = amplexpr(C,vars,binvars,integervars);
+            dummy = amplexpr(C,vars,binvars,integervars,S);
             for j = 1:length(C)
                 if ~isempty(dummy{j})
                     constraints{end+1} = ['0 <= ' dummy{j}];
@@ -72,14 +72,14 @@ if ~isempty(F)
             end           
         elseif is(F(i),'socp')
             C = sdpvar(F(i));C=C(:);
-            dummy = amplexpr(C(1)^2-C(2:end)'*C(2:end),vars,binvars,integervars);
+            dummy = amplexpr(C(1)^2-C(2:end)'*C(2:end),vars,binvars,integervars,S);
             constraints{end+1} = ['0 <= ' dummy{1}];
-            dummy = amplexpr(C(1),vars,binvars,integervars);
+            dummy = amplexpr(C(1),vars,binvars,integervars,S);
             constraints{end+1} = ['0 <= ' dummy{1}];
             
         elseif is(F(i),'equality')
             C = sdpvar(F(i));C=C(:);
-            dummy = amplexpr(C,vars,binvars,integervars);
+            dummy = amplexpr(C,vars,binvars,integervars,S);
             for j = 1:length(C)
                 constraints{end+1} = ['0 == ' dummy{j}];
             end
@@ -148,7 +148,7 @@ end
 fclose(fid);
 
 
-function symb_pvec = amplexpr(pvec,vars,binvars,integervars)
+function symb_pvec = amplexpr(pvec,vars,binvars,integervars,S)
 
 extVariables = S.getExtvariables();
 for pi = 1:size(pvec,1)
@@ -161,7 +161,7 @@ for pi = 1:size(pvec,1)
             symb_p = [];
         else
             LinearVariables = depends(p);
-            x = recover(LinearVariables);
+            x = recover(LinearVariables,S);
             exponent_p = full(exponents(p,x));
             names = cell(length(LinearVariables),1);
             for i = 1:length(LinearVariables)               
@@ -181,7 +181,7 @@ for pi = 1:size(pvec,1)
                 v1 = find(extVariables==LinearVariables(i));
                 if ~isempty(v1)
                     e = S.extstruct(extVariables(v1));
-                    inner = amplexpr(e.arg{1},vars,binvars,integervars);
+                    inner = amplexpr(e.arg{1},vars,binvars,integervars,S);
                     names{i} = [e.fcn '(' inner{1} ')'];   
                     names{i} = strrep(names{i},'mpower_internal','');
                 end

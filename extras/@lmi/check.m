@@ -86,7 +86,7 @@ for j = 1:nlmi
     end
 end
 if ~isempty(ParVar)
-    ParVar = recover(ParVar);
+    ParVar = recover(ParVar,sessOf(F));
     pp = replace(p,ParVar,double(value(ParVar,sol)));
     top = 1;
     clear p

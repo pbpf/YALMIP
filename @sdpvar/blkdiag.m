@@ -48,8 +48,9 @@ for i = 1:length(varargin)
     end
 end
 
-% Create an SDPVAR
-y=sdpvar(1,1,'rect',all_lmi_variables,[],S);
+% Create an SDPVAR (fast path lives outside @sdpvar so the trailing
+% session is not re-dispatched to yalmip.Session/sdpvar)
+y = sdpvarFast(1,1,[],all_lmi_variables,[],S);
 
 
 % Some indexation tricks

@@ -107,7 +107,7 @@ switch varargin{1}
                 if this_hash == S.ExtendedMap(i).Hash
                     if isequaln(Arguments, {S.ExtendedMap(i).arg{1:end-1}});
                         if length(S.ExtendedMap(i).computes)>1
-                            varargout{1} =  recover(S.ExtendedMap(i).computes);
+                            varargout{1} =  recover(S.ExtendedMap(i).computes,S);
                         else
                             varargout{1} =  S.ExtendedMap(i).var;
                         end
@@ -275,7 +275,7 @@ switch varargin{1}
             for i = correct_operator
                 if isequaln(Arguments, {S.ExtendedMap(i).arg{1:end-1}});
                     if length(S.ExtendedMap(i).computes)>1
-                        varargout{1} =  recover(S.ExtendedMap(i).computes);
+                        varargout{1} =  recover(S.ExtendedMap(i).computes,S);
                     else
                         varargout{1} =  S.ExtendedMap(i).var;
                     end
@@ -811,14 +811,14 @@ switch varargin{1}
                         temp2 = [temp2;S.duals_data{i}(:)];
                     end
                     if length(temp1)>1000
-                        assign(temp1,temp2);
+                        setActiveSolutionValues(S,temp1,temp2);
                         temp1 = [];
                         temp2 = [];
                     end
                 end
             end
             if ~isempty(temp1)
-                assign(temp1,temp2);
+                setActiveSolutionValues(S,temp1,temp2);
             end
         end
         
@@ -1094,23 +1094,19 @@ switch varargin{1}
         end
         
     case 'getbounds'
-        if ~isfield(S,'boundlist')
-            S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
-        elseif isempty(S.boundlist)
+        if isempty(S.boundlist)
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
         end
         indicies = varargin{2};
         if max(indicies)>size(S.boundlist,1)
             need_new = max(indicies)-size(S.boundlist,1);
-            S.boundlist = [S.boundlist;inf*repmat([-1 1],size(S.monomtable,1),1)];
+            S.boundlist = [S.boundlist;inf*repmat([-1 1],need_new,1)];
         end
         varargout{1} = S.boundlist(indicies,:);
         varargout{2} = S.boundlist(indicies,:);
         
     case 'setbounds'
-        if ~isfield(S,'boundlist')
-            S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
-        elseif isempty(S.boundlist)
+        if isempty(S.boundlist)
             S.boundlist = inf*repmat([-1 1],size(S.monomtable,1),1);
         end
         indicies = varargin{2};
@@ -1215,6 +1211,17 @@ function h = create_trivial_hash(x)
     catch
         h = 0;
     end
+end
+
+function setActiveSolutionValues(S,x,v)
+% Write numeric values for variables X into the active solution payload.
+sol = struct('eval',struct('variables',S.optSolution{S.activeSolution}.variables, ...
+                           'optvar',S.optSolution{S.activeSolution}.optvar, ...
+                           'values',S.optSolution{S.activeSolution}.values));
+sol = assign(x,v,sol);
+S.optSolution{S.activeSolution}.variables = sol.eval.variables;
+S.optSolution{S.activeSolution}.optvar    = sol.eval.optvar;
+S.optSolution{S.activeSolution}.values    = sol.eval.values;
 end
 
 function h = create_trivial_vechash(x)

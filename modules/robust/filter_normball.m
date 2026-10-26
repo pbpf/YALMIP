@@ -18,7 +18,7 @@ X = sdpvar(F_xw);
 % variables (i.e. other than the ones we are robustifying)
 vars = [getvariables(x) depends(X) getvariables(allw)];
 vars = setdiff(vars,getvariables(w));
-x = recover(vars);
+x = recover(vars,S);
 
 % Trying to cope with cases as x+norm(w,1)+norm(w,2)<1, s.t norm(w,2)<1
 % In test_robust_5

@@ -38,7 +38,7 @@ for pi = 1:size(pvec,1)
             symb_p = num2str(p);
         else
             LinearVariables = depends(p);
-            x = recover(LinearVariables);
+            x = recover(LinearVariables, p.sess);
             exponent_p = full(exponents(p,x));
             names = cell(length(x),1);
             for i = 1:length(names)

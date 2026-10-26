@@ -2,6 +2,7 @@ function tests = test_robust_13
 tests = functiontests(localfunctions);
 
 function test1(testCase)
+S = yalmip.Session();
 
 % Test product between decision variable and auxilliary variable with w
 % dependence in objective. This is not possible 
@@ -15,7 +16,8 @@ function test1(testCase)
 % testCase.assertTrue(sol.problem == -2);
 
 % The norm variable will be an auxilliary variable, not uncertainty
-sdpvar x w(2,1)
+x = S.sdpvar(1);
+w = S.sdpvar(2,1);
 F = [x + norm(w,1) <= 1];
 W = [w'*w <= 1/2, uncertain(w)];
 objective = x;

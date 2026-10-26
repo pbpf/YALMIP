@@ -237,3 +237,66 @@ Remaining (11 errors total):
 - misc: 2 left (unidentified — re-aggregate).
 Pattern proven: session threading via scoped S (NOT sdpsession — it
 returns empty in some graph contexts, root cause not fully diagnosed).
+
+## HANDOFF 5 — batch 20: four systemic session bugs found
+
+Suite state after batch 20 (stage3aq/3ar; baseline in brackets):
+core 40 [40], operators 51 [51], misc 8 [8], dualize 21 [21], geometric 13 [13],
+logic 7 [7], moment 1 [1], slayer 2 [2], chance 1 [1], sos 26 [26],
+robust 32 [32], optimizer 40 [40], bnb 10 [10], bilevel 7 [7],
+bmibnb 67 [68] (one test fixed after this run — recheck), cutsdp 0 [0], mpt 0 [0].
+
+Root causes found (each fixed by threading the scoped session):
+1. `+yalmip/dispatch.m` 'getbounds'/'setbounds' used `isfield(S,'boundlist')`.
+   `isfield` is always false for a classdef handle, so every bounds read
+   RESET the bound list to +-inf. This is why big-M logic models (xor, iff)
+   and robust tests degraded: replace with `isempty(S.boundlist)` and grow by
+   the requested number of rows.
+2. `dispatch` 'define' reuse branch returned `recover(S.ExtendedMap(i).computes)`
+   with no session, so every *repeated* operator call (max/min/abs/norm/sort,
+   optimizer_operator) produced a session-less variable -> sessCheck failures
+   deep in later code. Pass S.
+3. Session-less `recover(...)` in expansion/sos/moment/robust pipelines
+   (expandmodel, expandrecursive, compilesos, momentmodel, parameterizedbase,
+   create_*/newton*/congruenceblocks, sdpvarremap, binmodel, check, imgmodel,
+   kkt, hull, wf, variable_replace, decomposeUncertain>projectOut,
+   filter_enumeration>replaceVertices, lmi/{uncertain,chebyball,depends}).
+   Audit: `grep -rn "recover(" | grep -v ",S"` inside blocks that already own S.
+4. Subfunction scope: files that gained `S = session(...)` in the MAIN function
+   use S in nested/sub functions where S does not exist (filter_enumeration,
+   saveampl>amplexpr, filter_polya>polyapolynomial, mpt_parbb>parametric_bb).
+   Also two functions reused the name S for a matrix and destroyed the session
+   (solvesos svd, iff_internal cut matrix) — renamed locals.
+
+Other resolved items:
+- Fast-path creation with a trailing raw Session argument re-dispatches to
+  yalmip.Session/sdpvar (infinite recursion). Internal constructors must call
+  `sdpvarFast(...)` (extras) instead — @sdpvar/{blkdiag,degreduce}.
+- Empty-constraint sets carry no session: the session must come from the
+  objective (`categorizeproblem`, `lmi2sedumistruct(F,S)` threaded from
+  compileinterfacedata). This is what `optimize([],obj)` needs.
+- `diagnostic.eval = S.evalSnapshot()` must be taken AFTER setduals, since
+  associated duals are folded into the solution values there (primalize /
+  dualize value(x,sol)).
+- `assign(x,v)` no longer has global effect: callers that used it to publish
+  values must build/return a payload struct (bisection_core, solvesdp complex
+  dualize branch, @optimizer/subsref). Two-arg assign calls with no consumer
+  were removed (NormalizeCallback, compileinterfacedata warmstart).
+- `value`/`check`/`checkset`/`checkset`-style helpers now forward varargin so
+  constraint/lmi wrappers cannot drop the solution argument.
+- Tests: two migration artifacts fixed — `S.sdpvar(F(find(...)))` must stay a
+  plain conversion call (bmibnb_qcqp5), and test_robust_13/15 still used the
+  removed command syntax / used S as a local matrix name.
+
+Known remaining (all equal to baseline except as noted):
+- robust_5/test13 needs sedumi; sdpmiplib/cutsdp need SeDuMi; mpt needs MPT —
+  pre-existing. bnb_lpqp/migp FAIL is pre-existing.
+- core ndsdpvar (R2026b N-D norm) and sdpvar_diff pre-existing.
+- operators implies test12 (quadprog.Algorithm property) and semivar test1
+  pre-existing.
+
+Next steps: rerun all suites after the batch-20 tail fixes
+(categorizeproblem objective-session fallback for empty F, projectOut,
+ jacobian numeric-f, qcqp5 test, bmibnb) and compare with `python3
+ dev/baseline/compare_stage.py`; then Stage 4 (modern style: eval/strmatch/
+ bsxfun/etime cleanup, `lasterr` -> ME rethrow sites) per the plan.

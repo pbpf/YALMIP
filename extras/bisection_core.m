@@ -172,7 +172,10 @@ while upper - lower > options.bisection.absgaptol
         end
         if flag           
            if flag~=1 && ~any(isnan(sol))
-                assign(x,sol);assign(Objective,test);res = check(Constraints);
+                tmpsol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+                tmpsol = assign(x,sol,tmpsol);
+                tmpsol = assign(Objective,test,tmpsol);
+                res = check(Constraints,tmpsol);
                 if min(res) >= -1e-6
                   fprintf(' %4.0f :   %12.5E   %12.5E   %12.5E   %12.5E  %s\n',iter,L,T,U,U-L,[yalmiperror(flag) '(looks ok)'] );   
                   flag = 0;
@@ -201,9 +204,11 @@ end
 if isempty(working_sol)
     diagnostic.problem = 1;
 else
-    % Assign computed solution
-    assign(x,working_sol);
-    assign(Objective,optimal);
+    % Attach the computed solution so value(y,sol) works on the output
+    tmpsol = struct('eval',struct('variables',[],'optvar',[],'values',[]));
+    tmpsol = assign(x,working_sol,tmpsol);
+    tmpsol = assign(Objective,optimal,tmpsol);
+    diagnostic.eval = tmpsol.eval;
 end
 if options.verbose  
     if diagnostic.problem==0

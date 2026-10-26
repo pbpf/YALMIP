@@ -19,7 +19,7 @@ function v = newtonmonoms(p)
 if isa(p,'double')
     v = 1;
 else
-    x = recover(depends(p));
+    x = recover(depends(p),sessOf(p));
     v = monolist(x,degree(p)/2);
     v = newtonreduce(v,p);
 end

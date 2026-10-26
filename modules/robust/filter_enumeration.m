@@ -145,13 +145,15 @@ end
 function F = replaceVertices(F_xw,w,vertices,VariableType,ops)
 % Doing LP constraints in a vectorized manner saves a lot of time
 
+S = session(F_xw);
+
 F_xw_lp = F_xw(find(is(F_xw,'elementwise')));
 F_xw_socp_sdp = F_xw -  F_xw_lp;
 F = ([]);
 
 x_Flp = depends(F_xw_lp);
 uncAux = S.getAuxvariablesW();
-uncAux = recover(intersect(x_Flp,VariableType.aux_with_w_dependence));
+uncAux = recover(intersect(x_Flp,VariableType.aux_with_w_dependence),S);
 if isequal(ops.robust.auxreduce,'none')
     uncAux = [];
 end

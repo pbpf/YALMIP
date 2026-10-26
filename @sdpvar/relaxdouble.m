@@ -3,13 +3,15 @@ function sys=relaxdouble(X, solution)
 
 if nargin < 2 || isempty(solution)
     solution = struct('eval', struct('variables',[],'optvar',[],'values',[]));
+elseif isfield(solution,'eval')
+    solution = solution.eval;
 end
 if false
     error('YALMIP:sessionRequired','Since the stateless refactoring, pass the solution: RELAXDOUBLE(x, sol), where sol = optimize(F,obj).')
 end
 
 lmi_variables = X.lmi_variables;
-opt_variables = solution.eval.variables;
+opt_variables = solution.variables;
 
 values = zeros(1+length(lmi_variables),1);
 values(1)=1;

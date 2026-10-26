@@ -19,6 +19,6 @@ else
             end
         end
     end
-    pnew = clean(sdpvar(1,1,[],vars,base,S));
+    pnew = clean(sdpvarFast(1,1,[],vars,base,S));
 
 end

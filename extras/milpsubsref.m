@@ -116,7 +116,7 @@ switch class(varargin{1})
             M = length(X);
             m = 1;
             F = (integer(i)); % just to be sure
-            d = binvar(length(X),1);
+            d = S.binvar(length(X),1);
             [Mx,mx]=derivebounds(X);
             for j = m:M
                 di = d(j);
@@ -138,7 +138,7 @@ switch class(varargin{1})
             if isa(i2,'sdpvar')
                 F = (integer(i2)); % just to be sure
             end
-            d = binvar(size(X,1),size(X,2),'full');
+            d = S.binvar(size(X,1),size(X,2),'full');
             [Mx,mx]=derivebounds(X);
             for i = m1:M1
                 for j = m2:M2
@@ -176,7 +176,7 @@ switch class(varargin{1})
             if isa(i3,'sdpvar')
                 F = (integer(i3)); % just to be sure
             end
-            d = binvar(size(X,1),size(X,2),size(X,3),'full');
+            d = S.binvar(size(X,1),size(X,2),size(X,3),'full');
             [Mx,mx]=derivebounds(X(:));            
             for i = m1:M1
                 for j = m2:M2

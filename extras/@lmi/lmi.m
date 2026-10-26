@@ -135,6 +135,7 @@ switch class(X)
     case 'logic'
         Fi = {X};
         strict = 0;
+        F.sess = session(X);
         X = 'Numeric value';
 
     case {'struct','constraint'}
@@ -223,10 +224,13 @@ end
 % Special case for x<y<z<...
 % Merge into one constraint, gives nicer displays
 if ~exist('LMIIdentifiers','var')
-   if isempty(sessOf(F))
-       error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression.')
+   if isempty(F.sess)
+       F.sess = sessOf(Fi{1});
    end
-   LMIIdentifiers = sessOf(F).lmiid();
+   if isempty(F.sess)
+       error('YALMIP:sessionRequired','Cannot determine the session of this constraint expression. Create all variables via S = yalmip.Session(); x = S.sdpvar(...).')
+   end
+   LMIIdentifiers = F.sess.lmiid();
 end
 
 if all(TypeofConstraint == 2) && all(strict==strict(1))

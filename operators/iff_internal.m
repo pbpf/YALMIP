@@ -7,6 +7,11 @@ if nargin == 2
 else
     zero_tolerance = abs(varargin{3});
 end
+if nargin >= 4
+    S = varargin{4};
+else
+    S = [];
+end
 
 % Normalize data
 if isa(Y,'constraint')
@@ -22,7 +27,9 @@ if isa(X,'lmi') & isa(Y,'sdpvar')
 end
 
 % Session travels with the symbolic operands
-S = sessOf(X);
+if isempty(S)
+    S = sessOf(X);
+end
 
 if isa(X,'sdpvar') & isa(Y,'sdpvar')
     % user presumably works with binary variables
@@ -43,8 +50,8 @@ elseif (isa(X,'sdpvar') & isa(Y,'lmi'))
             % Hence, we make a recursive call with two new models
             d1 = S.binvar(1,1);
             d2 = S.binvar(1,1);
-            C1 = iff_internal(d1,Y1,zero_tolerance);
-            C2 = iff_internal(d2,Y2,zero_tolerance);
+            C1 = iff_internal(d1,Y1,zero_tolerance,S);
+            C2 = iff_internal(d2,Y2,zero_tolerance,S);
             C3 = [X <= d1,X <= d2,X >= d1+d2-1];
             varargout{1} = [C1, C2, C3];
           %  varargout{1} = [iff_internal(X,Y1),iff_internal(X,Y2)];
@@ -55,8 +62,8 @@ elseif isa(X,'lmi') & isa(Y,'lmi')
     % Constraint holds iff constraint holds. 
     % Glue using an intermediate variable
     d = S.binvar(1,1);
-    C1 =  iff_internal(d,X,zero_tolerance);
-    C2 =  iff_internal(d,Y,zero_tolerance);
+    C1 =  iff_internal(d,X,zero_tolerance,S);
+    C2 =  iff_internal(d,Y,zero_tolerance,S);
     varargout{1} = [C1,C2];
 end
 
@@ -90,18 +97,18 @@ else
     [bA] = getbase(f);
     b = bA(:,1);
     A = bA(:,2:end);
-    S = zeros(0,length(di));
+    CUT = zeros(0,length(di));
     for i = 1:length(b)
         j = findrows(A,-A(i,:));
         j = j(j > i);
         j = j(b(i)+b(j) <= 0);
         if length(j)==1
-            S(end+1,[i j]) = 1;
+            CUT(end+1,[i j]) = 1;
         end
     end
-    if size(S,1) > 0
+    if size(CUT,1) > 0
         % Add cut cannot be outside both constraints
-        F = F + (S*di >= 1);
+        F = F + (CUT*di >= 1);
     end
 end
 
@@ -129,9 +136,9 @@ for i = 1:length(Y)
     else
         eps = 0;
     end
-    C1 =  binary_iff_lp(d(i,1),Y(i)+eps,abs(zero_tolerance));             % Y <-eps
-    C2 =  binary_iff_lp(d(i,2),[Y(i)-eps;-eps-Y(i)],abs(zero_tolerance)); % -eps < Y < eps
-    C3 =  binary_iff_lp(d(i,3),eps-Y(i),abs(zero_tolerance));             % eps < Y 
+    C1 =  binary_iff_lp(d(i,1),Y(i)+eps,abs(zero_tolerance),S);             % Y <-eps
+    C2 =  binary_iff_lp(d(i,2),[Y(i)-eps;-eps-Y(i)],abs(zero_tolerance),S); % -eps < Y < eps
+    C3 =  binary_iff_lp(d(i,3),eps-Y(i),abs(zero_tolerance),S);             % eps < Y 
     C = [C, C1,C2,C3];
     % Cut off some trivial cases
     if m(i)>=0

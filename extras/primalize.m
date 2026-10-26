@@ -70,19 +70,19 @@ end
 Fdual = ([]);
 xvec = [];
 if any(model.K.f)
-    t = sdpvar(model.K.f,1);
+    t = S.sdpvar(model.K.f,1);
     xvec = [xvec;t];
 end
 
 if any(model.K.l)
-    x = sdpvar(model.K.l,1);
+    x = S.sdpvar(model.K.l,1);
     xvec = [xvec;x];
     Fdual = Fdual + (x>=0);
 end
 
 if any(model.K.q)
     for i = 1:length(model.K.q)
-        x = sdpvar(model.K.q(i),1);
+        x = S.sdpvar(model.K.q(i),1);
         xvec = [xvec;x];
         Fdual = Fdual + (cone(x(2:end),x(1)));
     end
@@ -90,7 +90,7 @@ end
 
 if any(model.K.s)
     for i = 1:length(model.K.s)
-        X{i} = sdpvar(model.K.s(i),model.K.s(i));
+        X{i} = S.sdpvar(model.K.s(i),model.K.s(i));
         xvec = [xvec;X{i}(:)];
         Fdual = Fdual + (X{i}>=0);       
     end
@@ -100,6 +100,6 @@ objdual = model.C(:)'*xvec;
 Fdual = Fdual + (-model.b == model.A'*xvec);
 
 yvars = union(getvariables(F),getvariables(obj));
-y = recover(yvars);
+y = recover(yvars,S);
 
 S.associatedual(getlmiid(Fdual(end)),y);

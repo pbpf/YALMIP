@@ -48,7 +48,7 @@ e = -[e1;e2;e3;e4;e5;e6;e7;e8;e9;e10;e11;e12;e13;e14;e15;e16;e17;e18;e19;e20;e21
 F = (10>=x>=0);
 F = F + (e>=0);
 
-f = S.sdpvar(F(find(is(F,'linear'))));
+f = sdpvar(F(find(is(F,'linear'))));
 F = F + cut(triu(f*f') >= 0);
 sol = optimize(F,obj,sdpsettings('solver','bmibnb','bmibnb.lpreduce',0))
 

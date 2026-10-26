@@ -98,10 +98,10 @@ for i = 1:N
     end
     Fhull = Fhull + Fi;
 end
-Fhull = Fhull + [(sum([y{:}],2) == recover(variables)):'sum y_i == x'];
+Fhull = Fhull + [(sum([y{:}],2) == recover(variables,S)):'sum y_i == x'];
 Fhull = Fhull + [(sum(t)==1):'Multipliers sum to 1'] + [(t>=0):'Positive multiplier'];
 Fhull = expanded(Fhull,1);
-S.setdependence([reshape([y{:}],[],1);t(:)],recover(variables));
+S.setdependence([reshape([y{:}],[],1);t(:)],recover(variables,S));
 %S.setdependence(recover([10 11]),recover(variables));
 S.addauxvariables(getvariables([reshape([y{:}],[],1);t(:)]));
 y = [y{:}];

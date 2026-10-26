@@ -15,7 +15,7 @@ if any(sum(mt(Fvars,wvars),2)>1)
         Fi = sdpvar(F_xw(i));
         if length(Fi)>1 & is(Fi,'symmetric')
             % FIXME: SUUUUUPER SLOW
-            P = polyapolynomial(sdpvar(Fi),w,N);
+            P = polyapolynomial(sdpvar(Fi),w,N,S);
             C = [];
             V = [];
             for ii=1:length(P)
@@ -48,7 +48,7 @@ if any(sum(mt(Fvars,wvars),2)>1)
                 for k = 1:length(Fi)
                     % disp('This was changed from >1')
                     if any(sum(mt(getvariables(Fi(k)),wvars),2)>=1)
-                        p_polya = polyapolynomial(Fi(k),w,N);
+                        p_polya = polyapolynomial(Fi(k),w,N,S);
 
                         ci = coefficients(p_polya,w);
                         if isa(ci,'sdpvar')
@@ -86,7 +86,7 @@ function  pi_monoms = homogenize_(pi_monoms,precalc)%w,Nmax,Nj)
 %pi_monoms = pi_monoms*sum(w)^(Nmax - Nj);
 pi_monoms = pi_monoms*precalc;
 
-function P = polyapolynomial(p,w,N)
+function P = polyapolynomial(p,w,N,S)
 for i = 1:size(p,1)
     for j = 1:size(p,2)
         [pi_coeffs{i,j},pi_monoms{i,j}] = coefficients(p(i,j),w);
