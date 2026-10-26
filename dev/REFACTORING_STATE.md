@@ -334,9 +334,10 @@ reason (checked with `license('test','MATLAB_Coder')` plus a `ver` lookup).
 Stage 6: `REFACTORING.md` (architecture), `MIGRATION.md` (old-to-new API),
 `Contents.m` pointer, and this file.
 
-Final gate (stage4c, after Stage 4): 361 tests, 327 passed, 34 failing, per-test
-diff versus the Stage 0 baseline XMLs = **0 new failures, 0 new passes**. Stage 5
-adds library code but changes no existing call site, so it does not move the gate.
+Final gate (run "final", after Stages 4-6 are committed): 361 tests, 327 passed,
+34 failing, per-test diff versus the Stage 0 baseline XMLs = **0 new failures,
+0 new passes**. Stage 5 adds library code but changes no existing call site, so it
+does not move the gate — verified rather than assumed.
 
 Acceptance checklist from the plan, as of this commit:
 - [x] zero `global`, zero `persistent`, zero `yalmip('` outside `dev/` (`dev/audit_stateless.py`)
