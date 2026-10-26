@@ -303,8 +303,49 @@ Known remaining (all equal to baseline except as noted):
 - operators implies test12 (quadprog.Algorithm property) and semivar test1
   pre-existing.
 
-Next steps: Stage 4 (modern style: `eval(['options.' ...])` dynamic fields in
-sdpsettings, bsxfun (9), etime (30), getfield/setfield (9), `lasterr` -> ME
-rethrow (36 sites), stray dbstack), then Stage 5 (codegen-ready evaluation
-core) and Stage 6 (REFACTORING.md / MIGRATION.md / Contents.m). Gate after
-each stage: `run_stage` all suites + per-test diff against `dev/baseline/*.xml`.
+## HANDOFF 6 — Stages 4, 5 and 6 complete
+
+Stage 4 (`a6813af`, "modern MATLAB style"): the plan's checklist is empty.
+`eval(['options.' name ...])`, `getfield`/`setfield`, `bsxfun` on numerics, all
+`clock`/`etime` pairs and 35 `catch ... error(lasterr)` blocks are gone; solver
+dispatch uses `feval`. Two dynamic `eval`s remain on purpose and are documented:
+`extras/@optimizer/subsasgn.m` (nested `P.options.a.b = v` assignment) and
+`extras/gams2yalmip.m` (creates variables from an imported model file).
+`grep -rn "lasterr\|strmatch(\|getfield(\|setfield(\|etime(\|= clock" --include=*.m`
+returns nothing outside comments; `strmatch_octavesafe` is already `strncmp`-based.
+Left deliberately untouched, both pre-existing and harmless: the `save *debug`
+calls in the solver wrappers are guarded by `options.savedebug`, and
+`modules/global/updatenonlinearbounds.m` still opens with `dbstack; error` exactly
+as upstream does — that file is upstream's way of parking a broken routine (the
+only live call site, `solvers/callmpcvx.m`, resolves to its own local copy), so
+deleting the guard would activate dead code rather than clean style.
+
+Stage 5 (`a57dac6`, codegen): `extras/codermodel.m` + `extras/codereval.m` give a
+dense, Coder-clean evaluator for the callback-free polynomial subset; models with
+user callbacks or cone rows are rejected by name (`YALMIP:coderUnsupported`) and
+keep the interpreted path. `dev/codegen/eval_equivalence.m` proves equivalence with
+`fmincon_fun`/`fmincon_con` (worst relative deviation ~2e-15 over 20 random points,
+values + gradients + both Jacobians). `dev/codegen/codegen_conformance.m` is the
+static guard (0 blocking findings; errors if the compiled tier becomes dirty).
+`dev/codegen/codegen_eval_demo.m` compiles the MEX where MATLAB Coder is installed —
+this machine has the license but not the product, so it reports SKIPPED with that
+reason (checked with `license('test','MATLAB_Coder')` plus a `ver` lookup).
+
+Stage 6: `REFACTORING.md` (architecture), `MIGRATION.md` (old-to-new API),
+`Contents.m` pointer, and this file.
+
+Final gate (stage4c, after Stage 4): 361 tests, 327 passed, 34 failing, per-test
+diff versus the Stage 0 baseline XMLs = **0 new failures, 0 new passes**. Stage 5
+adds library code but changes no existing call site, so it does not move the gate.
+
+Acceptance checklist from the plan, as of this commit:
+- [x] zero `global`, zero `persistent`, zero `yalmip('` outside `dev/` (`dev/audit_stateless.py`)
+- [x] all suites >= Stage 0 baseline, per test
+- [x] migration + architecture docs, codegen conformance script
+- [x] one reviewable commit per stage on `refactor/stateless`
+
+Still open, deliberately out of scope for the stateless work: the pre-existing
+environment failures (SeDuMi/SDPT3/MPT absent, `loadsdpafile`+cutsdp+bnb_sdpmiplib,
+R2026b N-D `norm` in test_ndsdpvar, `quadprog.Algorithm` property rename) and the
+`@optimizer/subsasgn` eval (nested option write) noted above.
+
