@@ -29,7 +29,7 @@ Matrices.W = Matrices.W(un,:);
 if isempty(Matrices.binary_var_index)
 
     showprogress('Calling MPT',options.showprogress);
-    solvertime = clock;
+    tSolve = tic;
     if options.mp.presolve
         [Matrices.lb,Matrices.ub] = mpt_detect_and_improve_bounds(Matrices,Matrices.lb,Matrices.ub,Matrices.binary_var_index,options);
     end        
@@ -39,7 +39,7 @@ if isempty(Matrices.binary_var_index)
     else        
         model = mpt_solvenode(Matrices,Matrices.lb,Matrices.ub,Matrices,[],options);
     end
-    solvertime = etime(clock,solvertime);
+    solvertime = toc(tSolve);
 
 else  
     % Pre-solve required on binary problems

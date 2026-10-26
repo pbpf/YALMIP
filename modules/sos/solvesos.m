@@ -70,7 +70,7 @@ end
 % See also SOS, SOSD, SDPSETTINGS, SOLVEMOMENT, SDPVAR, SDISPLAY
 
 %% Time YALMIP
-yalmip_time = clock;
+yalmip_time = tic;
 
 % ************************************************
 %% Check #inputs
@@ -122,7 +122,7 @@ if isempty(everything) || ~isfield(everything,'p')
     % compilesos has detected trivially infeasible
     sol.yalmipversion = yalmipversion();
     sol.matlabversion = version;
-    sol.yalmiptime = etime(clock,yalmip_time);
+    sol.yalmiptime = toc(yalmip_time);
     sol.solvertime = 0;         
     sol.info = yalmiperror(1,'solvesos compilation');
     sol.problem = 1;  
@@ -386,7 +386,7 @@ if ~isfield(sol,'solvertime')
     sol.solvertime = 0;
 end
 
-sol.yalmiptime = etime(clock,yalmip_time)-sol.solvertime;
+sol.yalmiptime = toc(yalmip_time)-sol.solvertime;
 
 function d = doubleValue(x,sol)
 % Evaluate x against the solve output, tolerating numeric entries and

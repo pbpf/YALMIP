@@ -20,6 +20,6 @@ try
     y = [x;y;z;alpha];
     y.typeflag = 20;
     y = lmi(y);
-catch
-    rethrow(lasterror)
+catch ME
+    rethrow(ME)
 end

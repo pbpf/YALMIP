@@ -13,7 +13,7 @@ p.cuts = [];
 p.fixdir = '';
 
 diagnostics = 0;
-bnbsolvertime = clock;
+tBranch = tic;
 profile.local_solver_time = 0;
 lower = NaN;
 solved_nodes = 0;
@@ -149,7 +149,7 @@ end
 % be copied to every node, and to keep global information
 poriginal = p;
 
-while ~(upper <= p.options.bnb.target) && unknownErrorCount < 10 && ~isempty(node) && (etime(clock,bnbsolvertime) < p.options.bnb.maxtime) && (solved_nodes < p.options.bnb.maxiter) && (isinf(lower) || gap>p.options.bnb.gaptol)
+while ~(upper <= p.options.bnb.target) && unknownErrorCount < 10 && ~isempty(node) && (toc(tBranch) < p.options.bnb.maxtime) && (solved_nodes < p.options.bnb.maxiter) && (isinf(lower) || gap>p.options.bnb.gaptol)
          
     % ********************************************
     % ASSUME THAT WE WON'T FATHOME
@@ -620,9 +620,9 @@ while ~(upper <= p.options.bnb.target) && unknownErrorCount < 10 && ~isempty(nod
             end
             
             if lastUpper > upper
-                fprintf(' %4.0f : %12.3E  %6.2f%%  %12.3E  %2.0f  %2.0f/%2.0f %6.1f  %s  %s \n',solved_nodes,upper,100*gap,lower,stackLength(stack),nnz(~p.cutredundant & p.cutactivate),nnz(p.cutactivate),etime(clock,bnbsolvertime),binary_diagnostics,'-> Found improved solution!');
+                fprintf(' %4.0f : %12.3E  %6.2f%%  %12.3E  %2.0f  %2.0f/%2.0f %6.1f  %s  %s \n',solved_nodes,upper,100*gap,lower,stackLength(stack),nnz(~p.cutredundant & p.cutactivate),nnz(p.cutactivate),toc(tBranch),binary_diagnostics,'-> Found improved solution!');
             else
-                fprintf(' %4.0f : %12.3E  %6.2f%%  %12.3E  %2.0f  %2.0f/%2.0f %6.1f  %s  %s \n',solved_nodes,upper,100*gap,lower,stackLength(stack),nnz(~p.cutredundant & p.cutactivate),nnz(p.cutactivate),etime(clock,bnbsolvertime),binary_diagnostics,Message);
+                fprintf(' %4.0f : %12.3E  %6.2f%%  %12.3E  %2.0f  %2.0f/%2.0f %6.1f  %s  %s \n',solved_nodes,upper,100*gap,lower,stackLength(stack),nnz(~p.cutredundant & p.cutactivate),nnz(p.cutactivate),toc(tBranch),binary_diagnostics,Message);
             end
         end
     end

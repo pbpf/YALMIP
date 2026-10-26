@@ -24,7 +24,7 @@ function output = cutsdp(p)
 % *************************************************************************
 %% INITIALIZE DIAGNOSTICS IN YALMIP
 % *************************************************************************
-bnbsolvertime = clock;
+tTotal = tic;
 showprogress('Cutting plane solver started',p.options.showprogress);
 optionsIn = p.options;
 p.cliques.table = spalloc(length(p.c),0,0);
@@ -153,7 +153,7 @@ p = addSDPextendable(p);
 % *************************************************************************
 %% START CUTTING
 % *************************************************************************
-cutsdpsolvertime = clock;
+tPhase = tic;
 [x_min,solved_nodes,lower,feasible,D_struc,interrupted,stalling] = cutting(p);
 
 % Map back in weird models with negated binary
@@ -175,7 +175,7 @@ else
     end
     if solved_nodes == p.options.cutsdp.maxiter
         output.problem = 3;
-    elseif etime(clock,cutsdpsolvertime) > p.options.cutsdp.maxtime
+    elseif toc(tPhase) > p.options.cutsdp.maxtime
         output.problem = 3;
     end
 end
@@ -189,7 +189,7 @@ if optionsIn.savesolveroutput
 else
     output.solveroutput =[];
 end
-output.solvertime   = etime(clock,bnbsolvertime);
+output.solvertime   = toc(tTotal);
 %% --
 
 function [x,solved_nodes,lower,feasible,D_struc,interrupted,stalling] = cutting(p)
@@ -207,7 +207,7 @@ if any(p.lb>p.ub)
     return
 end
 
-cutsdpsolvertime = clock;
+tPhase = tic;
 
 % Solver feasibility too low can cause issues in the termination. 
 % However, some solver installations will fail if we do this, so it is not
@@ -390,7 +390,7 @@ while goon
         ptemp.F_struc = [p_lp.F_struc;p.F_struc(1+p.K.f+p.K.l:p.K.f+p.K.l+sum(p.K.q),:)];
         ptemp.K.q = p.K.q;
     end
-    ptemp = adjustMaxTime(ptemp,ptemp.options.cutsdp.maxtime,etime(clock,cutsdpsolvertime));
+    ptemp = adjustMaxTime(ptemp,ptemp.options.cutsdp.maxtime,toc(tPhase));
     if integerPhase
         output = feval(cutsolver,ptemp);
         % Check for stalling
@@ -537,7 +537,7 @@ while goon
             gap = inf;
         end
         goon = goon && gap >= p.options.cutsdp.gaptol;        
-        goon = goon && (etime(clock,cutsdpsolvertime) < p.options.cutsdp.maxtime);
+        goon = goon && (toc(tPhase) < p.options.cutsdp.maxtime);
         goon = goon && ~(output.problem == 16);
     end
     
@@ -555,7 +555,7 @@ while goon
     end
     if p.options.cutsdp.verbose
         if mod(solved_nodes-1,p.options.print_interval)==0 || goon == 0
-            fprintf(' %4.0f :  %s  %11.3E %12.3E      %14.3E   %11.3E     %3.0f     %5.1f   %s\n',solved_nodes,phaseString{currentPhase+1},sdpInfeasibility,integerInfeasibility,lower,upper,p_lp.K.l-starting_cuts,etime(clock,cutsdpsolvertime),message);
+            fprintf(' %4.0f :  %s  %11.3E %12.3E      %14.3E   %11.3E     %3.0f     %5.1f   %s\n',solved_nodes,phaseString{currentPhase+1},sdpInfeasibility,integerInfeasibility,lower,upper,p_lp.K.l-starting_cuts,toc(tPhase),message);
         end
     end
 end

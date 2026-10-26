@@ -29,7 +29,7 @@ function output = callmpcvx(p)
 % ********************************
 % INITIALIZE DIAGNOSTICS IN YALMIP
 % ********************************
-bnbsolvertime = clock; 
+tSolver = tic;  
 showprogress('Branch and bound started',p.options.showprogress);
 
 % *******************************
@@ -135,7 +135,7 @@ end
 % Tighten bounds at root
 % ********************************
 if p.options.bmibnb.roottight & feasible
-    lowersolver = eval(['@' p.solver.lowercall]);
+    lowersolver = str2func(['@' p.solver.lowercall]);
     c = p.c;
     Q = p.Q;
     mt = p.monomtable;
@@ -223,7 +223,7 @@ output.Slack       = [];
 output.infostr      = yalmiperror(output.problem,'BNB');
 output.solverinput  = 0;
 output.solveroutput =[];
-output.solvertime   = etime(clock,bnbsolvertime);
+output.solvertime   = toc(tSolver);
 
 function [x_min,solved_nodes,lower,upper] = branch_and_bound(p)
 
@@ -237,16 +237,16 @@ p.lpcuts = p.F_struc(1+p.K.f:1:p.K.l,:);
 % Create function handles to solvers
 % ***************************************
 try
-    lowersolver = eval(['@' p.solver.lowercall]); % Local LMI solver
+    lowersolver = str2func(['@' p.solver.lowercall]); % Local LMI solver
     uppersolver = eval(['@' p.solver.uppercall]); % Local BMI solver
     lpsolver    = eval(['@' p.solver.lpcall]);    % LP solver
-catch
+catch ME
     disp(' ');
     disp('The internal branch & bound solver requires MATLAB 6')
     disp('I am too lazy too do the changes to make it compatible')
     disp('with MATLAB 5. If you really need it, contact me...');
     disp(' ');    
-    error(lasterr);
+    rethrow(ME);
 end
 
 % ************************************************

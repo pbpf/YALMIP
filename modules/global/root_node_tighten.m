@@ -49,10 +49,10 @@ if p.options.bmibnb.roottight & p.feasible
         end
     end
     if all(p.K.q == 0) & all(p.K.e == 0) & all(p.K.s == 0) & all(p.K.r == 0)
-        lowersolver = eval(['@' p.solver.lpcall]);
+        lowersolver = str2func(['@' p.solver.lpcall]);
         we_are_using_lower = 0;
     else
-        lowersolver = eval(['@' p.solver.lowercall]);
+        lowersolver = str2func(['@' p.solver.lowercall]);
         we_are_using_lower = 1;
     end
 

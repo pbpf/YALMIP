@@ -63,20 +63,20 @@ else
 end
 d = [];
 for i = 1:length(anames)
-    e = getfield(a,anames{i});
-    f = getfield(b,anames{i});
+    e = a.(anames{i});
+    f = b.(anames{i});
     if ~isequal(e,f)
         if isa(e,'double') && isa(f,'double') && isinf(e) && isinf(f)
             % Silly case, they're the same
         elseif isa(e,'struct') && isa(f,'struct')
             [sameHere,dnew] = isequalInf(e,f);
             if ~sameHere
-                d = setfield(d,anames{i},dnew);
+                d.(anames{i}) = dnew;
                 same = same & sameHere;
             end
         else
             same = 0;
-            d = setfield(d,anames{i},e);
+            d.(anames{i}) = e;
         end
     end
 end

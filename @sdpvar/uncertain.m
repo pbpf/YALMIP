@@ -65,8 +65,8 @@ else
     x.extra.distribution.parameters = {temp{2:end-1}};
     try
         temp = feval(temp{:});        
-    catch
-        disp(lasterr);
+    catch ME
+        disp(ME.message);
         error('Trial evaluation of attached sample generator failed.')
     end
     x = lmi(x);                 

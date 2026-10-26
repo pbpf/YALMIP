@@ -48,7 +48,7 @@ if ~isempty(Complicating)
             allargs = [allargs;arguments{i}];
             extstruct.arg{1} = z;
             t = feval(properties{i}{1}.name,z);
-            f = eval(['@' properties{i}{1}.name]);
+            f = str2func(['@' properties{i}{1}.name]);
             t = f(extstruct.arg{1:end-1});
             [dummy{i},thisF]=model(t);
             totalF = totalF + thisF;

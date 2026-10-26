@@ -49,7 +49,7 @@ function output = bnb(p)
 %
 % See also OPTIMIZE, BINVAR, INTVAR, BINARY, INTEGER
 
-bnbsolvertime = clock;
+tSetup = tic;
 
 % Remove options if none has been changed
 % Improves performance when calling solver many times
@@ -218,11 +218,11 @@ end
 
 
 % START BRANCHING
-setuptime = etime(clock,bnbsolvertime);
-bnbsolvertime = clock;
+setuptime = toc(tSetup);
+tBranch = tic;
 [x_min,solved_nodes,lower,upper,profile,diagnostics] = bnb_branch_and_bound(p);
-bnbsolvertime =  etime(clock,bnbsolvertime);
-output.solvertime = setuptime + bnbsolvertime;
+branchingtime = toc(tBranch);
+output.solvertime = setuptime + branchingtime;
 
 % Map back in weird models with negated binary
 if ~isempty(x_min) && ~isempty(negated_binary)
@@ -245,7 +245,7 @@ else
     if solved_nodes == p.options.bnb.maxiter
         output.problem = 3;
     end
-    if bnbsolvertime > p.options.bnb.maxtime
+    if branchingtime > p.options.bnb.maxtime
         output.problem = 3;
     end
 end
@@ -263,7 +263,7 @@ if p.options.savesolveroutput
     output.solveroutput.setuptime = setuptime;
     output.solveroutput.localsolvertime = profile.local_solver_time;
     output.solveroutput.localsolver = p.solver.lower.tag;
-    output.solveroutput.branchingtime = bnbsolvertime;
+    output.solveroutput.branchingtime = branchingtime;
     output.solveroutput.solved_nodes = solved_nodes;
     output.solveroutput.lower = lower;
     output.solveroutput.upper = upper;

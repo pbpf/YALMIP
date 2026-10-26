@@ -15,6 +15,6 @@ end
 
 try
     y = constraint(X,'>=',Y);
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end

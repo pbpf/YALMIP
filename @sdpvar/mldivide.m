@@ -29,6 +29,6 @@ try
     y.dim(1) = size(temp,1);
     y.dim(2) = size(temp,2);
   end
-catch
-  error(lasterr);
+catch ME
+  rethrow(ME);
 end

@@ -16,7 +16,7 @@ function output = mpcvx(p)
 % *************************************************************************
 % INITIALIZE DIAGNOSTICS IN YALMIP
 % *************************************************************************
-mpsolvertime = clock;
+tMp = tic;
 showprogress('mpcvx started',p.options.showprogress);
 
 % *************************************************************************
@@ -47,7 +47,7 @@ p.options.saveduals = 0;
 % *************************************************************************
 % The solver for approximation bounds
 % *************************************************************************
-solver    = eval(['@' p.solver.lower.call]); 
+solver    = str2func(['@' p.solver.lower.call]); 
 
 % *************************************************************************
 % Generate an exploration set by finding an inner approximation of feasible
@@ -87,7 +87,7 @@ for i = 1:size(T,1)
     [simplex_solution_i,nodes] = mp_simplex(p,solver,T(i,:)',nodes);
     optimal_simplicies = [optimal_simplicies simplex_solution_i];
 end
-mpsolvertime = etime(clock,mpsolvertime);
+mpsolvertime = toc(tMp);
 
 % *************************************************************************
 % Create output compatible with MPT

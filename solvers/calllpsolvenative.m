@@ -43,7 +43,6 @@ e(1:K.f) = 0;
 xint = uniquestripped([integer_variables binary_variables]);
 
 % Call mex-interface
-solvertime = clock; 
 
 if K.f>0
     Aeq = A(1:K.f,:);

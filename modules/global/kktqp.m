@@ -14,7 +14,7 @@ timing.total = tic;
 timing.boundingbox = 0;
 timing.boundingall = 0;
 timing.milpsolve = 0;
-solvertime = clock;
+tSolve = tic;
 
 % ********************************
 %% INITIALIZE DIAGNOSTICS IN YALMIP
@@ -112,7 +112,7 @@ if interfacedata.options.savesolverinput
 else
     output.solverinput =[];
 end
-output.solvertime = etime(clock,solvertime);
+output.solvertime = toc(tSolve);
 
 function My = derivedualbounds(F,y,b,S,n)
 

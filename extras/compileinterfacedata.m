@@ -177,9 +177,9 @@ end
 % *************************************************************************
 solvercache = S.solverCache;
 if ((options.cachesolvers==0) | isempty(solvercache.CACHED_SOLVERS)) & isempty(solvers_from_solvesdp)
-    getsolvertime = clock;
+    tGetSolvers = tic;
     [solvers,kept,allsolvers] = getavailablesolvers(findallsolvers,options);
-    getsolvertime = etime(clock,getsolvertime);
+    getsolvertime = toc(tGetSolvers);
     % CODE TO INFORM USERS ABOUT SLOW NETWORKS!
     if isempty(solvercache.EXISTTIME)
         solvercache.EXISTTIME = getsolvertime;
@@ -758,8 +758,8 @@ try
     if isempty(f)
         f = 0;
     end
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end
 
 % *************************************************************************

@@ -61,7 +61,7 @@ if nargin>=2
         logdetStruct.gain  = getgain(h);
         if any(logdetStruct.gain>0)
             warning('Perhaps you mean -logdet(P)...')
-            diagnostic.yalmiptime = etime(clock,yalmiptime);
+            diagnostic.yalmiptime = 0;
             diagnostic.solvertime = 0;
             diagnostic.info = yalmiperror(-2,'YALMIP');
             diagnostic.problem = -2;

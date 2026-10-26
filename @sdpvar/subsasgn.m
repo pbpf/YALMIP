@@ -45,8 +45,8 @@ try
                     if length(dim)>2
                         y = ndsdpvar(y);
                     end                    
-                catch
-                    error(lasterr)
+                catch ME
+                    rethrow(ME)
                 end
             case 2
                 if ~isempty(Y)     
@@ -251,8 +251,8 @@ try
         error('Reference type not supported');
     end
     
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end
 
 % A constant wrapper (double2sdpvar) carries no session; when symbolic

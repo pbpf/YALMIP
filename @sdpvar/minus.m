@@ -53,8 +53,8 @@ switch 2*X_is_spdvar+Y_is_spdvar
         if isempty(X)
             try
                 y = full(X - reshape(Y.basis(:,1),Y.dim(1),Y.dim(2)));
-            catch
-                error(lasterr);
+            catch ME
+                rethrow(ME);
             end
             return
         end
@@ -111,8 +111,8 @@ switch 2*X_is_spdvar+Y_is_spdvar
         if isempty(Y)
             try
                 y = full(reshape(X.basis(:,1),X.dim(1),X.dim(2))-Y);
-            catch
-                error(lasterr);
+            catch ME
+                rethrow(ME);
             end
             return
         end
@@ -261,7 +261,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
                 y.dim(1) = n_Y;
                 y.dim(2) = m_Y;
                 try
-                    y.basis = bsxfun(@plus,basis_X,-basis_Y);
+                    y.basis = basis_X + (-basis_Y);
                 catch
                     basis_X = repmat(basis_X,n_Y*m_Y,1);
                     y.basis = basis_X - basis_Y;
@@ -271,7 +271,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
                 y.dim(1) = n_X;
                 y.dim(2) = m_X;
                 try
-                     y.basis = bsxfun(@minus,basis_X,basis_Y);
+                     y.basis = basis_X - basis_Y;
                 catch
                     basis_Y = repmat(basis_Y,n_X*m_X,1);                
                     y.basis = basis_X - basis_Y;

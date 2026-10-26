@@ -354,7 +354,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
                 if prod(size(mt_x))==1 % Bug in Solaris and Linux, ML 6.X
                     allmt_xplusy = local_mt(:,testthese) + sparse(repmat(full(mt_x),1,nyvars));
                 else
-                    allmt_xplusy = bsxfun(@plus,local_mt(:,testthese),mt_x);
+                    allmt_xplusy = local_mt(:,testthese) + mt_x;
                  %   allmt_xplusy = local_mt(:,testthese) + repmat(mt_x,1,nyvars);
                 end
                 allhash = allmt_xplusy'*hash;
@@ -520,8 +520,8 @@ switch 2*X_is_spdvar+Y_is_spdvar
                 Z.dim(2) = max(X.dim(2),Y.dim(2));
             end
 
-        catch
-            error(lasterr)
+        catch ME
+            rethrow(ME)
         end
         % Reset info about conic terms
         Z.conicinfo = [0 0];
@@ -684,7 +684,7 @@ switch 2*X_is_spdvar+Y_is_spdvar
             else
                 if (size(X,1) > 100000) && isdiagonal(X)
                     try
-                        Z.basis = bsxfun(@times,Y.basis,sparse(diag(X)));
+                        Z.basis = Y.basis .* sparse(diag(X));
                     catch
                         Z.basis = sparse(X)*Y.basis;
                     end

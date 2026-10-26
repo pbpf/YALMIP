@@ -102,9 +102,9 @@ x_opt = [];
 phi = [];
 errorstatus = 0;
 waitbar_created = 0;
-t0 = clock;
+t0 = tic;
 waitbar_starts_at = 2;
-lastdraw = clock;
+lastdraw = tic;
 try % Try to ensure that we close h
     if length(x)==2
         mu = 0.5;
@@ -136,14 +136,14 @@ try % Try to ensure that we close h
         end                                        
         x_opt = [x_opt xi];
         if ~waitbar_created
-            if etime(clock,t0)>waitbar_starts_at;
+            if toc(t0)>waitbar_starts_at;
              h = waitbar(0,['Please wait, solving ' num2str(n_) ' problems using ' internalmodel.solver.tag]);
              waitbar_created = 1;
             end
         end
-        if waitbar_created & etime(clock,lastdraw)>1/10
+        if waitbar_created & toc(lastdraw)>1/10
             waitbar(i/n_,h)
-            lastdraw = clock;
+            lastdraw = tic;
         end
         i=i+1;
     end
@@ -173,7 +173,7 @@ try % Try to ensure that we close h
                 x_opt = [x_opt(:,1:pos(pick)) xi  x_opt(:,(pos(pick))+1:end)];
             end
             if ~waitbar_created
-            if etime(clock,t0)>waitbar_starts_at;
+            if toc(t0)>waitbar_starts_at;
                 h = waitbar(0,['Please wait, solving ' num2str(n_) ' problems using ' internalmodel.solver.tag]);
                 waitbar_created = 1;
             end

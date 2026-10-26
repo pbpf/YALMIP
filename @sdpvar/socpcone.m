@@ -55,6 +55,6 @@ try
         y.typeflag = 4;
     end
     y = lmi(y);
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end

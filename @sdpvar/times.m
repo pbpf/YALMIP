@@ -279,8 +279,8 @@ if (isa(X,'sdpvar') && isa(Y,'sdpvar'))
             Z.dim(1) = max(X.dim(1),Y.dim(1));
             Z.dim(2) = max(X.dim(2),Y.dim(2));
         end
-    catch
-        error(lasterr)
+    catch ME
+        rethrow(ME)
     end
     % Reset info about conic terms
     Z.conicinfo = [0 0];

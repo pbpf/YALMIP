@@ -393,7 +393,7 @@ if length(interfacedata.evalMap) > 0
     functions = {'exp','log','sin','cos','tan','logistic'};
     for i = 1:length(functions)
         if any(cellfun(@(x) strcmp(x.fcn, functions{i}), interfacedata.evalMap))
-            eval(['model.gencon' functions{i} '=[];']);
+            model.(['gencon' functions{i}]) = [];
         end        
     end
     if any(cellfun(@(x) strcmp(x.fcn, 'power_internal1'), interfacedata.evalMap))

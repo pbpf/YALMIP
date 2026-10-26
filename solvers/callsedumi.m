@@ -44,9 +44,9 @@ warnState = warning;
 solvertime = tic;
 try
     [x_s,y_s,info] = sedumi(-F_struc(:,2:end),-c,F_struc(:,1),K,pars);
-catch
-    if strfind(lasterr,'Out of memory')
-        error(lasterr)
+catch ME
+    if strfind(ME.message,'Out of memory')
+        rethrow(ME)
     end
     try
         if options.verbose > 0

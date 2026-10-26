@@ -19,7 +19,7 @@ pars.fid = double(options.verbose);
 
 if ~options.warmstart
     interfacedata.options.verbose =  max(0,interfacedata.options.verbose - 1);
-    initialsolver = eval(['@' interfacedata.solver.initialsolver.call]);
+    initialsolver = str2func(['@' interfacedata.solver.initialsolver.call]);
     start = K.l;
     b = zeros(size(F_struc,2)-1,1);
     for j=1:length(K.s)

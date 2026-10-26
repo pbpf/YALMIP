@@ -1,6 +1,6 @@
 function diagnostic = solvesdp_multiple(varargin);
 
-yalmiptime = clock;
+yalmiptime = tic;
 h = varargin{2};
 varargin{2} = sum(recover(depends(h)));
 
@@ -23,11 +23,11 @@ else
     varargin{3}.saveyalmipmodel = 1;
 end
 varargin{3}.pureexport = 1;
-yalmiptime = clock;
+yalmiptime = tic;
 model = solvesdp(varargin{:});
 S = session(varargin{1});
-diagnostic.yalmiptime = etime(clock,yalmiptime);
-yalmiptime = clock;
+diagnostic.yalmiptime = toc(yalmiptime);
+yalmiptime = tic;
 
 h_variables = getvariables(h);
 h_base = getbase(h);
@@ -39,11 +39,11 @@ for i = 1:length(h)
     % TRY TO SOLVE PROBLEM
     % *************************************************************************
     if ops.debug
-        eval(['output = ' model.solver.call '(model);']);
+        output = feval(model.solver.call, model);
     else
         try
-            eval(['output = ' model.solver.call '(model);']);
-        catch
+            output = feval(model.solver.call, model);
+        catch ME
             output.Primal = zeros(length(model.c),1)+NaN;
             output.Dual  = [];
             output.Slack = [];
@@ -51,7 +51,7 @@ for i = 1:length(h)
             output.solverinput  = [];
             output.solveroutput = [];
             output.problem = 9;
-            output.infostr = yalmiperror(output.problem,lasterr);
+            output.infostr = yalmiperror(output.problem,ME.message);
         end
     end
     
@@ -96,7 +96,7 @@ for i = 1:length(h)
     % ********************************
     % OUTPUT
     % ********************************
-    diagnostic.yalmiptime = diagnostic.yalmiptime + etime(clock,yalmiptime)-output.solvertime;
+    diagnostic.yalmiptime = diagnostic.yalmiptime + toc(yalmiptime)-output.solvertime;
     diagnostic.solvertime(:,i) = output.solvertime;    
     try
         diagnostic.info = output.infostr;

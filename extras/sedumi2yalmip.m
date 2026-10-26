@@ -67,7 +67,7 @@ h = -b'*x;
 function ok = isvalidfield(K,fld)
 ok = 0;
 if isfield(K,fld)
-    s = getfield(K,fld);
+    s = K.(fld);
     if prod(size(s))>0
         if s(1)>0
             ok = 1;

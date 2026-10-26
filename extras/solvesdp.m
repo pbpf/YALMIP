@@ -4,7 +4,7 @@ function diagnostic = solvesdp(varargin)
 % The solver scan cache lives on the session object (S.solverCache) instead
 % of persistent variables.
 
-yalmiptime = clock; % Let us see how much time we spend
+yalmiptime = tic; % Let us see how much time we spend
 
 % *********************************
 % CHECK INPUT
@@ -242,9 +242,9 @@ if isempty(S)
 else
     cache = S.solverCache;
     if (options.cachesolvers==0) | isempty(cache.CACHED_SOLVERS)
-        getsolvertime = clock;
+        tGetSolvers = tic;
         solvers = getavailablesolvers(0,options);
-        getsolvertime = etime(clock,getsolvertime);
+        getsolvertime = toc(tGetSolvers);
         % CODE TO INFORM USERS ABOUT SLOW NETWORKS!
         if isempty(cache.EXISTTIME)
             cache.EXISTTIME = getsolvertime;
@@ -332,7 +332,7 @@ end
 % FAILURE?
 % ******************************************
 if ~isempty(diagnostic)
-    diagnostic.yalmiptime = etime(clock,yalmiptime);
+    diagnostic.yalmiptime = toc(yalmiptime);
     return
 end
 
@@ -342,7 +342,7 @@ end
 if  strcmpi(solver.tag,'lmilab') & any(is(F,'kyp'))
     [diagnostic,failed] = calllmilabstructure(F,h,options);
     if ~failed % Did this problem pass (otherwise solve using unstructured call)
-        diagnostic.yalmiptime = etime(clock,yalmiptime)-diagnostic.solvertime;
+        diagnostic.yalmiptime = toc(yalmiptime)-diagnostic.solvertime;
         return
     end
 end
@@ -352,7 +352,7 @@ end
 % ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if strcmpi(solver.tag,'kypd')
     diagnostic = callkypd(F,h,options);
-    diagnostic.yalmiptime = etime(clock,yalmiptime)-diagnostic.solvertime;
+    diagnostic.yalmiptime = toc(yalmiptime)-diagnostic.solvertime;
     return
 end
 
@@ -361,7 +361,7 @@ end
 % ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if strfind(solver.tag,'STRUL')
     diagnostic = callstrul(F,h,options);
-    diagnostic.yalmiptime = etime(clock,yalmiptime)-diagnostic.solvertime;
+    diagnostic.yalmiptime = toc(yalmiptime)-diagnostic.solvertime;
     return
 end
 
@@ -416,7 +416,7 @@ if strcmpi(solver.version,'geometric') || (strcmpi(solver.tag,'bnb') && strcmpi(
             if userdirect || userindirect
                 % There are missing non-negativity bounds
                 output = createOutputStructure(zeros(length(interfacedata.c),1)+NaN,[],[],18,yalmiperror(18,''),[],[],nan);
-                diagnostic.yalmiptime = etime(clock,yalmiptime);
+                diagnostic.yalmiptime = toc(yalmiptime);
                 diagnostic.solvertime = output.solvertime;
                 try
                     diagnostic.info = output.infostr;
@@ -451,8 +451,8 @@ if options.debug
 else
     try
         output = feval( solver.call, interfacedata );
-    catch
-        output = createOutputStructure(zeros(length(interfacedata.c),1)+NaN,[],[],9,yalmiperror(9,lasterr),[],[],nan);        
+    catch ME
+        output = createOutputStructure(zeros(length(interfacedata.c),1)+NaN,[],[],9,yalmiperror(9,ME.message),[],[],nan);        
     end
 end
 
@@ -496,7 +496,7 @@ output.Primal = recoverdata.x_equ+recoverdata.H*output.Primal;
 % ********************************
 diagnostic.yalmipversion = yalmipversion();
 diagnostic.matlabversion = version;
-diagnostic.yalmiptime = etime(clock,yalmiptime)-output.solvertime;
+diagnostic.yalmiptime = toc(yalmiptime)-output.solvertime;
 diagnostic.solvertime = output.solvertime;
 try
     diagnostic.info = output.infostr;

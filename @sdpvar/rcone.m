@@ -27,6 +27,6 @@ try
   y = [x;y;z];
   y.typeflag = 5;
   y = lmi(y);
-catch
-  error(lasterr)
+catch ME
+  rethrow(ME)
 end

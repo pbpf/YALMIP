@@ -11,7 +11,7 @@ for i = 1:p.model.K.l
     p.model.F_struc(p.model.K.f+i,1) = b+1;
     p.model.c = p.model.F_struc(p.model.K.f+i,2:end)';
    
-     eval(['output = ' p.model.solver.call '(p.model);']);
+     output = feval(p.model.solver.call, p.model);
      if output.problem == 0
          if p.model.c'*output.Primal > -b
              redundant(i) = 1

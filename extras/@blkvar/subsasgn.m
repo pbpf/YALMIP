@@ -16,7 +16,7 @@ try
         error('Reference type not supported');
     end
     
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end
 

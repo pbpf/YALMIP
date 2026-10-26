@@ -31,8 +31,8 @@ try
         F.ConstraintID = [sessOf(Y).lmiid() F.ConstraintID];
         F.strict = [1 F.strict];
     end
-catch
-    error(lasterr);
+catch ME
+    rethrow(ME);
 end
 
 

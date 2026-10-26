@@ -102,8 +102,8 @@ switch class(X)
             % Old notation
             X = strrep(X,'.>','>');
             X = strrep(X,'.<','<');            
-        catch
-            error(lasterr)
+        catch ME
+            rethrow(ME)
         end
         % Evaluate
         try
@@ -122,8 +122,8 @@ switch class(X)
             end
             F.sess = session(Fi{1});
 
-        catch
-            error(lasterr)
+        catch ME
+            rethrow(ME)
         end
 
     case 'sdpvar'

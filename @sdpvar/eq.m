@@ -25,6 +25,6 @@ try
     else
         y = constraint(Z,'==',0);
     end
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end

@@ -22,6 +22,6 @@ try
     else
         Y = reshape(ndsdpvar(Y),varargin{2:end});
     end
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end

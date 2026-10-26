@@ -155,8 +155,8 @@ try
         otherwise
             error(['Indexation with ''' Y.type ''' not supported']) ;
     end
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end
 if isempty(y.lmi_variables)
     y = full(reshape(y.basis(:,1),y.dim(1),y.dim(2)));

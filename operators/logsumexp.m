@@ -22,7 +22,7 @@ switch class(varargin{1})
         end
         shift = max(x);
         shift(~isfinite(shift)) = 0;
-        varargout{1} = shift + log(sum(exp(bsxfun(@minus,x,shift))));
+        varargout{1} = shift + log(sum(exp(x - shift)));
         
     case 'sdpvar'
 
@@ -57,8 +57,8 @@ end
 
 function df=derivative(x)
 
-z = exp(bsxfun(@minus,x,max(x)));
-df = bsxfun(@rdivide,z,sum(z));
+z = exp(x - max(x));
+df = z ./ sum(z);
 function [L, U] = bounds(xL,xU)
 
 L = logsumexp(xL);

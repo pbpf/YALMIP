@@ -356,7 +356,7 @@ while i <= nargin
         end
         expectval = 1;                      % we expect a value next
     else
-        eval(['options.' Names{j} '= arg;']);
+        options = assignOptionField(options, Names{j}, arg);
         expectval = 0;
     end
     i = i + 1;    
@@ -404,11 +404,11 @@ end
 
 cNames = fieldnames(options);
 for i = 1:length(cNames)    
-    temporaryOptions = getfield(options,cNames{i});
+    temporaryOptions = options.(cNames{i});
     if isa(temporaryOptions,'struct')
         cNames = [cNames;recursivefieldnames(temporaryOptions,[cNames{i}])];
     elseif isa(temporaryOptions,'optim.options.MultiAlgorithm')
-        temporaryOptions = cell2struct( cellfun(@(x) getfield(temporaryOptions,x), properties(temporaryOptions),'UniformOutput', false), properties(temporaryOptions), 1);
+        temporaryOptions = cell2struct( cellfun(@(x) temporaryOptions.(x), properties(temporaryOptions),'UniformOutput', false), properties(temporaryOptions), 1);
         cNames = [cNames; recursivefieldnames(temporaryOptions,[cNames{i}])];
     end
 end
@@ -417,6 +417,21 @@ for i = 1:length(cNames)
     else
         cNames{i} = [append '.' cNames{i}];
     end
+end
+
+function options = assignOptionField(options, name, value)
+%ASSIGNOPTIONFIELD Write a value into a (possibly nested) option field.
+%   name is a dotted path such as 'mosek.kkt' or 'default.gurobi.node'.
+options = assignOptionParts(options, strsplit(name,'.'), value);
+
+function s = assignOptionParts(s, parts, value)
+if numel(parts) == 1
+    s.(parts{1}) = value;
+else
+    if ~isfield(s, parts{1})
+        s.(parts{1}) = struct();
+    end
+    s.(parts{1}) = assignOptionParts(s.(parts{1}), parts(2:end), value);
 end
 
 function  Names = appendOptionNames(Names,options,solver)
@@ -1274,7 +1289,7 @@ try
     xpress = xprsoptimset;
     cNames = recursivefieldnames(xpress);
     for i = 1:length(cNames)
-        xpress = setfield(xpress,cNames{i},[]);
+        xpress.(cNames{i}) = [];
     end
 catch
     xpress =[];

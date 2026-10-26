@@ -55,8 +55,8 @@ try
             Y.basis(:,i+1) = temp(:);
         end
     end
-catch
-    error(lasterr)
+catch ME
+    rethrow(ME)
 end
 Y.dim(1) = size(temp,1);
 Y.dim(2) = size(temp,2);
