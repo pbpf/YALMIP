@@ -240,6 +240,14 @@ returns empty in some graph contexts, root cause not fully diagnosed).
 
 ## HANDOFF 5 — batch 20: four systemic session bugs found
 
+STAGE 3 GATE PASSED (stage3as, 361 tests collected across the 17 runnable
+suites + globlib empty): 327 passed, 34 failing — per-test diff against the
+Stage 0 baseline XMLs reports **0 NEW failures/errors, 0 regressions**. The
+34 remaining are exactly the baseline environment failures (SeDuMi/SDPT3
+missing for loadsdpafile+cutsdp+robust_5/test13, MPT toolbox missing,
+R2026b N-D `norm`, quadprog property rename, bmibnb kkt/sdp upstream issues).
+`python3 dev/audit_stateless.py` passes (0 global, 0 persistent, 0 yalmip(').
+
 Suite state after batch 20 (stage3aq/3ar; baseline in brackets):
 core 40 [40], operators 51 [51], misc 8 [8], dualize 21 [21], geometric 13 [13],
 logic 7 [7], moment 1 [1], slayer 2 [2], chance 1 [1], sos 26 [26],
@@ -295,8 +303,8 @@ Known remaining (all equal to baseline except as noted):
 - operators implies test12 (quadprog.Algorithm property) and semivar test1
   pre-existing.
 
-Next steps: rerun all suites after the batch-20 tail fixes
-(categorizeproblem objective-session fallback for empty F, projectOut,
- jacobian numeric-f, qcqp5 test, bmibnb) and compare with `python3
- dev/baseline/compare_stage.py`; then Stage 4 (modern style: eval/strmatch/
- bsxfun/etime cleanup, `lasterr` -> ME rethrow sites) per the plan.
+Next steps: Stage 4 (modern style: `eval(['options.' ...])` dynamic fields in
+sdpsettings, bsxfun (9), etime (30), getfield/setfield (9), `lasterr` -> ME
+rethrow (36 sites), stray dbstack), then Stage 5 (codegen-ready evaluation
+core) and Stage 6 (REFACTORING.md / MIGRATION.md / Contents.m). Gate after
+each stage: `run_stage` all suites + per-test diff against `dev/baseline/*.xml`.
