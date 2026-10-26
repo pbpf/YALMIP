@@ -50,9 +50,21 @@ if isa(F,'constraint')
     F = lmi(F);
 end
 
+% Session owning the problem data (recovered variables need it too)
+S = sessOf(F);
+if isempty(S)
+    S = sessOf(h);
+end
+if isempty(S)
+    S = sessOf(x);
+end
+if isempty(S)
+    S = yalmip.Session();
+end
+
 par_declarations = is(F,'parametric');
 if any(par_declarations)
-    x = [x;recover(getvariables(sdpvar(F(find(par_declarations)))))];
+    x = [x;recover(getvariables(sdpvar(F(find(par_declarations)))),S)];
     F = F(find(~par_declarations));
 end
 
@@ -82,7 +94,7 @@ end
 if length(F) > 0
     unc_declarations = is(F,'uncertain');
     if any(unc_declarations)
-        w = recover(getvariables(sdpvar(F(find(unc_declarations)))));
+        w = recover(getvariables(sdpvar(F(find(unc_declarations)))),S);
         F = F(find(~unc_declarations));
         [F,h,failure] = robustify(F,h,ops,w);
         if failure
@@ -116,8 +128,8 @@ if isfield(sol,'mpsol')
         varargout{1} = sol.mpsol.model;
 
         if nargout > 2
-            z = recover(sol.solveroutput.U);
-            x = recover(sol.solveroutput.x);
+            z = recover(sol.solveroutput.U,S);
+            x = recover(sol.solveroutput.x,S);
             varargout{3}= z;
         end
 

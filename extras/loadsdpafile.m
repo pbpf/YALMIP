@@ -1,8 +1,17 @@
-function [F,h] = loadsdpafile(varargin)
+function [F,h,S] = loadsdpafile(varargin)
 %LOADSDPAFILE Loads a problem definition in the SDPA format
 %
 %    [F,h] = loadsdpafile('filename')  Loads the problem min(h(x)), F(x)>0 from file 'filename'
 %    [F,h] = loadsdpafile         A "Open" - box will be opened
+%
+%    [F,h,S] = loadsdpafile('filename',S) loads into the given session;
+%    without one, a fresh session is created and returned as the third output.
+
+if numel(varargin) > 1 && isa(varargin{2},'yalmip.Session')
+    S = varargin{2};
+else
+    S = yalmip.Session();
+end
 
 filename = varargin{1};
 
@@ -35,12 +44,12 @@ try
         end
     end  
     fclose(fid);
-catch
-    error('LOADSDPAFILE currently requires SeDuMi to be installed');
+catch ME
+    error('LOADSDPAFILE requires SeDuMi (fromsdpa.m and its conversion/ subfolder) on the MATLAB path. Underlying error: %s', ME.message);
 end
 
 nvars = length(b);
-x = sdpvar(nvars,1);
+x = S.sdpvar(nvars,1);
 
 F = ([]);
 if ~isempty(integers)

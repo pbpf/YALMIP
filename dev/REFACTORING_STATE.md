@@ -350,3 +350,69 @@ environment failures (SeDuMi/SDPT3/MPT absent, `loadsdpafile`+cutsdp+bnb_sdpmipl
 R2026b N-D `norm` in test_ndsdpvar, `quadprog.Algorithm` property rename) and the
 `@optimizer/subsasgn` eval (nested option write) noted above.
 
+## HANDOFF 7 — third-party solvers installed; gate re-measured at 338/361
+
+SeDuMi 1.3, SDPT3 and MPT3 were fetched, built for R2026b (`mex` + gcc 14.2)
+and installed as `/opt/sedumi`, `/opt/sdpt3`, `/opt/mpt3`, with staging copies
+under `~/yalmip-solvers`. `~/MATLAB/startup.m` and `dev/baseline/run_stage.m`
+put each solver's `/opt` tree first and fall back to the staging copy, so the
+setup works before and after the move.
+
+Gate, run 2026-10-27 (`solved9`): **338 of 361 tests pass, 0 new failures
+per test versus the Stage 0 baseline, 11 baseline failures fixed** (was
+327/361). Fixed: `test_cutsdp` 4/4 (its lower solver is now present; `cutsdp`
+is YALMIP's own cutting-plane method, not CSDP), `test_bnb_sdpmiplib` 4 tests,
+`test_robust_5/test13`, `test_mpt_dpmpqp`, `test_mpt_lti_3`.
+
+Two library files were holding those back, both fixed here:
+- `extras/loadsdpafile.m` — dropped the blanket "requires SeDuMi" error (it
+  caught any parse failure) and reports the real error instead; takes and
+  returns a session and builds its variables through it.
+- `modules/parametric/solvemp.m` — session-threaded `recover` calls.
+
+### Path policy (this is not cosmetic)
+
+- Everything is added with `addpath(..., '-end')`. MPT3 exposes bare names
+  (`chebyball`, `projection`, `minHRep`, `polytope`) from its `@Polyhedron` and
+  `@polytope` classes; ahead of YALMIP they shadow its functions. Measured: the
+  worst-case LP in `test_robust_5/test1` returns `NaN` with MPT at the front.
+- `mpt_init` calls `addpath` itself, without `-end`, so the ordering has to be
+  re-asserted after it runs.
+- MPT's `modules/compatibility` subtree stays off the default path. It provides
+  the MPT2 API as plain functions, and YALMIP calls exactly those names with
+  plain matrices in `modules/robust/filter_enumeration.m:100` and
+  `@sdpvar/pwa.m:116,136,143`, so the MPT versions take over silently: with the
+  compatibility layer on the path the `robust` suite drops from 33/33 to 28/33.
+- Because YALMIP's own parametric code (`mpt_appendmodel.m:246`) does need that
+  legacy layer, the `mpt` suite runs in a separate MATLAB session with MPT fully
+  enabled: `run_stage(name, {'mpt'}, true)`.
+
+### MPT3's missing external
+
+`Polyhedron.projection(...,'fourier')` calls a `fourier` MEX that the MPT3
+source tree does not ship (the official build pulls it from Mercurial). The
+MPT2 C++ implementation was rebuilt for this machine
+(`mex -output fourier fourier.cc support.cc matlab_driver.cc`) and installed in
+`<mpt>/modules/geometry/externals`, verified by projecting a cube to `[-1,1]`.
+Sources, build line and provenance are in that directory's `README.txt`.
+
+### Remaining 23 failures, all understood
+
+- `mpt` 9: MPT3's own class internals (`SystemSignal/instantiate`) call bare
+  `sdpvar(...)`, which the stateless design rejects with
+  `YALMIP:sessionRequired`. Third-party code that predates the session API
+  cannot create variables; this is the expected cost of zero ambient state and
+  needs an MPT-side adapter, not a YALMIP change. One of them
+  (`test_mpt_pwa_3d_dp`) additionally calls a `pwa3d` demo function that MPT
+  ships only in the release bundle.
+- `bnb` 5: `test_bnb_lpqp/test_migp` and four `test_bnb_sdpmiplib` instances —
+  pre-existing upstream failures (the four that pass now are the small ones;
+  these four are the ones that do not converge upstream either).
+- `bmibnb` 3, `bilevel` 2: pre-existing upstream failures, unchanged.
+- `core` 2: R2026b `norm` on N-D arrays (`test_ndsdpvar`) and `test_sdpvar_diff`.
+- `operators` 2: `quadprog.Algorithm` property rename (`test_operator_implies/test12`)
+  and `test_operator_semivar/test1`.
+
+None of these are caused by the stateless conversion; each was already failing
+at Stage 0, and the audit (`dev/audit_stateless.py`) still reports zero
+`global`, `persistent` and `yalmip('` outside `dev/`.
