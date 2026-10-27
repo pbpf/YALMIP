@@ -422,10 +422,20 @@ at Stage 0, and the audit (`dev/audit_stateless.py`) still reports zero
 `global`, `persistent` and `yalmip('` outside `dev/`.
 ## HANDOFF 8 — nine more un-migrated call sites found by the now-solvable tests
 
-Gate, run 2026-10-27 (`solved14`, SeDuMi + SDPT3 + MPT3 installed, MOSEK and
-every solver added with `-end`): **341 of 359 executed tests pass, 17 baseline
+Gate, run 2026-10-27 (`solved14` + `solved15`, SeDuMi + SDPT3 + MPT3 installed,
+MOSEK and every solver added with `-end`): **343 of 361 tests pass, 17 baseline
 failures fixed, 1 new failure** (`test_operator_optimizer13/test1`, see below).
-`dev/audit_stateless.py` still passes.
+`dev/audit_stateless.py` still passes, and every suite folder now collects its
+expected file set (361 tests collected in total, checked by building a
+`TestSuite` per file - `test_mpt_ordering.m` is not a test file and `globlib`
+has no tests, both as upstream).
+
+That collection check was worth adding: the first version of the `lqr`
+replacement below was written with an `end`-terminated function into a file that
+uses the open style, and MATLAB rejects mixed definition styles - so
+`test_bmibnb_nonlinearsdp.m` silently dropped out of collection and its two
+tests disappeared from the report instead of failing. A per-file count is the
+only thing that catches this, so record it with every gate.
 
 Fixing the path ordering turned the previously environment-blocked suites into
 real signal: nine failures were YALMIP code that had never been converted to
@@ -486,9 +496,9 @@ Left failing, with the evidence behind each:
 - `bnb` 1 (`test_bnb_lpqp/test_migp`): solves and returns an integer vector that
   differs from the recorded one; in an idle session the same model returns
   `problem = 9`, so this instance is load-sensitive too.
-- `bmibnb` 1 (`nonlinearktkt`): now reaches the solve and asserts `problem == 0`
-  successfully, then the objective differs from -12.6787 at line 21. Behaviour
-  difference in the complementarity/bmibnb model, not a crash.
+- `bmibnb` 1 (`nonlinearktkt`, 70/71): now reaches the solve and
+  `problem == 0` holds, then the objective differs from -12.6787 at line 21.
+  Behaviour difference in the complementarity/bmibnb model, not a crash.
 - `operators` 2: `implies/test12` returns 0.501003 against a 1e-3 tolerance for a
   problem whose implication is itself relaxed by 1e-3; `semivar/test1` needs a
   nonconvex MIQP - MOSEK returns no solution and `call_mosek_primal` raises
