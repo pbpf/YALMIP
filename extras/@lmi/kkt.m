@@ -32,7 +32,7 @@ nonlinear_parameters = [];
 if ~((all(is(F,'linear')) && (is(h,'quadratic') || is(h,'linear'))))
     % All monomials 
     nonlinear_parameters = [];
-    all_terms = recover(unique([getvariables(F) getvariables(h)]));
+    all_terms = recover(unique([getvariables(F) getvariables(h)]),S);
     for i = 1:length(all_terms)
         if ~is(all_terms(i),'linear')
            if all(ismember(depends(all_terms(i)),getvariables(parametricVariables)))
@@ -72,7 +72,7 @@ if nargin < 3
 else
     % Make sure they are sorted    
     parameters = getvariables(parametricVariables);
-    x = recover(setdiff(model.used_variables,parameters));
+    x = recover(setdiff(model.used_variables,parameters),S);
     notparameters = find(ismember(model.used_variables,getvariables(x)));%parameters);
     parameters = setdiff(1:length(model.used_variables),notparameters);
     if ~isempty(parameters)
@@ -196,7 +196,7 @@ if ops.kkt.dualbounds
     if ops.verbose
         disp('Starting derivation of dual bounds (can be turned off using option kkt.dualbounds)');
     end
-    [U,pL] = derivedualBounds(2*Q,c,A,b,E,f,ops,parametricDomain);
+    [U,pL] = derivedualBounds(2*Q,c,A,b,E,f,ops,parametricDomain,S);
     %[U,pL] = derivedualBoundsParameterFree(2*Q,c,A,b,E,f,ops,parametricDomain);
 else
     U = [];
@@ -234,7 +234,7 @@ if any_inequalities
     if ops.kkt.minnormdual;
         MinNorm = [0 <= Lambda <= 10000*s_,s == 0];
         ops.kkt.minnormdual = ops.kkt.minnormdual-1;
-        parametricInMinNorm = recover(setdiff(depends(MinNorm),depends(Lambda)));
+        parametricInMinNorm = recover(setdiff(depends(MinNorm),depends(Lambda)),S);
         [kkt2,info2] = kkt(MinNorm,Lambda'*Lambda,parametricInMinNorm,ops);
         kkt2 = [kkt2, [indicators(kkt2(1)) <= 1-[s_;s_]]];
         kkt2 = [kkt2, info2.dual <= 10000];

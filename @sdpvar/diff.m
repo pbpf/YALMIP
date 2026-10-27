@@ -19,26 +19,21 @@ switch nargin
         return
 
     case 2       
-        % Note that MATLAB diff(randn(2,4),2) will cause a diff in two
-        % different directions. 
         if isa(varargin{2},'sdpvar')
             error('I think you meant to use the JACOBIAN operator');
         end
-        if n == 1
-            if varargin{2}==1 || isempty(varargin{2})
-                Y = differ(X);
-            else
-                % Recursive use
-                Y = diff(differ(X),varargin{2}-1);
-            end
-        else
-            if varargin{2}==1 || isempty(varargin{2})
-                Y = differ(X')';
-            else
-                % Recursive use
-                Y = diff(differ(X')',varargin{2}-1);
-            end           
+        % MATLAB takes the n-th difference along the first non-singleton
+        % dimension. The previous hand-rolled recursion mixed a difference
+        % along one dimension with a difference along the other, so for any
+        % variable with more than one row it disagreed with
+        % diff(double(...)) in size as well as value (diff(randn(2,4),2) is
+        % an empty 0-by-4, this returned a 1-by-3).
+        d = find([n m] > 1, 1, 'first');
+        if isempty(d)
+            d = 1;
         end
+        Y = diff(X, varargin{2}, d);
+        return
         
     case 3
         if isa(varargin{2},'sdpvar')

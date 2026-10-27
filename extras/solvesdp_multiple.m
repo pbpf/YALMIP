@@ -2,7 +2,7 @@ function diagnostic = solvesdp_multiple(varargin);
 
 yalmiptime = tic;
 h = varargin{2};
-varargin{2} = sum(recover(depends(h)));
+varargin{2} = sum(recover(depends(h), sessOf(h)));
 
 if ~is(h,'linear')
     disp(['You have sent an objective of size ' sizestring(size(h))]);

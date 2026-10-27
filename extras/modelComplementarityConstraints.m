@@ -1,4 +1,4 @@
-function [F,ProblemClass] = modelComplementarityConstraints(F,solver,ProblemClass)
+function [F,ProblemClass] = modelComplementarityConstraints(F,solver,ProblemClass,S)
 
 i = find(is(F,'complementarity'));
 Fc = F(i);
@@ -9,8 +9,8 @@ for i = 1:length(Fc)
     C2 = X(:,2);
     if solver.constraint.equalities.polynomial == 1
         % Normalize model to ensure simple bilinear only   
-        z1 = sdpvar(length(C1),1);
-        z2 = sdpvar(length(C2),1);       
+        z1 = S.sdpvar(length(C1),1);
+        z2 = S.sdpvar(length(C2),1);       
         F = [F, C1==z1, C2==z2, z1.*z2 == 0, z1>=0, z2>=0, C1>=0, C2>=0];        
         ProblemClass.constraint.equalities.polynomial = 1;
     elseif (solver.constraint.binary == 1) || (solver.constraint.integer == 1)

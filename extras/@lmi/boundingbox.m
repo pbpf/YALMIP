@@ -18,8 +18,10 @@ function varargout = boundingbox(F,ops,x,fun_eval)
 %  [B,L,U] = boundingbox(F,[],x)
 % B will now be the box [L <= x <= U] (infinite bounds not included)
 
+S = session(F);
+
 if nargin < 3 | isempty(x)
-    x = recover(depends(F));
+    x = recover(depends(F),S);
 else
     x = x(:);
     if ~isa(x,'sdpvar')
@@ -44,20 +46,22 @@ vals = {};
 for i = 1:n
     xi = x(i);
     if isa(xi,'sdpvar')
-        if sol.problem(i)==0          
-            L(i,1) = double(xi,i);
+        if sol.problem(i)==0
+            sI = localSolutionOf(S,i);
+            L(i,1) = value(xi,sI);
             if nargin > 3
-              sols{end+1} = double(x,i);
-              vals{end+1} = double(fun_eval,i);
+              sols{end+1} = value(x,sI);
+              vals{end+1} = value(fun_eval,sI);
             end
         else
             L(i,1) = -inf;            
         end
-        if sol.problem(n+i)==0           
-            U(i,1) = double(xi,n+i);
+        if sol.problem(n+i)==0
+            sI = localSolutionOf(S,n+i);
+            U(i,1) = value(xi,sI);
             if nargin > 3
-              sols{end+1} = double(x,n+i);
-              vals{end+1} = double(fun_eval,n+i);
+              sols{end+1} = value(x,sI);
+              vals{end+1} = value(fun_eval,sI);
             end
         else
             U(i,1) = inf;
@@ -89,3 +93,14 @@ varargout{2} = L;
 varargout{3} = U;
 varargout{4} = sols;
 varargout{5} = vals;
+end
+
+function s = localSolutionOf(S,k)
+%LOCALSOLUTIONOF Solution k of the just-solved problem, as a payload struct.
+% solvesdp_multiple stores one solution per objective on the session; the old
+% double(x,k) accessor read the k-th entry of the global solution set, so the
+% equivalent here is to select it and snapshot it into a value()-compatible
+% struct.
+S.selectsolution(k);
+s = struct('eval',S.evalSnapshot());
+end

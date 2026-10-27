@@ -354,9 +354,9 @@ if ProblemClass.constraint.complementarity.variable | ProblemClass.constraint.co
             Ftemp = [Ftemp, Cx>=0, Cy >=0];
         end
         % FIXME: SYNC with expandmodel       
-        setupBounds(Ftemp,options,extendedvariables);
+        setupBounds(Ftemp,options,extendedvariables,S);
                         
-        [F] = modelComplementarityConstraints(F,solver,ProblemClass);  
+        [F] = modelComplementarityConstraints(F,solver,ProblemClass,S);  
         % FIXME Reclassify should be possible to do manually!
         oldProblemClass = ProblemClass;
         [ProblemClass,integer_variables,binary_variables,parametric_variables,uncertain_variables,semicont_variables,quad_info] = categorizeproblem(F,logdetStruct,h,options.relax,parametric,evaluation_based,F_vars,exponential_cone);

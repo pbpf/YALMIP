@@ -33,7 +33,7 @@ setupBounds(F,options,S.getExtvariables(),S);
 solver.constraint.equalities.polynomial=0;
 solver.constraint.binary=1;
 solver.constraint.integer=0;
-[F] = modelComplementarityConstraints(F,solver,[]);
+[F] = modelComplementarityConstraints(F,solver,[],S);
         
         
 %%

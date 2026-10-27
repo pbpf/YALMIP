@@ -11,7 +11,12 @@ function run_stage(stagename, suites, withMPT)
 % Everything is added with '-end' so no solver can shadow YALMIP.
 if nargin < 3, withMPT = false; end
 addpath(genpath('/media/connor/Data/YALMIP'));
-addpath('/opt/mosek/11.2/toolbox/r2019b');
+% '-end' for MOSEK too: its toolbox folder ships quadprog.m, linprog.m,
+% intlinprog.m, lsqlin.m and lsqnonneg.m wrappers. Ahead of MATLAB's own
+% optim folder they shadow those, and `quadprog('defaults')` then returns the
+% wrapper's 5-field struct, which makes sdpsettings lose every quadprog.*
+% option name ('Unrecognized property name ''quadprog.Algorithm'''').
+addpath('/opt/mosek/11.2/toolbox/r2019b', '-end');
 
 addSolverTree({'/opt/sedumi', '/home/connor/yalmip-solvers/sedumi'});
 addSolverTree({'/opt/sdpt3', '/home/connor/yalmip-solvers/sdpt3'});

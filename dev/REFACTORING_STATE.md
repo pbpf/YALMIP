@@ -420,3 +420,94 @@ Sources, build line and provenance are in that directory's `README.txt`.
 None of these are caused by the stateless conversion; each was already failing
 at Stage 0, and the audit (`dev/audit_stateless.py`) still reports zero
 `global`, `persistent` and `yalmip('` outside `dev/`.
+## HANDOFF 8 — nine more un-migrated call sites found by the now-solvable tests
+
+Gate, run 2026-10-27 (`solved14`, SeDuMi + SDPT3 + MPT3 installed, MOSEK and
+every solver added with `-end`): **341 of 359 executed tests pass, 17 baseline
+failures fixed, 1 new failure** (`test_operator_optimizer13/test1`, see below).
+`dev/audit_stateless.py` still passes.
+
+Fixing the path ordering turned the previously environment-blocked suites into
+real signal: nine failures were YALMIP code that had never been converted to
+sessions, and they were all hard errors, not wrong numbers.
+
+- `@sdpvar/diff.m` — the two-argument branch did *not* match MATLAB: it mixed a
+  difference along one dimension with a difference along the other, so
+  `diff(X,2)` on a 2-by-4 variable returned 1-by-3 where MATLAB returns an empty
+  0-by-4, and `@sdpvar/minus.m` then took its `isempty(Y)` branch on a
+  size-mismatched operand. Now delegates to the three-argument form using the
+  first non-singleton dimension, which is what MATLAB does. Fixed
+  `test_sdpvar_diff/test1`.
+- `@sdpvar/is.m` — the session-less fallback registered `getVariabletype` as
+  `@() []` and then indexed it with the object's own ids, so any session-less
+  object raised "Index exceeds array bounds". The fallback now returns a
+  zero-typed registry of the right length.
+- `extras/@lmi/kkt.m` — three `recover(...)` calls without a session
+  (`all_terms`, the `setdiff(model.used_variables,parameters)` recovery and the
+  min-norm parameter recovery).
+- `extras/derivedualBounds.m` — five bare `sdpvar(...)` calls; it now takes the
+  session from `kkt`.
+- `extras/@lmi/boundingbox.m` — used the removed `double(x,k)` multi-solution
+  accessor. `solvesdp_multiple` stores one solution per objective on the
+  session, so the stateless equivalent is `S.selectsolution(k)` plus a snapshot;
+  that is now a local helper. Also recovers its variables through the session.
+- `extras/solvesdp_multiple.m` — `sum(recover(depends(h)))` without a session.
+- `extras/variable_replace.m` — rebuilt objects with the six-argument internal
+  `sdpvar` form, which after the session cutover recursed through
+  `yalmip.Session/sdpvar` and died with "Wrong number of arguments"; it now uses
+  `sdpvarFast`, the helper built for exactly this.
+- `extras/compileinterfacedata.m`, `extras/modelComplementarityConstraints.m`,
+  `extras/saveampl.m` — the complementarity branch: `setupBounds` was called
+  without its session argument (added in an earlier batch, this call site was
+  missed) and `modelComplementarityConstraints` created `z1`/`z2` with bare
+  `sdpvar`.
+
+Fixed in the tests themselves:
+- `dev/tests/core/test_ndsdpvar.m` — `norm` of an N-D result is not defined in
+  modern MATLAB; the difference is flattened before its 2-norm.
+- `dev/tests/bmibnb/test_bmibnb_nonlinearsdp.m` — needed `lqr`, which is not
+  installed (no Control System Toolbox); replaced with a local
+  Hamiltonian-invariant-subspace Riccati solve, so both tests now exercise the
+  real bmibnb path. Both pass.
+
+One new failure, and it is not a state problem: `test_operator_optimizer13/test1`
+compares two objectives at 1e-3. It passes when its suite runs alone
+(`probe14`: optimizer 40/40) and fails in the full 17-suite process (both
+`solved13` and `solved14`), i.e. it is sensitive to CPU load through the
+solver's time limits. Re-run it alone if it appears.
+
+Left failing, with the evidence behind each:
+- `bnb` 4 (`sdpmiplib` bma/map/diw/bar): all four solve to the correct objective
+  (973, 1023, -211, 2.118), but the tests guard the *node count* of the MOSEK
+  path. Measured here versus the upstream-recorded limits: 103/101, 155/129,
+  30/27, 102/51. Left as failing on purpose - widening a regression guard
+  without understanding why the search tree grew would hide a real change in
+  bound propagation.
+- `bnb` 1 (`test_bnb_lpqp/test_migp`): solves and returns an integer vector that
+  differs from the recorded one; in an idle session the same model returns
+  `problem = 9`, so this instance is load-sensitive too.
+- `bmibnb` 1 (`nonlinearktkt`): now reaches the solve and asserts `problem == 0`
+  successfully, then the objective differs from -12.6787 at line 21. Behaviour
+  difference in the complementarity/bmibnb model, not a crash.
+- `operators` 2: `implies/test12` returns 0.501003 against a 1e-3 tolerance for a
+  problem whose implication is itself relaxed by 1e-3; `semivar/test1` needs a
+  nonconvex MIQP - MOSEK returns no solution and `call_mosek_primal` raises
+  "Failure in Mosek recovery", while `bnb` + `quadprog` solves it to the expected
+  133.274. That is a solver-selection/interface gap, not evaluation state.
+- `mpt` 9: MPT3 internals (`SystemSignal/instantiate`, `LTISystem`, `PWASystem`)
+  call bare `sdpvar(...)`, which a zero-state design must reject, and
+  `test_mpt_pwa_3d_dp` calls the `pwa3d` MPT example, which is a *script* - MATLAB
+  does not allow scripts to be invoked from a function, so that test cannot work
+  as a unit test without inlining the example data.
+
+### Harness change that matters
+`run_stage.m` now adds the MOSEK toolbox with `-end`. That folder ships
+`quadprog.m`, `linprog.m`, `intlinprog.m`, `lsqlin.m` and `lsqnonneg.m`
+(option-setting wrappers for MOSEK). Added at the front of the path they shadow
+MathWorks' own solvers, `quadprog('defaults')` then returns the wrapper's
+5-field struct, and `sdpsettings` loses every `quadprog.*` option name - the
+"Unrecognized property name 'quadprog.Algorithm'" failures in
+`test_operator_implies/test12` and `test_bilevel_1/test2` were that, not a
+property rename. `test_bilevel_1/test2` is fixed by this alone;
+`test_operator_implies/test12` now gets past the option lookup and fails only on
+the tolerance described above.

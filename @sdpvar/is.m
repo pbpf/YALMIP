@@ -8,9 +8,12 @@ function YESNO = is(X,property,additional)
 S = X.sess;
 if isempty(S)
     % Object without a session (e.g. built by recover without one):
-    % registry-dependent queries return conservative defaults.
+    % registry-dependent queries return conservative defaults. The type
+    % registry has to be long enough to index with this object's own ids,
+    % otherwise `variabletype(X.lmi_variables)` would go out of range.
+    nRegistryIds = max([0; X.lmi_variables(:)]);
     S = struct('getBinvariables',@() [],'getIntvariables',@() [],'quantvariables',@() [], ...
-        'getExtvariables',@() [],'getVariabletype',@() [],'getLogicvariables',@() [], ...
+        'getExtvariables',@() [],'getVariabletype',@() zeros(1,nRegistryIds),'getLogicvariables',@() [], ...
         'getTempintvariables',@() [],'getTempbinvariables',@() [],'getSemicontvariables',@() [], ...
         'getUncvariables',@() [],'getAuxvariables',@() []);
 end

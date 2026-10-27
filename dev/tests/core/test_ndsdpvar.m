@@ -19,8 +19,8 @@ testCase.assertTrue(isequal(value(sum(x,3), sol),sum(p,3)))
 
 testCase.assertTrue(isequal(value(diff(x), sol),diff(p)))
 testCase.assertTrue(isequal(value(diff(x,1), sol),diff(p,1)))
-testCase.assertTrue(norm(sum(value(diff(x,2), sol)-diff(p,2))) <= 1e-4)
-testCase.assertTrue(norm(sum(value(diff(x,3), sol)-diff(p,3))) <= 1e-4)
+testCase.assertTrue(norm(reshape(value(diff(x,2), sol)-diff(p,2),1,[])) <= 1e-4)
+testCase.assertTrue(norm(reshape(value(diff(x,3), sol)-diff(p,3),1,[])) <= 1e-4)
 
 testCase.assertTrue(isequal(value(diff(x), sol),diff(p)))
 testCase.assertTrue(isequal(value(diff(x,1,1), sol),diff(p,1,1)))

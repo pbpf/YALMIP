@@ -1,4 +1,4 @@
-function [dualUpper,L,U] = derivedualBounds(H,c,A,b,E,f,ops,parametricDomain)
+function [dualUpper,L,U] = derivedualBounds(H,c,A,b,E,f,ops,parametricDomain,S)
 
 if isempty(A)
     dualUpper = [];
@@ -11,9 +11,9 @@ n = length(c);
 m = length(b);
 me = length(f);
 
-x = sdpvar(n,1);
-Lambda = sdpvar(m,1);
-mu = sdpvar(me,1);
+x = S.sdpvar(n,1);
+Lambda = S.sdpvar(m,1);
+mu = S.sdpvar(me,1);
 
 F = [];
 if ~isempty(b)
@@ -86,7 +86,7 @@ end
 % Lift
 Hlift = [H C/2;C'/2 zeros(size(C,2))];
 if ops.kkt.dualpresolve.lplift
-    XZ = sdpvar(nTOT);
+    XZ = S.sdpvar(nTOT);
 end
 constraints = [Lambda >= 0,parametricDomain,F];
 constraints = [constraints,H*x + c + rhs==0];
@@ -171,7 +171,7 @@ dualUpper = inf(length(Lambda),1);
 
 % always exploit disjoint constraints
 disjoints = zeros(length(b));
-s = sdpvar(length(b),1);
+s = S.sdpvar(length(b),1);
 
 % Create an optimizer object which takes no input and returns optimal
 % Lambda. We will use some hacks to update this model and resolving
