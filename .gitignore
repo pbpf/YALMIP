@@ -3,4 +3,13 @@
 dev/baseline/*.xml
 dev/baseline/*.mat
 dev/baseline/*.log
+dev/baseline/*_results.txt
 .zcode/
+
+# Simulink build artifacts
+*.slxc
+slprj/
+
+# Monte Carlo simulation outputs
+mc_*.csv
+mc_*.mat
