@@ -521,3 +521,84 @@ MathWorks' own solvers, `quadprog('defaults')` then returns the wrapper's
 property rename. `test_bilevel_1/test2` is fixed by this alone;
 `test_operator_implies/test12` now gets past the option lookup and fails only on
 the tolerance described above.
+
+## HANDOFF 9 — develop-parity audit: one upstream bug fixed, MPT3 session adapter, two investigations closed
+
+The three open items from HANDOFF 8 (semivar solver selection, bmibnb
+nonlinearktkt objective, the 9 failing mpt tests) were settled with one
+decisive experiment instead of speculation: the upstream `develop` tip
+(`52666d2`) ships the same xunit tests in the pre-refactor syntax, so a
+worktree of it (`/tmp/yalmip-dev`) runs them unchanged in this exact
+environment (R2026b, MOSEK 11.2, SeDuMi/SDPT3/MPT3 installed). Result: **every
+one of the open failures fails on `develop` too** — none is a refactor
+regression; they are drift between the recorded expectations and this
+solver/MATLAB era, on top of the pre-existing code.
+
+### semivar/test1 — real upstream bug, found and fixed (+1 test, now 344/361)
+
+`test_operator_semivar/test1` fails identically on `develop` (`call_mosek_primal`
+line 222, "Failure in Mosek recovery"). Root cause is not solver selection —
+forcing `bnb` changes nothing, because bnb's lower solver is MOSEK either way
+and the node model it hands over is corrupt:
+
+- `modules/global/bnb_solvelower.m` deletes fixed variables at a node
+  (`p.lb(idx)=[]`, `p.monomtable(:,idx)=[]`, ...), shrinking c/Q/monomtable to
+  4 columns, and relies on `smashFixed(p,'delete')` to shrink `F_struc`
+  accordingly.
+- `smashFixed` guards with `~isempty(p.F_struc)`. For a model with bounds but
+  **no rows**, `F_struc` is 0-by-6 — `isempty` is true (numel == 0) — so the
+  column deletion is skipped silently.
+- `find_lp_bounds` then rebuilds lb/ub from the stale 5-wide `F_struc`, and
+  `call_mosek_primal` receives c 4x1 / Q 4x4 against blx 5x1 → MOSEK
+  `Error(1201): prob.blx has invalid dimension`.
+
+This only bites models whose constraint set is entirely folded into bounds —
+which is exactly what the L2 objective (`e'*e`) with `[1 <= x <= 2]` produces
+after presolve. The fix is one guard: `size(p.F_struc,2) > 0` instead of
+`~isempty(p.F_struc)` in `modules/global/smashFixed.m` (comment in place).
+After the fix the test solves to 133.274160 against the recorded 133.2742
+(4e-5), and L1 still returns 25.211029.
+
+Targeted regression gate (`fixsmash`, 2026-10-29): operators 52/53 (semivar
+green; only the pre-existing `implies/test12` tolerance case left), bnb 14/19
+(only the five deliberately-left node-count guards), bmibnb 70/71 and
+optimizer 40/40 unchanged. No new failures anywhere.
+
+### bmibnb nonlinearktkt — closed, environment drift
+
+The stateless branch returns **-12.073641** (deterministic over three runs);
+`develop` returns **-12.073641** — bit-identical. The recorded expectation
+-12.6787 shows up only as the root-node *lower bound* in both. The b&b then
+closes the tree in bound propagation at -12.0736 in both. The expectation was
+recorded in an environment whose fmincon/MOSEK behaved differently; nothing to
+fix on this branch.
+
+### mpt suite — session adapter built; failure modes now match develop exactly
+
+On `develop` the nine mpt failures are NOT `sessionRequired` (old YALMIP has no
+sessions to require): lti_1/lti_2/pwa_1/pwa_2 die in MPT3's
+`PolyUnion/compare` ("The functions must be defined over the same domain"),
+norm_repeated/oneshotmpqp/paramcost_1/pwa_sincos_dp fail their assertions
+(wrong region counts / values — e.g. oneshotmpqp: 1 region and `u = NaN` at
+the second probe point vs the recorded 6.193; paramcost_1: cost 40.304 vs 43.8),
+and pwa_3d_dp cannot find the `pwa3d` demo script. Only dpmpqp and lti_3 pass.
+
+The adapter (`dev/mpt_adapter/`, see its README) is MPT-side as the HANDOFF 5
+note prescribed: `mpt_yalmip_sdpvar.m` installed into the MPT3 root gives
+MPT3's pre-session internals one process-wide `yalmip.Session` (falling back
+to the bare constructor on pre-refactor YALMIP, so one patched tree serves
+both), and `apply_mpt_adapter.sh` rewrites the 22 live bare `sdpvar(` call
+sites under `modules/ui` and `modules/solvers`. YALMIP itself is untouched and
+never consults that session. After applying it, the mpt suite reproduces the
+`develop` outcome one for one — no `sessionRequired` left, dpmpqp/lti_3 still
+pass. The remaining nine failures are MPT3-internal and need upstream work;
+the suite total (2/11) is unchanged by design.
+
+### State of the gate
+
+343 → **344 of 361** with the smashFixed fix (semivar/test1). Everything else
+stands as in HANDOFF 8, and each of the 17 still-failing tests is now
+*proven* (not merely believed) to fail identically on the pre-refactor code in
+this environment: bnb 5, bmibnb 1, operators 1, mpt 9, plus the load-sensitive
+`test_operator_optimizer13/test1` that passes in isolation.
+
